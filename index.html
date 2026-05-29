@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Cocina Semanal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -2037,18 +2037,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function setUser(user) {
   currentUser = user;
-  var btn = document.getElementById('auth-btn');
-  var label = document.getElementById('auth-label');
-  var menu = document.getElementById('user-menu');
-  if (!btn) return;
-  var name = user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0];
+  var name = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : user.email.split('@')[0];
   var avatar = user.user_metadata && user.user_metadata.avatar_url;
-  label.textContent = name;
-  if (avatar) btn.innerHTML = '<img src="'+avatar+'" class="user-avatar"/> <span>'+name+'</span>';
-  document.getElementById('user-name-dd').textContent = name;
-  document.getElementById('user-email-dd').textContent = user.email;
+  // Safe DOM update - elements may not exist yet
+  function updateDOM() {
+    var btn = document.getElementById('auth-btn');
+    var label = document.getElementById('auth-label');
+    if (label) label.textContent = name;
+    if (btn && avatar) btn.innerHTML = '<img src="'+avatar+'" class="user-avatar"/> <span>'+name+'</span>';
+    var nameDD = document.getElementById('user-name-dd');
+    var emailDD = document.getElementById('user-email-dd');
+    if (nameDD) nameDD.textContent = name;
+    if (emailDD) emailDD.textContent = user.email;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateDOM);
+  } else {
+    updateDOM();
+  }
   // Upsert user in db
-  supa.from('cs_users').upsert({ id: user.id, email: user.email, nombre: name, avatar_url: avatar||null, last_seen: new Date().toISOString() });
+  try {
+    supa.from('cs_users').upsert({ id: user.id, email: user.email, nombre: name, avatar_url: avatar||null, last_seen: new Date().toISOString() });
+  } catch(e) { console.log('upsert error:', e); }
 }
 
 function clearUser() {
