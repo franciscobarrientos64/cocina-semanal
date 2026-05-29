@@ -2077,6 +2077,14 @@ function clearUser() {
   if (btn) btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Iniciar sesión</span>';
 }
 
+function showToast(msg, isError) {
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+(isError?'#B83232':'#1B5E3B')+';color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:opacity .3s;pointer-events:none';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },300); }, 2500);
+}
+
 // ── LISTA ACTIVA SYNC ─────────────────────────────────────────────────────────
 var syncTimeout = null;
 
@@ -2272,15 +2280,25 @@ async function saveCurrentList() {
   var nombre = prompt('Nombre para esta lista:', 'Lista ' + new Date().toLocaleDateString('es-PE'));
   if (!nombre) return;
   
-  var { error } = await supa.from('cs_listas').insert({
-    user_id: currentUser.id,
-    nombre: nombre,
-    platos: platosToSave,
-    personas: pers || 1,
-    ingredientes: itemsToSave
-  });
-  if (!error) showToast('✓ Lista guardada como "' + nombre + '"');
-  else showToast('Error al guardar: ' + error.message, true);
+  try {
+    var insertResp = await supa.from('cs_listas').insert({
+      user_id: currentUser.id,
+      nombre: nombre,
+      platos: platosToSave,
+      personas: pers || 1,
+      ingredientes: itemsToSave
+    });
+    console.log('Insert response:', insertResp);
+    if (insertResp.error) {
+      console.error('Insert error:', insertResp.error);
+      showToast('Error: ' + insertResp.error.message, true);
+    } else {
+      showToast('✓ Lista guardada como "' + nombre + '"');
+    }
+  } catch(e) {
+    console.error('saveCurrentList exception:', e);
+    showToast('Error guardando lista', true);
+  }
 }
 
 async function loadUserData() {
