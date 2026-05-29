@@ -2368,7 +2368,14 @@ function showListasModal(listas) {
     nm.textContent = l.nombre;
     var meta = document.createElement('div');
     meta.style.cssText = 'font-size:12px;color:#888';
-    meta.textContent = ((l.platos||[]).length)+' platos · '+(l.personas||4)+' personas · '+new Date(l.created_at).toLocaleDateString('es-PE');
+    var numPlatos = (l.platos||[]).length;
+    var numItems = (l.ingredientes||[]).length;
+    var partes = [];
+    if (numPlatos > 0) partes.push(numPlatos + ' plato' + (numPlatos!==1?'s':''));
+    if (numItems > 0) partes.push(numItems + ' producto' + (numItems!==1?'s':''));
+    partes.push((l.personas||4) + ' personas');
+    partes.push(new Date(l.created_at).toLocaleDateString('es-PE'));
+    meta.textContent = partes.join(' · ');
     info.appendChild(nm);
     info.appendChild(meta);
     var btn = document.createElement('button');
