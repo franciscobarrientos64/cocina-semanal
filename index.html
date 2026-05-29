@@ -2313,32 +2313,27 @@ async function loadUserData() {
 }
 
 function loadLista(l) {
-  // Load from saved lista into comparar section
   cmpItems = l.ingredientes || [];
   cmpSuperActivo = 'wong';
-  
-  // Also load planner data if available
-  if (l.platos && l.platos.length) {
-    sel = l.platos;
-    pers = l.personas || 4;
-  }
+  if (l.platos && l.platos.length) { sel = l.platos; pers = l.personas || 4; }
   
   if (cmpItems.length) {
-    // Go to comparar section and render
     showSection('comparar');
-    baseTotal = 0;
-    renderCmpItems();
-    renderCmpSupers();
-    renderCmpLista();
+    // Use setTimeout to ensure DOM is visible before rendering
+    setTimeout(function() {
+      baseTotal = cmpItems.reduce(function(a,it){ return a+(PUNIT[it.categoria||'otros']||5); }, 0);
+      renderCmpItems();
+      renderCmpSupers();
+      renderCmpLista();
+      updateListaBadge();
+      // Show result section
+      var res = document.getElementById('cmp-result');
+      if (res) res.classList.remove('hidden');
+    }, 50);
     showToast('✓ Lista "' + l.nombre + '" cargada — ' + cmpItems.length + ' productos');
-    updateListaBadge();
-  } else if (sel.length) {
-    // Go to planner
-    showSection('plan');
-    goS(2);
-    renderG();
-    renderChips();
-    showToast('✓ Platos cargados: ' + sel.join(', '));
+  } else if (sel && sel.length) {
+    showSection('plan'); goS(2); renderG(); renderChips();
+    showToast('✓ Platos cargados');
   } else {
     showToast('Lista vacía', true);
   }
