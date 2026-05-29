@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Cocina Semanal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -2084,16 +2085,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function signInWithGoogle() {
-  var { error } = await supa.auth.signInWithOAuth({
-    provider: 'google',
-    options: { 
-      redirectTo: window.location.origin,
-      queryParams: {
-        client_id: '93093318127-gs26msk3hro8mgks7q4iti8ao0tn0bq8.apps.googleusercontent.com'
+  console.log('signInWithGoogle called, supa:', typeof supa);
+  try {
+    var result = await supa.auth.signInWithOAuth({
+      provider: 'google',
+      options: { 
+        redirectTo: 'https://cocina-semanal.vercel.app',
+        skipBrowserRedirect: false
       }
-    }
-  });
-  if (error) console.error('Auth error:', error);
+    });
+    console.log('OAuth result:', result);
+    if (result.error) console.error('Auth error:', result.error);
+  } catch(e) {
+    console.error('signInWithGoogle exception:', e);
+  }
 }
 
 async function signOut() {
