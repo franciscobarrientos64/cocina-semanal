@@ -2312,6 +2312,38 @@ async function loadUserData() {
   }
 }
 
+function loadLista(l) {
+  // Load from saved lista into comparar section
+  cmpItems = l.ingredientes || [];
+  cmpSuperActivo = 'wong';
+  
+  // Also load planner data if available
+  if (l.platos && l.platos.length) {
+    sel = l.platos;
+    pers = l.personas || 4;
+  }
+  
+  if (cmpItems.length) {
+    // Go to comparar section and render
+    showSection('comparar');
+    baseTotal = 0;
+    renderCmpItems();
+    renderCmpSupers();
+    renderCmpLista();
+    showToast('✓ Lista "' + l.nombre + '" cargada — ' + cmpItems.length + ' productos');
+    updateListaBadge();
+  } else if (sel.length) {
+    // Go to planner
+    showSection('plan');
+    goS(2);
+    renderG();
+    renderChips();
+    showToast('✓ Platos cargados: ' + sel.join(', '));
+  } else {
+    showToast('Lista vacía', true);
+  }
+}
+
 function showListasModal(listas) {
   var overlay = document.createElement('div');
   overlay.className = 'cs-overlay';
