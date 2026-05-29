@@ -2114,16 +2114,54 @@ async function saveListaActiva() {
   clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async function() {
     try {
+      // 1. Save to active list (cross-device sync)
       await supa.from('cs_lista_activa').upsert({
         user_id: currentUser.id,
         items: cmpItems,
         supermercado: cmpSuperActivo,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
+
+      // 2. Upsert into cs_listas as "Mi lista activa" (appears in mis listas)
+      var existing = await supa.from('cs_listas')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .eq('nombre', 'Mi lista activa')
+        .single();
+      
+      if (existing.data) {
+        await supa.from('cs_listas').update({
+          ingredientes: cmpItems,
+          updated_at: new Date().toISOString()
+        }).eq('id', existing.data.id);
+      } else {
+        await supa.from('cs_listas').insert({
+          user_id: currentUser.id,
+          nombre: 'Mi lista activa',
+          platos: [],
+          personas: 1,
+          ingredientes: cmpItems
+        });
+      }
+      
+      // Show subtle saved indicator
+      var navLink = document.getElementById('nav-comparar');
+      if (navLink) {
+        var savedSpan = navLink.querySelector('.saved-indicator');
+        if (!savedSpan) {
+          savedSpan = document.createElement('span');
+          savedSpan.className = 'saved-indicator';
+          savedSpan.style.cssText = 'font-size:10px;color:#1B5E3B;margin-left:4px;opacity:0;transition:.3s';
+          savedSpan.textContent = '✓';
+          navLink.appendChild(savedSpan);
+        }
+        savedSpan.style.opacity = '1';
+        setTimeout(function(){ savedSpan.style.opacity = '0'; }, 2000);
+      }
     } catch(e) {
       console.log('saveListaActiva error:', e);
     }
-  }, 1000); // debounce 1 second
+  }, 1000);
 }
 
 function updateListaBadge() {
