@@ -2249,15 +2249,35 @@ async function signOut() {
 async function saveCurrentList() {
   document.getElementById('user-dropdown').classList.remove('open');
   if (!currentUser) { signInWithGoogle(); return; }
-  if (!lista.length && !sel.length) { alert('No hay lista activa para guardar'); return; }
+  
+  // Check what we have to save
+  var itemsToSave = cmpItems.length ? cmpItems : lista;
+  var platosToSave = sel || [];
+  
+  // Also check textarea
+  var textarea = document.getElementById('cmp-input');
+  if (!itemsToSave.length && textarea && textarea.value.trim()) {
+    // Parse textarea items as simple list
+    itemsToSave = textarea.value.split(/[\n,]+/).map(function(l){
+      var name = l.trim();
+      return name ? {nombre: name, cantidad: '1 unid', categoria: 'otros'} : null;
+    }).filter(Boolean);
+  }
+  
+  if (!itemsToSave.length && !platosToSave.length) { 
+    alert('No hay lista activa para guardar. Agrega productos primero.'); 
+    return; 
+  }
+  
   var nombre = prompt('Nombre para esta lista:', 'Lista ' + new Date().toLocaleDateString('es-PE'));
   if (!nombre) return;
+  
   var { error } = await supa.from('cs_listas').insert({
     user_id: currentUser.id,
     nombre: nombre,
-    platos: sel,
-    personas: pers,
-    ingredientes: lista
+    platos: platosToSave,
+    personas: pers || 1,
+    ingredientes: itemsToSave
   });
   if (!error) showToast('✓ Lista guardada como "' + nombre + '"');
   else showToast('Error al guardar: ' + error.message, true);
@@ -2266,18 +2286,32 @@ async function saveCurrentList() {
 async function loadUserData() {
   document.getElementById('user-dropdown').classList.remove('open');
   if (!currentUser) { signInWithGoogle(); return; }
-  var { data, error } = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false }).limit(10);
-  if (error || !data || !data.length) { showToast('No tienes listas guardadas aún'); return; }
-  showListasModal(data);
+  try {
+    var resp = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(20);
+    console.log('Listas query:', resp);
+    if (resp.error) { showToast('Error: ' + resp.error.message, true); return; }
+    if (!resp.data || !resp.data.length) { showToast('No tienes listas guardadas aún. Guarda tu primera lista.'); return; }
+    showListasModal(resp.data);
+  } catch(e) {
+    console.error('loadUserData error:', e);
+    showToast('Error cargando listas', true);
+  }
 }
 
 
 async function loadUserData() {
   document.getElementById('user-dropdown').classList.remove('open');
   if (!currentUser) { signInWithGoogle(); return; }
-  var { data, error } = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false }).limit(10);
-  if (error || !data || !data.length) { showToast('No tienes listas guardadas aún'); return; }
-  showListasModal(data);
+  try {
+    var resp = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(20);
+    console.log('Listas query:', resp);
+    if (resp.error) { showToast('Error: ' + resp.error.message, true); return; }
+    if (!resp.data || !resp.data.length) { showToast('No tienes listas guardadas aún. Guarda tu primera lista.'); return; }
+    showListasModal(resp.data);
+  } catch(e) {
+    console.error('loadUserData error:', e);
+    showToast('Error cargando listas', true);
+  }
 }
 
 function showListasModal(listas) {
