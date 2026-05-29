@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cocina Semanal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--g:#1B5E3B;--g2:#2E8B57;--gl:#EAF5EE;--ink:#1A1914;--mu:#888880;--bo:#E8E5DC;--bg:#FAFAF6;--su:#fff;--wa:#F5F0E8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
+h1,h2,h3{font-family:'Playfair Display',serif}
+.hidden{display:none!important}
+.hdr{background:var(--su);border-bottom:1px solid var(--bo);position:sticky;top:0;z-index:100}
+.hdr-in{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center}
+.logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:var(--g);padding:15px 0;margin-right:28px;cursor:pointer}
+.logo span{color:#C47A0A}
+.hnav{display:flex;flex:1;overflow-x:auto}
+.hnav a{padding:17px 14px;font-size:13px;color:var(--mu);text-decoration:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.hnav a:hover,.hnav a.on{color:var(--g);border-bottom-color:var(--g)}
+.hcta{margin-left:auto;padding:8px 16px;background:var(--g);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.hero{background:var(--g);color:#fff;padding:72px 24px 64px;text-align:center}
+.hero h1{font-size:clamp(36px,6vw,64px);font-weight:700;line-height:1.1;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:#7ECFA0}
+.hero p{font-size:18px;opacity:.8;max-width:520px;margin:0 auto 32px;line-height:1.5}
+.hero-btn{padding:15px 44px;background:#fff;color:var(--g);border:none;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.feat{background:var(--su);border-top:1px solid var(--bo);padding:52px 24px}
+.feat-in{max-width:1100px;margin:0 auto}
+.feat-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:28px}
+.feat-hdr h2{font-size:30px}
+.feat-hdr a{font-size:14px;color:var(--g);text-decoration:none;cursor:pointer}
+.cards{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px}
+@media(max-width:700px){.cards{grid-template-columns:1fr}}
+.rcard{border-radius:12px;overflow:hidden;border:1px solid var(--bo);cursor:pointer;transition:.2s}
+.rcard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.rcard-img{background:var(--wa);width:100%;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;position:relative}
+.rcard.big .rcard-img{height:320px}.rcard:not(.big) .rcard-img{height:160px}
+.rcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rcard-body{padding:14px 16px;background:var(--su)}
+.rcard-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g);margin-bottom:4px}
+.rcard-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.3}
+.rcard.big .rcard-name{font-size:22px}
+.rcard-meta{font-size:12px;color:var(--mu);margin-top:4px}
+.plan{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.pbar{display:flex;background:var(--su);border:1px solid var(--bo);border-radius:10px;overflow:hidden;margin-bottom:36px}
+.pstep{flex:1;padding:13px 8px;text-align:center;font-size:13px;color:var(--mu);border-right:1px solid var(--bo);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pstep:last-child{border-right:none}
+.pstep .pn{width:22px;height:22px;border-radius:50%;background:var(--bo);color:var(--mu);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pstep.on{color:var(--g);font-weight:600}.pstep.on .pn{background:var(--g);color:#fff}
+.pstep.done .pn{background:var(--g2);color:#fff}.pstep.done{color:var(--g2)}
+.panel{animation:fup .3s ease}
+@keyframes fup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.p1card{background:var(--su);border:1px solid var(--bo);border-radius:16px;padding:40px;text-align:center;max-width:440px;margin:0 auto}
+.ctr{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
+.cbtn{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--bo);background:var(--bg);font-size:22px;cursor:pointer;color:var(--g);display:flex;align-items:center;justify-content:center}
+.cbtn:hover{background:var(--gl);border-color:var(--g)}
+.cnum{font-family:'Playfair Display',serif;font-size:60px;font-weight:700;color:var(--g);line-height:1;min-width:70px;text-align:center}
+.clbl{font-size:13px;color:var(--mu)}
+.cpill{background:var(--gl);border-radius:8px;padding:9px 14px;font-size:14px;color:var(--g);display:inline-block}
+.p2hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.scnt{background:var(--g);color:#fff;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.ctabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px}
+.ctab{padding:6px 14px;border-radius:20px;border:1px solid var(--bo);background:var(--su);font-size:13px;font-weight:500;cursor:pointer;color:var(--ink)}
+.ctab:hover{border-color:var(--g2)}.ctab.on{background:var(--g);color:#fff;border-color:var(--g)}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.rc{border-radius:10px;overflow:hidden;border:1.5px solid var(--bo);background:var(--su);cursor:pointer;transition:.15s;position:relative}
+.rc:hover{border-color:var(--g2);transform:translateY(-1px)}.rc.sel{border-color:var(--g);border-width:2px}
+.rc.sel .rck{opacity:1}
+.rci{width:100%;aspect-ratio:4/3;background:var(--wa);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;position:relative}
+.rci img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rcb{padding:10px 12px 12px}.rccat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--g);margin-bottom:3px}
+.rcn{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;line-height:1.25;margin-bottom:3px}
+.rcm{font-size:11px;color:var(--mu)}
+.rck{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s}
+.cadd{border:1.5px dashed var(--bo);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:10px;background:var(--bg)}
+.cadd input{flex:1;border:none;background:transparent;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none}
+.cadd input::placeholder{color:var(--mu)}
+.addbt{padding:7px 14px;background:var(--g);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.chip{background:var(--gl);color:var(--g);border:1px solid #B2DFCC;border-radius:20px;padding:4px 11px;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.chip button{background:none;border:none;cursor:pointer;color:var(--g);font-size:14px;line-height:1;padding:0;opacity:.6}
+.acts{display:flex;gap:10px;margin-top:28px}
+.btn{padding:12px 26px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.btnp{background:var(--g);color:#fff}.btnp:hover:not(:disabled){background:var(--g2)}
+.btnp:disabled{opacity:.4;cursor:not-allowed}
+.btng{background:transparent;color:var(--ink);border:1.5px solid var(--bo)}.btng:hover{background:var(--wa)}
+.btnw{width:100%;justify-content:center}
+.ldg{text-align:center;padding:56px 20px}
+.ldg-ic{font-size:48px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.lbar{width:220px;height:4px;background:var(--bo);border-radius:2px;margin:14px auto;overflow:hidden}
+.lbarf{height:100%;background:var(--g);animation:lb 2.5s ease-in-out infinite}
+@keyframes lb{0%{width:0}60%{width:75%}100%{width:100%}}
+/* PLATOS SELECCIONADOS */
+.platos-sel{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:20px}
+.platos-sel::-webkit-scrollbar{display:none}
+.plato-chip{flex-shrink:0;background:var(--su);border:1px solid var(--bo);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.plato-chip .ico{font-size:20px}
+/* NUTRICIONAL */
+.nutri-box{background:var(--gl);border:1px solid #B2DFCC;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--g)}
+.nutri-box strong{display:block;font-size:14px;margin-bottom:6px;color:var(--g)}
+.nutri-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.nutri-tag{background:#fff;border:1px solid #B2DFCC;border-radius:20px;padding:3px 10px;font-size:12px;color:var(--g)}
+.nutri-tip{font-size:13px;color:#085041;font-style:italic}
+/* LISTA */
+.l3lay{display:grid;grid-template-columns:1fr 320px;gap:22px}
+@media(max-width:720px){.l3lay{grid-template-columns:1fr}}
+.scard{background:var(--su);border:1px solid var(--bo);border-radius:12px;padding:18px;position:sticky;top:72px}
+.pnum{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--g);text-align:center;padding:8px 0 3px}
+.plbl{font-size:12px;color:var(--mu);text-align:center}
+.pbar2{height:5px;background:var(--bo);border-radius:3px;overflow:hidden;margin:10px 0}
+.pbar2f{height:100%;background:var(--g);border-radius:3px;transition:.3s}
+.shr{display:flex;gap:7px;margin-top:8px}
+.shrbtn{flex:1;padding:8px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bo);background:var(--bg);color:var(--ink);text-align:center}
+.shrbtn:hover{background:var(--gl);border-color:var(--g);color:var(--g)}
+/* SUPER TABS */
+.stabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.stab{flex:1;min-width:130px;padding:10px 14px;border-radius:10px;border:2px solid var(--bo);background:var(--su);cursor:pointer;transition:.15s;text-align:left;font-family:'DM Sans',sans-serif}
+.stab-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.stab-total{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+.stab-del{font-size:11px;color:var(--mu)}
+/* INGREDIENTES */
+.cath{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--mu);padding:10px 0 5px;border-bottom:1px solid var(--bo);margin-bottom:3px}
+.irow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bo)}
+.irow:last-child{border-bottom:none}
+.irow.ck .iname{text-decoration:line-through;color:var(--mu)}
+.ibox{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--bo);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:#fff;cursor:pointer}
+.irow.ck .ibox{background:var(--g);border-color:var(--g)}
+.iname{flex:1;font-size:14px;font-weight:500}
+.iqty{font-size:12px;color:var(--mu);margin-right:4px}
+.iprice{font-size:13px;font-weight:600;color:var(--g);margin-right:6px;white-space:nowrap}
+.iagr{padding:5px 11px;color:#fff;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;white-space:nowrap}
+/* COMPARAR */
+.wbox{background:var(--g);color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.wbox h3{font-size:20px;margin-bottom:3px}.wbox p{font-size:14px;opacity:.8}
+.wbtn{background:#fff;color:var(--g);border:none;border-radius:9px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:24px}
+.sc{border:1.5px solid var(--bo);border-radius:12px;padding:16px;background:var(--su);text-align:center;cursor:pointer;transition:.15s;position:relative}
+.sc:hover{border-color:var(--g2);transform:translateY(-1px)}
+.sc.best{border:2px solid var(--g);box-shadow:0 0 0 3px rgba(27,94,59,.07)}
+.btag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
+.sn{font-weight:700;font-size:15px;margin-bottom:5px}
+.sp{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
+.sd{font-size:12px;color:var(--mu);margin:3px 0 6px}
+.st{font-size:12px;border-top:1px solid var(--bo);padding-top:6px;display:flex;justify-content:space-between}
+.enote{font-size:11px;background:#FEF3DC;color:#C47A0A;border-radius:5px;padding:2px 7px;display:inline-block;margin-top:5px;font-weight:600}
+.slist{background:var(--su);border:1px solid var(--bo);border-radius:12px;overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bo);cursor:pointer}
+.srow:last-child{border-bottom:none}.srow:hover{background:var(--bg)}
+.sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sname{font-weight:600;font-size:14px;flex:1}
+.sinfo{font-size:13px;color:var(--mu)}
+.sact{font-size:13px;color:var(--g);font-weight:500}
+.note{background:#FEF3DC;border:1px solid #F0C060;border-radius:9px;padding:11px 15px;font-size:13px;color:#7A4800;margin-top:14px;display:flex;gap:8px}
+
+.rfil{padding:6px 14px;border-radius:20px;border:1px solid #E8E5DC;background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:#3D3D35;transition:.15s;font-family:'DM Sans',sans-serif}
+.rfil:hover{border-color:#2E8B57}.rfil.on{background:#1B5E3B;color:#fff;border-color:#1B5E3B}
+.rcheck{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E8E5DC;border-radius:8px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+.rcheck input{accent-color:#1B5E3B;width:15px;height:15px}
+.rcard-rec{background:#fff;border:1px solid #E8E5DC;border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
+.rcard-rec:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.09)}
+.rtag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-right:4px}
+
+.auth-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;border:1.5px solid #E8E5DC;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:#3D3D35;transition:.15s}
+.auth-btn:hover{border-color:#1B5E3B;color:#1B5E3B}
+.auth-btn img{width:18px;height:18px;border-radius:50%}
+.user-menu{position:relative}
+.user-dropdown{display:none;position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1px solid #E8E5DC;border-radius:10px;padding:8px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200}
+.user-dropdown.open{display:block}
+.user-dropdown a{display:block;padding:8px 12px;font-size:13px;color:#3D3D35;text-decoration:none;border-radius:6px;cursor:pointer}
+.user-dropdown a:hover{background:#EAF5EE;color:#1B5E3B}
+.user-dropdown hr{border:none;border-top:1px solid #E8E5DC;margin:4px 0}
+.user-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #1B5E3B}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo" onclick="showHome()">Cocina<span>Semanal</span></div>
+    <nav class="hnav">
+      <a id="nav-inicio" class="on" onclick="showSection('home')">Inicio</a>
+      <a id="nav-planificar" onclick="showSection('plan')">Planificar</a>
+      <a id="nav-recetas" onclick="showSection('recetas')">Recetas</a>
+      <a id="nav-comparar" onclick="showSection('comparar')">📋 Mi lista</a>
+    </nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <button class="hcta" onclick="startPlan()">Empezar semana &rarr;</button>
+      <div class="user-menu" id="user-menu">
+        <button class="auth-btn" id="auth-btn" onclick="handleAuthClick()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="auth-label">Iniciar sesión</span>
+        </button>
+        <div class="user-dropdown" id="user-dropdown">
+          <div style="padding:8px 12px;font-size:13px;font-weight:600;color:#1A1914" id="user-name-dd"></div>
+          <div style="padding:2px 12px 8px;font-size:12px;color:#888" id="user-email-dd"></div>
+          <hr/>
+          <a onclick="loadUserData()">📋 Mis listas guardadas</a>
+          <a onclick="saveCurrentList()">💾 Guardar lista actual</a>
+          <hr/>
+          <a onclick="signOut()" style="color:#B83232">Cerrar sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="shome">
+  <div class="hero">
+    <h1>S&iacute;, puedes comer bien<br/><em>gastando menos</em></h1>
+    <p>Elige tus platos, obtén tu lista con IA y compara precios en los 5 supermercados más grandes del Perú.</p>
+    <button class="hero-btn" onclick="startPlan()">Planificar esta semana &rarr;</button>
+  </div>
+  <!-- TWO MAIN ACTIONS -->
+  <div style="background:#fff;border-top:1px solid #E8E5DC;border-bottom:1px solid #E8E5DC;padding:32px 24px">
+    <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div onclick="startPlan()" style="background:#EAF5EE;border:2px solid #1B5E3B;border-radius:14px;padding:24px;cursor:pointer;transition:.15s" onmouseover="this.style.background='#D4EDE0'" onmouseout="this.style.background='#EAF5EE'">
+        <div style="font-size:32px;margin-bottom:10px">🍽️</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:5px;color:#1B5E3B">Planificar la semana</div>
+        <div style="font-size:13px;color:#3D3D35;line-height:1.5">Elige tus platos, genera tu lista con IA y compara precios en los 5 supermercados.</div>
+        <div style="margin-top:12px;font-size:13px;font-weight:600;color:#1B5E3B">Empezar &rarr;</div>
+      </div>
+      <div onclick="showSection('comparar')" style="background:#F5F0E8;border:2px solid #E8E5DC;border-radius:14px;padding:24px;cursor:pointer;transition:.15s" onmouseover="this.style.background='#EDE8DF'" onmouseout="this.style.background='#F5F0E8'">
+        <div style="font-size:32px;margin-bottom:10px">📋</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:5px;color:#1A1914">Comparar mi lista</div>
+        <div style="font-size:13px;color:#3D3D35;line-height:1.5">¿Ya tienes tu lista del mercado? Pégala, díctala y te decimos dónde comprar más barato.</div>
+        <div style="margin-top:12px;font-size:13px;font-weight:600;color:#C47A0A">Comparar precios &rarr;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat">
+    <div class="feat-in">
+      <div class="feat-hdr"><h2>Platos de la semana</h2><a onclick="startPlan()">Ver todos &rarr;</a></div>
+      <div class="cards" id="feat-cards"></div>
+    </div>
+  </div>
+</div>
+
+<div id="srecetas" class="hidden">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 24px 80px">
+
+    <!-- HERO RECETAS -->
+    <div style="margin-bottom:32px">
+      <h2 style="font-family:'Playfair Display',serif;font-size:34px;margin-bottom:6px">Recetario peruano</h2>
+      <p style="color:#888;font-size:15px">Encuentra la receta perfecta para cada ocasión</p>
+    </div>
+
+    <!-- FILTROS -->
+    <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:22px 24px;margin-bottom:28px">
+      
+      <!-- Por proteína -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:10px">Por proteína</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap" id="filter-proteina">
+          <button class="rfil on" data-group="proteina" data-val="todos" onclick="setFilter('proteina','todos',this)">Todos</button>
+          <button class="rfil" data-group="proteina" data-val="pollo" onclick="setFilter('proteina','pollo',this)">🍗 Pollo</button>
+          <button class="rfil" data-group="proteina" data-val="res" onclick="setFilter('proteina','res',this)">🥩 Res</button>
+          <button class="rfil" data-group="proteina" data-val="pescado" onclick="setFilter('proteina','pescado',this)">🐟 Pescado</button>
+          <button class="rfil" data-group="proteina" data-val="cerdo" onclick="setFilter('proteina','cerdo',this)">🐷 Cerdo</button>
+          <button class="rfil" data-group="proteina" data-val="mariscos" onclick="setFilter('proteina','mariscos',this)">🦐 Mariscos</button>
+          <button class="rfil" data-group="proteina" data-val="vegetal" onclick="setFilter('proteina','vegetal',this)">🌱 Vegetal</button>
+        </div>
+      </div>
+
+      <!-- Por momento -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:10px">Por momento</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap" id="filter-momento">
+          <button class="rfil on" data-group="momento" data-val="todos" onclick="setFilter('momento','todos',this)">Todos</button>
+          <button class="rfil" data-group="momento" data-val="entrada" onclick="setFilter('momento','entrada',this)">🥗 Entrada</button>
+          <button class="rfil" data-group="momento" data-val="fondo" onclick="setFilter('momento','fondo',this)">🍽 Fondo</button>
+          <button class="rfil" data-group="momento" data-val="postre" onclick="setFilter('momento','postre',this)">🍮 Postre</button>
+          <button class="rfil" data-group="momento" data-val="piqueo" onclick="setFilter('momento','piqueo',this)">🍢 Piqueo</button>
+          <button class="rfil" data-group="momento" data-val="bebida-sa" onclick="setFilter('momento','bebida-sa',this)">🧃 Bebida sin alcohol</button>
+          <button class="rfil" data-group="momento" data-val="bebida-ca" onclick="setFilter('momento','bebida-ca',this)">🍹 Bebida con alcohol</button>
+        </div>
+      </div>
+
+      <!-- Restricciones -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:10px">Restricciones alimentarias</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap" id="filter-restriccion">
+          <label class="rcheck"><input type="checkbox" value="sin-gluten" onchange="updateRestricciones()"> Sin gluten</label>
+          <label class="rcheck"><input type="checkbox" value="sin-lactosa" onchange="updateRestricciones()"> Sin lactosa</label>
+          <label class="rcheck"><input type="checkbox" value="sin-mariscos" onchange="updateRestricciones()"> Sin mariscos</label>
+          <label class="rcheck"><input type="checkbox" value="sin-nueces" onchange="updateRestricciones()"> Sin nueces</label>
+          <label class="rcheck"><input type="checkbox" value="sin-cerdo" onchange="updateRestricciones()"> Sin cerdo</label>
+        </div>
+      </div>
+
+      <!-- Ingredientes en casa -->
+      <div>
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:8px">¿Qué tienes en casa?</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="ing-en-casa" placeholder="Ej: pollo, papa, cebolla..." style="flex:1;border:1.5px solid #E8E5DC;border-radius:8px;padding:9px 13px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"/>
+          <button onclick="filtrarPorIngredientes()" style="padding:9px 16px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">Sugerir recetas</button>
+          <button onclick="clearIngFiltro()" style="padding:9px 12px;background:#F5F0E8;color:#3D3D35;border:1px solid #E8E5DC;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Limpiar</button>
+        </div>
+        <div id="ing-sugerencia" style="margin-top:8px;font-size:13px;color:#1B5E3B;display:none"></div>
+      </div>
+    </div>
+
+    <!-- RECETAS GRID -->
+    <div id="recetas-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+  </div>
+</div>
+
+<div id="scomparar" class="hidden">
+  <div style="max-width:800px;margin:0 auto;padding:40px 24px 80px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px">Comparar lista de compras</h2>
+    <p style="color:#888;font-size:15px;margin-bottom:28px">Pega tu lista de productos y te decimos dónde comprar más barato</p>
+
+    <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:22px 24px;margin-bottom:20px">
+      <div style="font-weight:600;font-size:15px;margin-bottom:6px">Tu lista de productos</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px">Escribe uno por línea o separados por coma. Puedes incluir cantidades.</div>
+      <textarea id="cmp-input" placeholder="Ej:&#10;2 kg pollo&#10;1 kg papa amarilla&#10;6 limones&#10;500g queso fresco&#10;Aceite vegetal 1 litro" style="width:100%;height:180px;border:1.5px solid #E8E5DC;border-radius:10px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button onclick="compararLista()" id="cmp-btn" style="flex:2;min-width:160px;padding:13px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🔍 Comparar precios</button>
+        <button onclick="startCmpVoice()" id="cmp-mic-btn" style="flex:1;min-width:120px;padding:13px;background:#fff;color:#1B5E3B;border:1.5px solid #1B5E3B;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🎤 Dictar</button>
+        <button onclick="document.getElementById('cmp-input').value='';document.getElementById('cmp-result').classList.add('hidden')" style="padding:13px 18px;background:#F5F0E8;color:#3D3D35;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Limpiar</button>
+      </div>
+      <div id="cmp-voice-status" style="display:none;margin-top:8px;font-size:13px;color:#1B5E3B;font-weight:500">🎤 Escuchando... Di los productos uno por uno. Pausa entre cada uno.</div>
+      <div id="cmp-voice-preview" style="display:none;margin-top:6px;background:#EAF5EE;border-radius:8px;padding:8px 12px;font-size:13px;color:#1B5E3B"></div>
+    </div>
+
+    <div id="cmp-loading" class="hidden" style="text-align:center;padding:40px">
+      <div style="font-size:36px;animation:pulse 1.5s infinite">🤖</div>
+      <div style="font-size:15px;font-weight:600;margin:12px 0 6px">Analizando tu lista...</div>
+      <div class="lbar" style="margin:0 auto"><div class="lbarf"></div></div>
+    </div>
+
+    <div id="cmp-result" class="hidden">
+      <!-- Parsed items -->
+      <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:20px 22px;margin-bottom:16px">
+        <div style="font-weight:600;font-size:15px;margin-bottom:14px">✅ Productos identificados</div>
+        <div id="cmp-items"></div>
+      </div>
+
+      <!-- Price comparison -->
+      <div style="font-weight:600;font-size:18px;font-family:'Playfair Display',serif;margin-bottom:14px">Comparación por supermercado</div>
+      <div id="cmp-supers" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px"></div>
+
+      <!-- Winner -->
+      <div id="cmp-winner" style="margin-bottom:20px"></div>
+
+      <!-- Shopping list by super -->
+      <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:20px 22px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+          <div style="font-weight:600;font-size:15px">Lista de compra organizada</div>
+          <button onclick="abrirTodos()" style="padding:7px 14px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🛒 Abrir todos en supermercado</button>
+        </div>
+        <div style="font-size:13px;color:#888;margin-bottom:14px">Selecciona el supermercado y agrega cada producto</div>
+        <div id="cmp-stabs" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px"></div>
+        <div id="cmp-lista"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="splan" class="hidden">
+  <div class="plan">
+    <div class="pbar">
+      <div class="pstep on" id="ps1" onclick="goS(1)"><div class="pn">1</div><span>Personas</span></div>
+      <div class="pstep" id="ps2" onclick="goS(2)"><div class="pn">2</div><span>Platos</span></div>
+      <div class="pstep" id="ps3" onclick="goS(3)"><div class="pn">3</div><span>Lista</span></div>
+      <div class="pstep" id="ps4" onclick="goS(4)"><div class="pn">4</div><span>Recetas</span></div>
+    </div>
+
+    <div id="s1" class="panel">
+      <div class="p1card">
+        <h2 style="font-size:26px;margin-bottom:6px">&iquest;Cu&aacute;ntas personas comen?</h2>
+        <p style="color:var(--mu);margin-bottom:28px">Calculamos las cantidades para toda la semana.</p>
+        <div class="ctr">
+          <button class="cbtn" onclick="chgP(-1)">&#8722;</button>
+          <div><div class="cnum" id="np">4</div><div class="clbl">personas</div></div>
+          <button class="cbtn" onclick="chgP(1)">+</button>
+        </div>
+        <div class="cpill" id="cpill">4 personas &times; 7 d&iacute;as = <strong>28 porciones</strong></div>
+      </div>
+      <div style="text-align:center;margin-top:24px">
+        <button class="btn btnp" onclick="goS(2)" style="padding:14px 44px;border-radius:50px">Elegir platos &rarr;</button>
+      </div>
+    </div>
+
+    <div id="s2" class="panel hidden">
+      <div class="p2hdr">
+        <div><h2 style="font-size:26px">Elige tus platos</h2><p style="color:var(--mu);font-size:14px;margin-top:3px">Recomendamos 5&ndash;7 platos para la semana</p></div>
+        <div class="scnt" id="scnt">0 platos</div>
+      </div>
+      <div class="ctabs">
+        <div class="ctab on" onclick="fcat('todos',this)">Todos</div>
+        <div class="ctab" onclick="fcat('sopas',this)">Sopas</div>
+        <div class="ctab" onclick="fcat('segundos',this)">Segundos</div>
+        <div class="ctab" onclick="fcat('arroces',this)">Arroces</div>
+        <div class="ctab" onclick="fcat('guisos',this)">Guisos</div>
+        <div class="ctab" onclick="fcat('pastas',this)">Pastas</div>
+        <div class="ctab" onclick="fcat('postres',this)">Postres</div>
+        <div class="ctab" onclick="fcat('entradas',this)">Entradas</div>
+      </div>
+      <div class="rgrid" id="rgrid"></div>
+      <div class="cadd">
+        <input type="text" id="cinp" placeholder="Agrega tu propio plato..."/>
+        <button class="addbt" onclick="addC()">+ Agregar</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="acts">
+        <button class="btn btng" onclick="goS(1)">&larr; Atr&aacute;s</button>
+        <button class="btn btnp" id="btnl" onclick="genLista()" disabled>Generar lista con IA</button>
+      </div>
+    </div>
+
+    <div id="s3" class="panel hidden">
+      <div id="ldg3" class="ldg">
+        <div class="ldg-ic">&#x1F916;</div>
+        <h3 style="font-size:20px;margin:12px 0 6px">Calculando ingredientes...</h3>
+        <p id="ldgmsg" style="font-size:14px;color:var(--mu)">Analizando los platos seleccionados...</p>
+        <div class="lbar"><div class="lbarf"></div></div>
+      </div>
+      <div id="res3" class="hidden">
+        <div id="platos-resumen" style="margin-bottom:20px"></div>
+        <div id="nutri-resumen"></div>
+        <div class="l3lay">
+          <div>
+            <h2 style="font-size:26px;margin-bottom:4px">Tu lista de compra</h2>
+            <p id="l3sub" style="color:var(--mu);font-size:14px;margin-bottom:16px">Para 4 personas</p>
+            <div id="stabs" class="stabs"></div>
+            <div id="lbody"></div>
+          </div>
+          <div>
+            <div class="scard">
+              <h4 style="font-size:15px;font-weight:600;margin-bottom:3px">Progreso de compra</h4>
+              <p style="font-size:12px;color:var(--mu);margin-bottom:14px">Toca cada ingrediente para tacharlo</p>
+              <div class="pnum" id="pnum">0%</div>
+              <div class="plbl" id="plbl">0 de 0 tachados</div>
+              <div class="pbar2"><div class="pbar2f" id="pf" style="width:0%"></div></div>
+
+              <div class="shr">
+                <div class="shrbtn" onclick="window.print()">PDF</div>
+                <div class="shrbtn" onclick="waShare()">WhatsApp</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- AGREGAR INGREDIENTES MANUALMENTE -->
+        <div style="margin-top:24px;background:#F5F0E8;border-radius:12px;padding:18px">
+          <div style="font-weight:600;font-size:15px;margin-bottom:4px">&#x2795; Agregar ingredientes extras</div>
+          <div style="font-size:13px;color:#888;margin-bottom:10px">Escribe o dicta ingredientes adicionales que quieras agregar a tu lista</div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <textarea id="extra-ing-input" placeholder="Ej: 2 kg de arroz, 1 litro de aceite, 6 huevos..." style="flex:1;border:1.5px solid #E8E5DC;border-radius:8px;padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:80px;outline:none;background:#fff"></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button onclick="addExtraIngredientes()" style="padding:10px 14px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">+ Agregar</button>
+              <button onclick="startVoiceInput()" id="mic-btn" style="padding:10px 14px;background:#fff;color:#1B5E3B;border:1.5px solid #1B5E3B;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">&#x1F3A4; Dictar</button>
+            </div>
+          </div>
+          <div id="voice-status" style="font-size:12px;color:#888;margin-top:6px;display:none">&#x1F3A4; Escuchando... habla ahora</div>
+        </div>
+
+        <div class="acts" style="margin-top:16px">
+          <button class="btn btng" onclick="goS(2)">&larr; Cambiar platos</button>
+          <button class="btn btnp" onclick="showRecipes()" style="background:#1B5E3B">Ver recetas de la semana &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="s4" class="panel hidden">
+      <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:26px;font-family:'Playfair Display',serif">Recetas de la semana</h2>
+        <button class="btn btng" onclick="goS(3)">&larr; Volver a la lista</button>
+      </div>
+      <!-- Recipe tabs -->
+      <div id="recipe-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px"></div>
+      <!-- Recipe content -->
+      <div id="recipe-content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var AKEY='__ANTHROPIC_KEY_PLACEHOLDER__';
+var currentUser = null;
+</script>
+<script>
+var BACKEND = 'https://cocina-semanal-backend-production.up.railway.app';
+
+var PL = [
+  {n:'Caldo de gallina',e:'🍗',c:'sopas',t:90,r:'Lima',img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80'},
+  {n:'Sopa criolla',e:'🥩',c:'sopas',t:35,r:'Lima',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80'},
+  {n:'Aguadito de pollo',e:'🍗',c:'sopas',t:45,r:'Lima',img:'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&q=80'},
+  {n:'Sopa a la minuta',e:'🥩',c:'sopas',t:25,r:'Lima',img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80'},
+  {n:'Parihuela',e:'🦐',c:'sopas',t:50,r:'Costa',img:'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&q=80'},
+  {n:'Aji de gallina',e:'🍗',c:'segundos',t:60,r:'Lima',img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'},
+  {n:'Lomo saltado',e:'🥩',c:'segundos',t:30,r:'Lima',img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80'},
+  {n:'Seco de pollo',e:'🍗',c:'segundos',t:50,r:'Lima',img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80'},
+  {n:'Carapulcra',e:'🥔',c:'segundos',t:90,r:'Lima',img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'},
+  {n:'Pollo a la brasa',e:'🍗',c:'segundos',t:120,r:'Lima',img:'https://images.unsplash.com/photo-1598103442097-8b74394b95c3?w=400&q=80'},
+  {n:'Ceviche',e:'🐟',c:'segundos',t:20,r:'Costa',img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80'},
+  {n:'Anticucho',e:'🥩',c:'segundos',t:40,r:'Lima',img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80'},
+  {n:'Estofado de pollo',e:'🍗',c:'segundos',t:55,r:'Lima',img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'},
+  {n:'Sudado de pescado',e:'🐟',c:'segundos',t:35,r:'Costa',img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80'},
+  {n:'Arroz con pollo',e:'🍗',c:'arroces',t:60,r:'Lima',img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80'},
+  {n:'Arroz chaufa',e:'🥩',c:'arroces',t:25,r:'Lima',img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80'},
+  {n:'Tacu tacu',e:'🫘',c:'arroces',t:30,r:'Lima',img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80'},
+  {n:'Pepian de pollo',e:'🍗',c:'guisos',t:60,r:'Lima',img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80'},
+  {n:'Lentejas guisadas',e:'🫘',c:'guisos',t:40,r:'Nacional',img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80'},
+  {n:'Frejoles con seco',e:'🫘',c:'guisos',t:50,r:'Lima',img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80'},
+  {n:'Tallarines verdes',e:'🌿',c:'pastas',t:30,r:'Lima',img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80'},
+  {n:'Tallarines rojos',e:'🍝',c:'pastas',t:30,r:'Lima',img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80'},
+  {n:'Papa a la huancaina',e:'🥔',c:'entradas',t:20,r:'Lima',img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'},
+  {n:'Causa limena',e:'🥔',c:'entradas',t:45,r:'Lima',img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'},
+  {n:'Arroz con leche',e:'🍚',c:'postres',t:40,r:'Lima',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80'},
+  {n:'Mazamorra morada',e:'🟣',c:'postres',t:45,r:'Lima',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80'},
+  {n:'Suspiro limeno',e:'🍮',c:'postres',t:50,r:'Lima',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80'},
+  {n:'Picarones',e:'🍩',c:'postres',t:60,r:'Lima',img:'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=80'},
+];
+
+var SP = {
+  wong:     {n:'Wong',     bg:'#C8102E', fg:'#fff',    d:9.9,  url:'https://www.wong.pe',         search:'https://www.wong.pe/{q}?_q={q}&map=ft',                  vtex:true,  mult:0.92},
+  metro:    {n:'Metro',   bg:'#FFD700', fg:'#C8102E', d:9.9,  url:'https://www.metro.pe',        search:'https://www.metro.pe/{q}?_q={q}&map=ft',                 vtex:true,  mult:0.95},
+  plazavea: {n:'Plaza Vea',bg:'#C8102E', fg:'#FFD700', d:12.9, url:'https://www.plazavea.com.pe', search:'https://www.plazavea.com.pe/{q}?_q={q}&map=ft',          vtex:true,  mult:0.97},
+  makro:    {n:'Makro',   bg:'#003087', fg:'#FFD700', d:0,    url:'https://www.makro.com.pe',    search:'https://www.makro.com.pe/busca/?ft={q}',                 vtex:false, mult:0.85},
+  vivanda:  {n:'Vivanda', bg:'#1B5E3B', fg:'#fff',    d:9.9,  url:'https://www.vivanda.com.pe',  search:'https://www.vivanda.com.pe/search/{q}',                  vtex:false, mult:1.10},
+};
+
+function searchUrl(k, nombre) {
+  var q = encodeURIComponent(nombre);
+  return SP[k].search.replace(/{q}/g, q);
+}
+
+var PUNIT = {carnes:18, verduras:4, lacteos:5, abarrotes:6, especias:3, otros:5};
+var CLBL  = {carnes:'🥩 Carnes y aves', verduras:'🥬 Verduras y frutas', lacteos:'🥛 Lacteos', abarrotes:'🛒 Abarrotes', especias:'🧂 Especias', otros:'📦 Otros'};
+
+var NUTRI = {
+  'Ceviche':           {kcal:180, prot:'28g', carb:'8g',  grasa:'4g',  tip:'Excelente fuente de proteina magra. Considera agregar camote y choclo para mas fibra y carbohidratos complejos.'},
+  'Lomo saltado':      {kcal:420, prot:'32g', carb:'35g', grasa:'16g', tip:'Rico en proteinas y hierro. Sugiere reducir el aceite y acompanar con ensalada verde para mas fibra.'},
+  'Aji de gallina':    {kcal:380, prot:'28g', carb:'22g', grasa:'18g', tip:'Buena proteina de pollo. La salsa aporta grasas saludables de la nuez. Agrega mas vegetales al plato.'},
+  'Arroz con pollo':   {kcal:350, prot:'25g', carb:'40g', grasa:'8g',  tip:'Plato equilibrado. Considera reducir el arroz y agregar mas verduras para aumentar la fibra.'},
+  'Seco de pollo':     {kcal:320, prot:'30g', carb:'12g', grasa:'14g', tip:'Alto en proteinas. El cilantro aporta antioxidantes. Acompana con frejoles para proteina vegetal extra.'},
+  'default':           {kcal:300, prot:'22g', carb:'28g', grasa:'10g', tip:'Sugiere agregar mas vegetales de colores para aumentar vitaminas y fibra en tu semana.'},
+};
+
+function getNutri(nombre) {
+  return NUTRI[nombre] || NUTRI['default'];
+}
+
+var pers = 4, sel = [], lista = [], cat = 'todos', ck = new Set(), superA = 'wong', baseTotal = 0;
+
+// ── FULL RECIPES DATABASE ────────────────────────────────────────────────────
+var ALL_RECIPES = [
+{n:'Caldo de gallina',e:'🍗',proteina:'pollo',momento:'entrada',tiempo:'90 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['gallina','papa','zanahoria','apio','fideos'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Reconfortante caldo de gallina con fideos y verduras.'},
+{n:'Sopa criolla',e:'🥩',proteina:'res',momento:'entrada',tiempo:'35 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carne molida','fideos','leche evaporada','huevo','tomate'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa criolla con fideos cabello de ángel y carne molida.'},
+{n:'Aguadito de pollo',e:'🍗',proteina:'pollo',momento:'entrada',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','arroz','culantro','arvejas','aji amarillo'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa espesa verde de pollo y arroz con culantro.'},
+{n:'Sopa a la minuta',e:'🥩',proteina:'res',momento:'entrada',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['carne de res','fideos','leche evaporada','huevo','papa'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa rápida con carne, fideos y leche evaporada.'},
+{n:'Parihuela',e:'🦐',proteina:'mariscos',momento:'entrada',tiempo:'50 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['mariscos','pescado','tomate','aji panca','chicha'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa picante de mariscos mixtos. Rey de las sopas de mar.'},
+{n:'Caldo de res',e:'🥩',proteina:'res',momento:'entrada',tiempo:'120 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['hueso de res','papa','yuca','zanahoria','apio'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Caldo nutritivo de hueso de res con tubérculos andinos.'},
+{n:'Sopa huachana',e:'🥩',proteina:'res',momento:'entrada',tiempo:'60 min',dif:'Media',restricciones:['sin-lactosa'],ingredientes_clave:['carne de res','papa','leche','queso','aji amarillo'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa andina cremosa de papa y queso con carne de res.'},
+{n:'Chupe de camarones',e:'🦐',proteina:'mariscos',momento:'entrada',tiempo:'60 min',dif:'Difícil',restricciones:['sin-gluten'],ingredientes_clave:['camarones','papa','choclo','leche evaporada','huevo'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa arequipeña de camarones con papa y leche evaporada.'},
+{n:'Chairo paceño',e:'🥔',proteina:'vegetal',momento:'entrada',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['chuño','papa','trigo','carne seca','verduras'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa andina con chuño, trigo y papa seca. Nutritiva y caliente.'},
+{n:'Sopa de menestrón',e:'🌿',proteina:'vegetal',momento:'entrada',tiempo:'60 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['verduras','alverjitas','fideos','albahaca','queso'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Versión peruana del minestrone italiano con albahaca criolla.'},
+{n:'Locro de zapallo',e:'🎃',proteina:'vegetal',momento:'entrada',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['zapallo','papa','choclo','leche','queso fresco'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa cremosa de zapallo y papa con queso. Plato vegetariano.'},
+{n:'Timpo',e:'🥩',proteina:'res',momento:'entrada',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carne de res','garbanzos','col','zanahoria','papa'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa andina con garbanzo y verduras de temporada.'},
+{n:'Caldo de cabeza',e:'🥩',proteina:'res',momento:'entrada',tiempo:'180 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['cabeza de res','papa','hierbabuena','aji amarillo','cebolla'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Caldo nutritivo tradicional de los Andes peruanos.'},
+{n:'Shambar',e:'🫘',proteina:'vegetal',momento:'entrada',tiempo:'120 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['trigo','menestras','jamón','hierbabuena','cebolla'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa trujillana de trigo y menestras. Solo se sirve los lunes.'},
+{n:'Patachi',e:'🫘',proteina:'vegetal',momento:'entrada',tiempo:'90 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['trigo pelado','habas','carne seca','papas','verduras'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa puneña reconfortante de trigo y habas secas.'},
+{n:'Aji de gallina',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['pollo','aji amarillo','pan','leche','nueces'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Cremoso guiso de pollo en salsa de ají amarillo y nueces.'},
+{n:'Arroz con pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'60 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','arroz','culantro','aji amarillo','cerveza'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz verde con pollo, arvejas y zanahoria.'},
+{n:'Seco de pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'50 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','culantro','aji amarillo','chicha de jora','frejoles'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Guiso de pollo con culantro y chicha. Clásico norteño.'},
+{n:'Pollo a la brasa',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'120 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo entero','aji panca','huacatay','sillao','papas'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'El pollo peruano más famoso del mundo. Marinado y a las brasas.'},
+{n:'Estofado de pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'55 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','tomate','papas','aceitunas','pasas'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Guiso dulce y salado de pollo con tomate y aceitunas.'},
+{n:'Pepian de pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','maiz tostado','aji amarillo','cebolla','culantro'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Guiso andino de pollo con maíz molido y ají amarillo.'},
+{n:'Chicharrón de pollo',e:'🍗',proteina:'pollo',momento:'piqueo',tiempo:'35 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','sillao','ajo','limon','aceite'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo trozado frito estilo chifa. Crujiente y sabroso.'},
+{n:'Pollo a la olla',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'50 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','papa','zanahoria','apio','cebolla'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo guisado suavemente con verduras frescas.'},
+{n:'Pollo con maní',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['pollo','mani','aji amarillo','leche evaporada','papa'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo en salsa de maní tostado. Plato de influencia africana.'},
+{n:'Enrollado de pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'90 min',dif:'Difícil',restricciones:['sin-lactosa'],ingredientes_clave:['pollo deshuesado','aceitunas','queso','huevo duro','zanahoria'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo relleno enrollado y braseado. Festivo y elegante.'},
+{n:'Pollo saltado',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','cebolla','tomate','sillao','aji amarillo'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Versión chifa del lomo saltado con pollo. Rápido y sabroso.'},
+{n:'Arroz con leche y pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['pollo','arroz','leche evaporada','aji amarillo','cebolla'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz cremoso con pollo al estilo criollo limeño.'},
+{n:'Lomo saltado',e:'🥩',proteina:'res',momento:'fondo',tiempo:'30 min',dif:'Media',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['lomo fino','cebolla','tomate','sillao','papa'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Salteado de lomo fino con verduras y papas fritas.'},
+{n:'Seco de res',e:'🥩',proteina:'res',momento:'fondo',tiempo:'80 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carne de res','culantro','aji amarillo','chicha','frejoles'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Guiso de carne de res con culantro. Versión criolla.'},
+{n:'Lomo fino a lo pobre',e:'🥩',proteina:'res',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['lomo fino','huevo','platano frito','papas fritas','cebolla'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Lomo con huevo frito, plátano y papas. Contundente y sabroso.'},
+{n:'Sancochado',e:'🥩',proteina:'res',momento:'fondo',tiempo:'180 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carne de res','papa','yuca','col','zanahoria'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Hervido de carnes y tubérculos. Plato dominical peruano.'},
+{n:'Adobo arequipeño',e:'🥩',proteina:'cerdo',momento:'fondo',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['chuleta de cerdo','chicha de jora','aji panca','cebolla','vinagre'],img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80',desc:'Guiso arequipeño de cerdo en chicha. Se come el domingo.'},
+{n:'Carapulcra',e:'🥔',proteina:'res',momento:'fondo',tiempo:'90 min',dif:'Media',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['papa seca','carne de cerdo','mani','aji panca','aji mirasol'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Guiso de papa seca con carne. Receta prehispánica adaptada.'},
+{n:'Seco de cabrito',e:'🥩',proteina:'res',momento:'fondo',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['cabrito','culantro','chicha de jora','aji amarillo','frejoles'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Plato norteño de cabrito en chicha de jora con frejoles.'},
+{n:'Milanesa de res',e:'🥩',proteina:'res',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['lomo de res','pan rallado','huevo','limon','papa'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Filete empanizado crujiente con guarnición criolla.'},
+{n:'Bistec a lo pobre',e:'🥩',proteina:'res',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['bistec','huevo frito','platano','papas fritas','cebolla'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Bistec con huevo, plátano y papas. Clásico popular peruano.'},
+{n:'Rachi',e:'🥩',proteina:'res',momento:'piqueo',tiempo:'40 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['panza de res','aji panca','cebolla','vinagre','papas'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Mondongo marinado y asado. Piqueo callejero limeño.'},
+{n:'Cau cau',e:'🥩',proteina:'res',momento:'fondo',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['mondongo','papa','aji amarillo','palillo','menta'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Guiso de mondongo con papa y ají amarillo. Sabor único.'},
+{n:'Chancho al horno',e:'🥩',proteina:'cerdo',momento:'fondo',tiempo:'180 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pierna de cerdo','ajo','comino','chicha','papa'],img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80',desc:'Pierna de cerdo marinada y horneada lentamente.'},
+{n:'Chicharrón de cerdo',e:'🥩',proteina:'cerdo',momento:'piqueo',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['costilla de cerdo','sal','limon','camote','papa'],img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80',desc:'Cerdo frito crujiente. Desayuno o piqueo dominical.'},
+{n:'Anticucho',e:'🥩',proteina:'res',momento:'piqueo',tiempo:'40 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['corazon de res','aji panca','comino','vinagre','papa'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Brochetas de corazón marinadas. Ícono callejero peruano.'},
+{n:'Ceviche',e:'🐟',proteina:'pescado',momento:'fondo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-cerdo'],ingredientes_clave:['corvina','limon','aji limo','cebolla roja','culantro'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'El plato insignia del Perú. Pescado fresco en leche de tigre.'},
+{n:'Sudado de pescado',e:'🐟',proteina:'pescado',momento:'fondo',tiempo:'35 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['pescado','tomate','aji amarillo','chicha','cebolla'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Pescado cocido en su jugo con tomate y chicha de jora.'},
+{n:'Pescado a lo macho',e:'🐟',proteina:'pescado',momento:'fondo',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['pescado','mariscos','aji amarillo','leche evaporada','cebolla'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Filete de pescado bañado en salsa criolla de mariscos.'},
+{n:'Choritos a la chalaca',e:'🦐',proteina:'mariscos',momento:'piqueo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['choritos','tomate','cebolla','limon','aji amarillo'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Mejillones con salsa chalaca. Entrada fresca del Callao.'},
+{n:'Leche de tigre',e:'🐟',proteina:'pescado',momento:'piqueo',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['pescado','limon','aji limo','cebolla','apio'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'El jugo del ceviche convertido en bebida reconstituyente.'},
+{n:'Tiradito',e:'🐟',proteina:'pescado',momento:'entrada',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['pescado','aji amarillo','limon','apio','kion'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Láminas de pescado en leche de tigre. Fusión nikkei peruana.'},
+{n:'Pescado frito',e:'🐟',proteina:'pescado',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['pescado','harina','limon','papas','ensalada'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Pescado empanizado y frito. Acompañado de papas y ensalada.'},
+{n:'Jalea de mariscos',e:'🦐',proteina:'mariscos',momento:'entrada',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['mariscos mixtos','harina','limon','yuca','zarza'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Mariscos rebozados y fritos con zarza criolla y yuca.'},
+{n:'Arroz con mariscos',e:'🦐',proteina:'mariscos',momento:'fondo',tiempo:'40 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['arroz','mariscos','aji amarillo','culantro','cerveza'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz verde cremoso con mariscos frescos al estilo chifa.'},
+{n:'Arroz chaufa',e:'🍳',proteina:'pollo',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['arroz','pollo','huevo','sillao','kion','cebolla china'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz frito estilo chifa. Uno de los más populares del Perú.'},
+{n:'Tacu tacu',e:'🫘',proteina:'vegetal',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['frejoles','arroz','aji amarillo','cebolla','ajo'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Mezcla de frejoles y arroz dorada en sartén.'},
+{n:'Tallarines verdes',e:'🌿',proteina:'vegetal',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['fideos','albahaca','espinaca','queso parmesano','nueces'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta con pesto peruano de albahaca y espinaca.'},
+{n:'Tallarines rojos',e:'🍝',proteina:'res',momento:'fondo',tiempo:'35 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['fideos','carne molida','tomate','aji amarillo','queso'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta con salsa roja criolla y carne molida.'},
+{n:'Arroz tapado',e:'🥩',proteina:'res',momento:'fondo',tiempo:'40 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['arroz','carne molida','huevo duro','aceitunas','pasas'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz moldeado relleno de guiso de carne. Plato familiar.'},
+{n:'Chaufa de arroz vegetariano',e:'🌿',proteina:'vegetal',momento:'fondo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['arroz','huevo','verduras','sillao','kion'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Versión vegetariana del arroz chaufa. Rápido y nutritivo.'},
+{n:'Fideos con pollo',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'35 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['fideos','pollo','tomate','aji amarillo','cebolla'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta con guiso de pollo al estilo criollo peruano.'},
+{n:'Papa a la huancaina',e:'🥔',proteina:'vegetal',momento:'entrada',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['papa amarilla','aji amarillo','queso fresco','leche evaporada','galleta'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Papa sancochada con salsa cremosa de ají amarillo.'},
+{n:'Causa limena',e:'🥔',proteina:'pescado',momento:'entrada',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['papa amarilla','limon','aji amarillo','atun o pollo','palta'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Masa de papa amarilla rellena. Entrada limeña por excelencia.'},
+{n:'Ocopa arequipeña',e:'🥔',proteina:'vegetal',momento:'entrada',tiempo:'25 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['papa','huacatay','aji mirasol','queso fresco','mani'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Papa con salsa de huacatay y maní. Especialidad arequipeña.'},
+{n:'Rocoto relleno',e:'🌶',proteina:'carne mixta',momento:'entrada',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['rocoto','carne molida','papa','queso','huevo'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Rocoto relleno de carne y papa. Ícono arequipeño picante.'},
+{n:'Solterito de queso',e:'🥗',proteina:'vegetal',momento:'entrada',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['habas','choclo','queso fresco','aceitunas','rocoto'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Ensalada arequipeña de habas, choclo y queso fresco.'},
+{n:'Papa rellena',e:'🥔',proteina:'res',momento:'entrada',tiempo:'50 min',dif:'Media',restricciones:['sin-lactosa'],ingredientes_clave:['papa','carne molida','huevo duro','aceitunas','pasas'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Croqueta de papa rellena de guiso de carne. Clásica limeña.'},
+{n:'Humitas',e:'🌽',proteina:'vegetal',momento:'entrada',tiempo:'90 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['choclo','mantequilla','queso','aji amarillo','hoja de maiz'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Masa de choclo con queso envuelta en hojas de maíz.'},
+{n:'Tamales limeños',e:'🌽',proteina:'cerdo',momento:'entrada',tiempo:'180 min',dif:'Difícil',restricciones:['sin-gluten'],ingredientes_clave:['masa de maiz','cerdo','aceitunas','huevo duro','ají panca'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Masa de maíz con relleno de cerdo. Desayuno dominical.'},
+{n:'Tequeños de queso',e:'🧀',proteina:'vegetal',momento:'piqueo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['masa de empanada','queso mozarella','huevo','aceite'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Palitos de queso fundido en masa crujiente. Piqueo festivo.'},
+{n:'Empanadas criollas',e:'🥟',proteina:'res',momento:'piqueo',tiempo:'60 min',dif:'Media',restricciones:['sin-lactosa'],ingredientes_clave:['masa','carne molida','huevo duro','aceitunas','pasas'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Empanaditas rellenas de picadillo criollo dulce-salado.'},
+{n:'Arroz con leche',e:'🍚',proteina:'vegetal',momento:'postre',tiempo:'40 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['arroz','leche evaporada','canela','azucar','cascara de limon'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Postre cremoso de arroz en leche con canela.'},
+{n:'Mazamorra morada',e:'🟣',proteina:'vegetal',momento:'postre',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['maiz morado','frutas','canela','clavo','camote'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Postre ancestral de maíz morado con frutas.'},
+{n:'Suspiro limeno',e:'🍮',proteina:'vegetal',momento:'postre',tiempo:'50 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['leche evaporada','azucar','yemas','merengue','oporto'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'El postre limeño por excelencia. Manjar con merengue.'},
+{n:'Picarones',e:'🍩',proteina:'vegetal',momento:'postre',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['camote','zapallo','harina','anis','miel de chancaca'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Donas de camote y zapallo con miel de chancaca.'},
+{n:'Leche asada',e:'🍮',proteina:'vegetal',momento:'postre',tiempo:'60 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['leche','huevos','azucar','canela','vainilla'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Flan al horno de textura sedosa. Postre casero peruano.'},
+{n:'Crema volteada',e:'🍮',proteina:'vegetal',momento:'postre',tiempo:'70 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['leche evaporada','huevos','azucar','vainilla','caramelo'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Flan peruano con caramelo. Postre de domingo familiar.'},
+{n:'Ranfañote',e:'🍞',proteina:'vegetal',momento:'postre',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['pan','chancaca','coco rallado','mani','clavo'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Postre de pan frito con miel de chancaca. Tradición limeña.'},
+{n:'Alfajor peruano',e:'🍪',proteina:'vegetal',momento:'postre',tiempo:'80 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['galleta','manjar blanco','coco rallado','azucar en polvo'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Galleta suave rellena de manjar blanco y coco rallado.'},
+{n:'King kong',e:'🍬',proteina:'vegetal',momento:'postre',tiempo:'120 min',dif:'Difícil',restricciones:['sin-gluten'],ingredientes_clave:['galletas','manjar blanco','mermelada','mani','chocolate'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Torta de galletas artesanal de Lambayeque. Icono norteño.'},
+{n:'Turrón de Doña Pepa',e:'🍬',proteina:'vegetal',momento:'postre',tiempo:'90 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['harina','anis','mantequilla','miel de chancaca','grageas'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Turrón anisado con miel. Se come en octubre en Lima.'},
+{n:'Buñuelos limeños',e:'🍩',proteina:'vegetal',momento:'postre',tiempo:'40 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['harina','huevo','queso','miel de chancaca','anis'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Rosquillas fritas con miel. Postre navideño limeño.'},
+{n:'Maná',e:'🍮',proteina:'vegetal',momento:'postre',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['leche','azucar','yemas','canela','coco'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Dulce de leche aromatizado con canela. Golosina tradicional.'},
+{n:'Chicha morada',e:'🟣',proteina:'vegetal',momento:'bebida-sa',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['maiz morado','pina','canela','clavo','limon'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Bebida ancestral peruana de maíz morado.'},
+{n:'Emoliente',e:'🌿',proteina:'vegetal',momento:'bebida-sa',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['cebada','linaza','cola de caballo','limon','miel'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Bebida medicinal callejera limeña. Reconstituyente natural.'},
+{n:'Chicha de jora',e:'🌽',proteina:'vegetal',momento:'bebida-sa',tiempo:'1440 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['maiz de jora','chancaca','canela','clavo'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Bebida fermentada andina. Base de muchos guisos peruanos.'},
+{n:'Api morado',e:'🟣',proteina:'vegetal',momento:'bebida-sa',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['maiz morado','canela','clavo','naranja','azucar'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Bebida caliente de maíz morado andino.'},
+{n:'Pisco sour',e:'🍋',proteina:'vegetal',momento:'bebida-ca',tiempo:'10 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos'],ingredientes_clave:['pisco','limon','azucar','clara de huevo','amargo de angostura'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'El cóctel nacional del Perú. Equilibrio perfecto.'},
+{n:'Chilcano',e:'🍹',proteina:'vegetal',momento:'bebida-ca',tiempo:'5 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pisco','ginger ale','limon','amargo de angostura','hielo'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Cóctel refrescante de pisco con ginger ale. Muy popular.'},
+{n:'Algarrobina',e:'🍹',proteina:'vegetal',momento:'bebida-ca',tiempo:'5 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['pisco','algarrobina','leche evaporada','yema de huevo','canela'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Cóctel dulce y cremoso de algarrobina. Bebida del norte.'},
+{n:'Macerado de frutas',e:'🍹',proteina:'vegetal',momento:'bebida-ca',tiempo:'10080 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['aguardiente','frutas','azucar','especias'],img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80',desc:'Pisco macerado con frutas de temporada. Artesanal y festivo.'},
+{n:'Ceviche de hongos',e:'🍄',proteina:'vegetal',momento:'piqueo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['hongos','aji limo','limon','cebolla','culantro'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Ceviche vegano de hongos. Versión moderna del clásico.'},
+{n:'Papa a la huancaina shots',e:'🥔',proteina:'vegetal',momento:'piqueo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['papa baby','salsa huancaina','aji amarillo','aceitunas'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Mini causa shots para fiestas. Elegante y fácil.'},
+{n:'Causa individual',e:'🥔',proteina:'pescado',momento:'piqueo',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces','sin-cerdo'],ingredientes_clave:['papa amarilla','atun','mayonesa','aji amarillo','palta'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Causa porcionada en vasito. Presentación moderna.'},
+{n:'Conchitas a la parmesana',e:'🦐',proteina:'mariscos',momento:'piqueo',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['conchas de abanico','queso parmesano','limón','ajo','mantequilla'],img:'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=400&q=80',desc:'Conchas de abanico gratinadas con parmesano. Elegante.'},
+{n:'Butifarra',e:'🥩',proteina:'cerdo',momento:'piqueo',tiempo:'10 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['jamon del pais','pan frances','salsa criolla','limon'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Sándwich limeño de jamón del país con salsa criolla.'},
+{n:'Pan con chicharrón',e:'🥩',proteina:'cerdo',momento:'piqueo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['chicharrón','pan frances','camote frito','salsa criolla','limon'],img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80',desc:'El sándwich más popular del desayuno peruano.'},
+{n:'Juane',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'120 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','arroz','aceitunas','huevo duro','hoja de bijao'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Tamal amazónico de arroz con pollo en hoja de bijao.'},
+{n:'Inchicapi',e:'🍗',proteina:'pollo',momento:'entrada',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['pollo','mani','yuca','culantro','hojas de maiz'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa amazónica de pollo y maní. Nutritiva y aromática.'},
+{n:'Tacacho con cecina',e:'🥓',proteina:'cerdo',momento:'fondo',tiempo:'40 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['platano verde','cecina','chicharrón','manteca','ajo'],img:'https://images.unsplash.com/photo-1604908177522-27e016a6d0d7?w=400&q=80',desc:'Plato amazónico de plátano frito con cecina ahumada.'},
+{n:'Cuy al horno',e:'🐾',proteina:'cuy',momento:'fondo',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['cuy','aji panca','ajo','comino','papas'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Plato andino tradicional de cuy marinado y horneado.'},
+{n:'Pachamanca',e:'🔥',proteina:'res',momento:'fondo',tiempo:'240 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carnes mixtas','papas','habas','humitas','hierbas andinas'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Cocción andina en piedras calientes bajo tierra.'},
+{n:'Olluco con charqui',e:'🟡',proteina:'vegetal',momento:'fondo',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['olluco','charqui','aji panca','cebolla','ajo'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Guiso andino de olluco con carne seca de alpaca.'},
+{n:'Caldo verde',e:'🌿',proteina:'vegetal',momento:'entrada',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['papa','culantro','aji amarillo','cebolla','ajo'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa verde de papa y culantro. Humilde y reconfortante.'},
+{n:'Spaghetti carbonara',e:'🍝',proteina:'cerdo',momento:'fondo',tiempo:'25 min',dif:'Media',restricciones:['sin-lactosa'],ingredientes_clave:['spaghetti','panceta','yemas','queso parmesano','pimienta'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'La pasta romana clásica con panceta y huevo.'},
+{n:'Lasaña bolognesa',e:'🍝',proteina:'res',momento:'fondo',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['pasta lasaña','carne molida','salsa de tomate','bechamel','queso'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Capas de pasta con boloñesa y bechamel. Domingo familiar.'},
+{n:'Pasta al pesto',e:'🌿',proteina:'vegetal',momento:'fondo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['pasta','albahaca','parmesano','piñones','ajo'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta con pesto genovés fresco. Simple y aromática.'},
+{n:'Risotto de hongos',e:'🍄',proteina:'vegetal',momento:'fondo',tiempo:'35 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['arroz arbóreo','hongos','vino blanco','parmesano','caldo'],img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80',desc:'Arroz cremoso italiano con hongos porcini.'},
+{n:"Pasta all'arrabbiata",e:'🍝',proteina:'vegetal',momento:'fondo',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pasta','tomate','ajo','aji rojo seco','perejil'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta picante romana con ajo y guindilla.'},
+{n:'Gnocchi al pomodoro',e:'🥔',proteina:'vegetal',momento:'fondo',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['papa','harina','tomate','albahaca','parmesano'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Ñoquis de papa caseros con salsa de tomate fresco.'},
+{n:'Pasta primavera',e:'🥗',proteina:'vegetal',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['pasta','verduras de temporada','queso','aceite de oliva','hierbas'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Pasta con verduras frescas salteadas. Ligera y colorida.'},
+{n:'Pollo tikka masala',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'45 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['pollo','tomate','crema','garam masala','jengibre'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo en salsa cremosa de tomate especiada. Favorito indio.'},
+{n:'Pollo teriyaki',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['pollo','sillao','mirin','sake','azucar'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo glaseado en salsa teriyaki japonesa.'},
+{n:'Tacos de carne',e:'🌮',proteina:'res',momento:'fondo',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['tortilla de maiz','carne molida','cebolla','cilantro','limon'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Tacos mexicanos con carne sazonada y toppings frescos.'},
+{n:'Hamburguesa casera',e:'🍔',proteina:'res',momento:'fondo',tiempo:'25 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['carne molida','pan','lechuga','tomate','queso cheddar'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Hamburguesa jugosa hecha en casa con ingredientes frescos.'},
+{n:'Pollo al curry',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['pollo','leche de coco','curry','cebolla','jengibre'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Pollo en salsa de curry aromático con leche de coco.'},
+{n:'Carne a la provenzal',e:'🥩',proteina:'res',momento:'fondo',tiempo:'50 min',dif:'Media',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['lomo de res','tomate','ajo','hierbas provenzales','aceituna'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',desc:'Carne braseada al estilo del sur de Francia.'},
+{n:'Ramen casero',e:'🍜',proteina:'pollo',momento:'entrada',tiempo:'180 min',dif:'Difícil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['fideos ramen','caldo de pollo','sillao','huevo','nori'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa japonesa de fideos con caldo rico y toppings.'},
+{n:'Pad thai',e:'🍝',proteina:'mariscos',momento:'fondo',tiempo:'25 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['fideos de arroz','camaron','huevo','brotes','salsa de tamarindo'],img:'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&q=80',desc:'Fideos fritos tailandeses con camarones y maní.'},
+{n:'Pollo parmigiana',e:'🍗',proteina:'pollo',momento:'fondo',tiempo:'40 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['pollo','pan rallado','salsa de tomate','mozarella','parmesano'],img:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80',desc:'Milanesa de pollo con salsa de tomate y queso fundido.'},
+{n:'Sopa de tomate',e:'🍅',proteina:'vegetal',momento:'entrada',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['tomate','cebolla','ajo','caldo','crema'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa cremosa de tomate asado. Clásico reconfortante.'},
+{n:'Minestrone',e:'🥗',proteina:'vegetal',momento:'entrada',tiempo:'50 min',dif:'Fácil',restricciones:['sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['verduras mixtas','pasta','tomate','albahaca','frijoles'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa italiana espesa de verduras con pasta.'},
+{n:'Sopa de cebolla francesa',e:'🧅',proteina:'res',momento:'entrada',tiempo:'60 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['cebolla','caldo de res','vino blanco','pan','gruyere'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa gratinada francesa con queso. Reconfortante clásico.'},
+{n:'Gazpacho andaluz',e:'🍅',proteina:'vegetal',momento:'entrada',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['tomate','pepino','pimiento','ajo','aceite de oliva'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa fría española de verano. Fresca y nutritiva.'},
+{n:'Sopa de lentejas',e:'🫘',proteina:'vegetal',momento:'entrada',tiempo:'45 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['lentejas','zanahoria','tomate','comino','limon'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa nutritiva de lentejas con especias mediterráneas.'},
+{n:'Pho vietnamita',e:'🍜',proteina:'res',momento:'entrada',tiempo:'240 min',dif:'Difícil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['hueso de res','fideos de arroz','hierba santa','jengibre','anís'],img:'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80',desc:'Sopa vietnamita de fideos de arroz con caldo perfumado.'},
+{n:'Ensalada César',e:'🥗',proteina:'vegetal',momento:'entrada',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['lechuga romana','pollo','parmesano','crutones','aderezo cesar'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'La ensalada más famosa del mundo. Inventada en México.'},
+{n:'Taboulé',e:'🌿',proteina:'vegetal',momento:'entrada',tiempo:'20 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['perejil','tomate','pepino','bulgur','limon'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Ensalada árabe de perejil y trigo con limón.'},
+{n:'Bowl de quinoa',e:'🌿',proteina:'vegetal',momento:'entrada',tiempo:'25 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['quinoa','aguacate','tomate cherry','pepino','limon'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Bowl nutritivo con quinoa andina y vegetales frescos.'},
+{n:'Ensalada griega',e:'🥗',proteina:'vegetal',momento:'entrada',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['tomate','pepino','aceituna','queso feta','cebolla'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Ensalada fresca griega con queso feta y aceitunas.'},
+{n:'Guacamole',e:'🥑',proteina:'vegetal',momento:'piqueo',tiempo:'10 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['aguacate','tomate','cebolla','limon','cilantro'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Dip mexicano de aguacate fresco. Universal y fácil.'},
+{n:'Hummus casero',e:'🫘',proteina:'vegetal',momento:'piqueo',tiempo:'15 min',dif:'Fácil',restricciones:['sin-gluten','sin-lactosa','sin-mariscos','sin-nueces'],ingredientes_clave:['garbanzo','tahini','ajo','limon','aceite de oliva'],img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80',desc:'Pasta de garbanzo mediterránea con sésamo y limón.'},
+{n:'Brownie de chocolate',e:'🍫',proteina:'vegetal',momento:'postre',tiempo:'40 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['chocolate','mantequilla','huevo','azucar','harina'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Brownie húmedo y fudgy. El postre de chocolate perfecto.'},
+{n:'Tiramisú',e:'☕',proteina:'vegetal',momento:'postre',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['mascarpone','huevo','azucar','cafe','savoiardi'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Postre italiano de café y crema de mascarpone.'},
+{n:'Cheesecake',e:'🍰',proteina:'vegetal',momento:'postre',tiempo:'90 min',dif:'Media',restricciones:['sin-gluten'],ingredientes_clave:['queso crema','huevo','azucar','galleta','mantequilla'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Tarta de queso cremosa. Versión americana clásica.'},
+{n:'Muffins de banana',e:'🍌',proteina:'vegetal',momento:'postre',tiempo:'35 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['banana','harina','huevo','azucar','mantequilla'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Muffins húmedos de plátano maduro. Desayuno o merienda.'},
+{n:'Panacota',e:'🍮',proteina:'vegetal',momento:'postre',tiempo:'240 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['crema de leche','gelatina','azucar','vainilla','frutas'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Postre italiano de crema cuajada. Elegante y suave.'},
+{n:'Churros con chocolate',e:'🍩',proteina:'vegetal',momento:'postre',tiempo:'30 min',dif:'Fácil',restricciones:['sin-lactosa'],ingredientes_clave:['harina','agua','sal','aceite','chocolate'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Churros crujientes con dip de chocolate caliente.'},
+{n:'Crepes suzette',e:'🥞',proteina:'vegetal',momento:'postre',tiempo:'30 min',dif:'Fácil',restricciones:['sin-gluten'],ingredientes_clave:['harina','leche','huevo','mantequilla','naranja'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Crepes flameados con salsa de naranja y Grand Marnier.'},
+{n:'Tarta de manzana',e:'🍎',proteina:'vegetal',momento:'postre',tiempo:'75 min',dif:'Media',restricciones:['sin-gluten','sin-lactosa'],ingredientes_clave:['manzana','masa','mantequilla','azucar','canela'],img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',desc:'Tarta de manzana casera con masa crujiente y canela.'}
+];
+
+var rFilters = {proteina:'todos', momento:'todos', restricciones:[], ingEnCasa:[]};
+
+function setFilter(group, val, btn) {
+  rFilters[group] = val;
+  btn.closest('[id^="filter-"]').querySelectorAll('.rfil').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderRecetasGrid();
+}
+
+function updateRestricciones() {
+  var checked = [];
+  document.querySelectorAll('#filter-restriccion input:checked').forEach(function(inp) {
+    checked.push(inp.value);
+  });
+  rFilters.restricciones = checked;
+  renderRecetasGrid();
+}
+
+function filtrarPorIngredientes() {
+  var txt = document.getElementById('ing-en-casa').value.trim().toLowerCase();
+  if (!txt) { rFilters.ingEnCasa = []; renderRecetasGrid(); return; }
+  rFilters.ingEnCasa = txt.split(/[,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+  renderRecetasGrid();
+  // Show suggestion count
+  var matches = getFilteredRecipes().length;
+  var el = document.getElementById('ing-sugerencia');
+  el.style.display = 'block';
+  el.textContent = '✓ ' + matches + ' receta' + (matches !== 1 ? 's' : '') + ' posible' + (matches !== 1 ? 's' : '') + ' con lo que tienes';
+}
+
+function clearIngFiltro() {
+  document.getElementById('ing-en-casa').value = '';
+  document.getElementById('ing-sugerencia').style.display = 'none';
+  rFilters.ingEnCasa = [];
+  renderRecetasGrid();
+}
+
+function getFilteredRecipes() {
+  return ALL_RECIPES.filter(function(r) {
+    if (rFilters.proteina !== 'todos' && r.proteina !== rFilters.proteina) return false;
+    if (rFilters.momento !== 'todos' && r.momento !== rFilters.momento) return false;
+    if (rFilters.restricciones.length > 0) {
+      // Map restriction to what MUST NOT be present
+      var allergenMap = {
+        'sin-gluten': ['gluten'],
+        'sin-lactosa': ['lactosa', 'leche', 'queso', 'crema'],
+        'sin-mariscos': ['mariscos'],
+        'sin-nueces': ['nueces'],
+        'sin-cerdo': ['cerdo']
+      };
+      var excluded = false;
+      rFilters.restricciones.forEach(function(res) {
+        // Check if recipe explicitly has this restriction badge
+        // If it doesn't have the badge, it MIGHT contain the allergen - exclude it
+        if (!r.restricciones || r.restricciones.indexOf(res) < 0) excluded = true;
+      });
+      if (excluded) return false;
+    }
+    if (rFilters.ingEnCasa.length > 0) {
+      var matches = rFilters.ingEnCasa.filter(function(ing) {
+        return r.ingredientes_clave.some(function(k) { return k.indexOf(ing) >= 0 || ing.indexOf(k) >= 0; });
+      });
+      if (matches.length === 0) return false;
+    }
+    return true;
+  });
+}
+
+function renderRecetasGrid() {
+  var filtered = getFilteredRecipes();
+  var grid = document.getElementById('recetas-grid');
+  if (!grid) return;
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:#888"><div style="font-size:48px;margin-bottom:12px">🤷</div><div style="font-size:16px;font-weight:500;margin-bottom:6px">Sin resultados</div><div style="font-size:14px">Prueba cambiando los filtros</div></div>';
+    return;
+  }
+  var html = '';
+  filtered.forEach(function(r) {
+    var protColMap = {pollo:'#FFD700',res:'#C8102E',pescado:'#1A4D8F',mariscos:'#1A4D8F',cerdo:'#F04E23',vegetal:'#1B5E3B'};
+    var protCol = protColMap[r.proteina] || '#888';
+    html += '<div class="rcard-rec" data-nombre="' + r.n + '" onclick="openRecetaModal(this.dataset.nombre)">';
+    html += '<div style="width:100%;height:160px;overflow:hidden;position:relative;background:#F5F0E8">';
+    html += '<img src="' + r.img + '" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>';
+    html += '<div style="position:absolute;top:10px;left:10px;background:' + protCol + ';color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + r.e + ' ' + r.proteina + '</div>';
+    html += '</div>';
+    html += '<div style="padding:14px 16px">';
+    html += '<div style="font-family:Playfair Display,serif;font-size:17px;font-weight:700;margin-bottom:4px">' + r.n + '</div>';
+    html += '<div style="font-size:12px;color:#888;margin-bottom:8px">' + r.desc + '</div>';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+    html += '<span style="font-size:12px;color:#888">⏱ ' + r.tiempo + '</span>';
+    html += '<span style="font-size:12px;color:#888">👨‍🍳 ' + r.dif + '</span>';
+    if (r.restricciones && r.restricciones.length > 0) {
+      r.restricciones.slice(0,2).forEach(function(res) {
+        var resLabel = {'sin-gluten':'Sin gluten','sin-lactosa':'Sin lactosa','sin-mariscos':'Sin mariscos','sin-nueces':'Sin nueces','sin-cerdo':'Sin cerdo'}[res] || res;
+        html += '<span style="font-size:10px;background:#EAF5EE;color:#1B5E3B;border-radius:10px;padding:2px 7px;font-weight:600">✓ ' + resLabel + '</span>';
+      });
+    }
+    html += '</div></div></div>';
+  });
+  grid.innerHTML = html;
+}
+
+function startCmpVoice() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert('Tu navegador no soporta dictado. Usa Chrome.'); return; }
+  
+  var btn = document.getElementById('cmp-mic-btn');
+  var status = document.getElementById('cmp-voice-status');
+  var preview = document.getElementById('cmp-voice-preview');
+  var textarea = document.getElementById('cmp-input');
+  
+  // If already recording, stop
+  if (window.cmpRecognition) {
+    window.cmpRecognition.stop();
+    window.cmpRecognition = null;
+    return;
+  }
+  
+  var rec = new SpeechRecognition();
+  rec.lang = 'es-PE';
+  rec.continuous = true;
+  rec.interimResults = true;
+  window.cmpRecognition = rec;
+  
+  var accumulatedText = textarea.value ? textarea.value.trim() : '';
+  var lastFinalIdx = 0;
+  
+  rec.onstart = function() {
+    btn.textContent = '⏹ Detener';
+    btn.style.background = '#B83232';
+    btn.style.borderColor = '#B83232';
+    btn.style.color = '#fff';
+    status.style.display = 'block';
+    preview.style.display = 'block';
+    preview.textContent = 'Esperando...';
+  };
+  
+  rec.onresult = function(e) {
+    var interim = '';
+    var finalChunk = '';
+    
+    for (var i = lastFinalIdx; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalChunk += e.results[i][0].transcript;
+        lastFinalIdx = i + 1;
+      } else {
+        interim = e.results[i][0].transcript;
+      }
+    }
+    
+    if (finalChunk) {
+      // Add comma separator between products
+      var clean = finalChunk.trim();
+      if (accumulatedText && !accumulatedText.endsWith(',') && !accumulatedText.endsWith('\n')) {
+        accumulatedText += ', ';
+      }
+      accumulatedText += clean;
+      textarea.value = accumulatedText;
+    }
+    
+    preview.textContent = interim ? '📝 ' + interim : (accumulatedText ? '✓ ' + accumulatedText.split(',').length + ' producto(s) detectado(s)' : 'Esperando...');
+  };
+  
+  rec.onend = function() {
+    window.cmpRecognition = null;
+    btn.textContent = '🎤 Dictar';
+    btn.style.background = '#fff';
+    btn.style.borderColor = '#1B5E3B';
+    btn.style.color = '#1B5E3B';
+    status.style.display = 'none';
+    setTimeout(function() { preview.style.display = 'none'; }, 2000);
+  };
+  
+  rec.onerror = function(e) {
+    console.error('Voice error:', e);
+    rec.stop();
+  };
+  
+  rec.start();
+}
+
+function closeModal(btn) { var ov = btn.closest("[style*='position:fixed']") || btn.closest("[style*='fixed']"); if(ov) ov.remove(); }
+function openRecetaModal(nombre) {
+  var r = getRecipe(nombre);
+  var rd = ALL_RECIPES.find(function(x) { return x.n === nombre; });
+  var p = PL.find(function(x) { return x.n === nombre; }) || {e:'🍽'};
+  var emoji = rd ? rd.e : p.e;
+  
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;overflow-y:auto;padding:20px';
+  
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:#fff;border-radius:16px;max-width:680px;margin:0 auto;overflow:hidden';
+  
+  var html = '<div style="background:#F5F0E8;padding:22px 24px;border-bottom:1px solid #E8E5DC">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+  html += '<div style="display:flex;align-items:center;gap:14px"><span style="font-size:40px">' + emoji + '</span>';
+  html += '<div><h3 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:5px">' + nombre + '</h3>';
+  html += '<div style="display:flex;gap:14px;font-size:13px;color:#888"><span>⏱ ' + r.tiempo + '</span><span>👨‍🍳 ' + r.dif + '</span><span>👥 ' + r.porciones + ' porciones</span></div></div></div>';
+  html += '<button onclick="closeModal(this)" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;padding:0">&#x2715;</button>';
+  html += '</div>';
+  html += '<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">';
+  r.utensilios.forEach(function(u) {
+    html += '<span style="background:#fff;border:1px solid #B2DFCC;border-radius:20px;padding:3px 11px;font-size:12px;color:#1B5E3B">🔪 ' + u + '</span>';
+  });
+  html += '</div></div>';
+  html += '<div style="padding:22px 24px">';
+  r.pasos.forEach(function(paso, i) {
+    var isLast = i === r.pasos.length - 1;
+    html += '<div style="display:flex;gap:14px;margin-bottom:' + (isLast?'0':'20px') + ';padding-bottom:' + (isLast?'0':'20px') + ';border-bottom:' + (isLast?'none':'1px solid #E8E5DC') + '">';
+    html += '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#1B5E3B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">' + (i+1) + '</div>';
+    html += '<div style="flex:1"><div style="font-weight:600;font-size:15px;margin-bottom:6px;font-family:Playfair Display,serif">' + paso.titulo + '</div>';
+    html += '<div style="font-size:12px;color:#1B5E3B;background:#EAF5EE;border-radius:6px;padding:5px 10px;margin-bottom:8px">🛒 ' + paso.ingredientes + '</div>';
+    html += '<div style="font-size:13px;color:#3D3D35;line-height:1.6">' + paso.metodo + '</div></div></div>';
+  });
+  html += '</div>';
+  html += '<div style="padding:16px 24px;border-top:1px solid #E8E5DC;display:flex;gap:8px">';
+  html += '<button id="modal-add-btn" style="flex:1;padding:12px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">+ Agregar al planificador</button>';
+  html += '<button onclick="closeModal(this)" style="padding:12px 20px;background:#F5F0E8;color:#3D3D35;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif">Cerrar</button>';
+  html += '</div>';
+  modal.innerHTML = html;
+  var addBtn = modal.querySelector('#modal-add-btn');
+  if (addBtn) { addBtn.addEventListener('click', function() { if (sel.indexOf(nombre) < 0) sel.push(nombre); this.textContent = '✓ Agregado'; this.style.background = '#2E8B57'; }); }
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+// ── SECTION ROUTING ─────────────────────────────────────────────────────────
+function showSection(s) {
+  document.getElementById('shome').classList.add('hidden');
+  document.getElementById('srecetas').classList.add('hidden');
+  document.getElementById('splan').classList.add('hidden');
+  document.getElementById('scomparar').classList.add('hidden');
+  document.querySelectorAll('.hnav a').forEach(function(a) { a.classList.remove('on'); });
+  if (s === 'home') {
+    document.getElementById('shome').classList.remove('hidden');
+    document.getElementById('nav-inicio').classList.add('on');
+  } else if (s === 'recetas') {
+    document.getElementById('srecetas').classList.remove('hidden');
+    document.getElementById('nav-recetas').classList.add('on');
+    renderRecetasGrid();
+  } else if (s === 'comparar') {
+    document.getElementById('scomparar').classList.remove('hidden');
+    document.getElementById('nav-comparar').classList.add('on');
+  } else if (s === 'plan') {
+    document.getElementById('splan').classList.remove('hidden');
+    document.getElementById('nav-planificar').classList.add('on');
+    goS(1);
+  }
+}
+
+function showHome() { showSection('home'); }
+function startPlan() { showSection('plan'); }
+
+function goS(n) {
+  for (var i = 1; i <= 4; i++) {
+    document.getElementById('s' + i).classList.toggle('hidden', i !== n);
+    var ps = document.getElementById('ps' + i);
+    ps.classList.remove('on', 'done');
+    if (i < n) ps.classList.add('done');
+    if (i === n) ps.classList.add('on');
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function chgP(d) {
+  pers = Math.max(1, Math.min(20, pers + d));
+  document.getElementById('np').textContent = pers;
+  document.getElementById('cpill').innerHTML = pers + ' personas &times; 7 d&iacute;as = <strong>' + (pers * 7) + ' porciones</strong>';
+}
+function getCL(c) {
+  return {sopas:'Sopa', segundos:'Segundo', arroces:'Arroz', guisos:'Guiso', pastas:'Pasta', entradas:'Entrada', postres:'Postre'}[c] || c;
+}
+function fcat(c, btn) {
+  cat = c;
+  document.querySelectorAll('.ctab').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderG();
+}
+function renderG() {
+  var list = cat === 'todos' ? PL : PL.filter(function(p) { return p.c === cat; });
+  var html = '';
+  list.forEach(function(p) {
+    var s = sel.indexOf(p.n) >= 0;
+    html += '<div class="rc' + (s ? ' sel' : '') + '" data-name="' + p.n + '">'
+      + '<div class="rci"><img src="' + p.img + '" alt="" loading="lazy"/></div>'
+      + '<div class="rcb"><div class="rccat">' + p.r + '</div><div class="rcn">' + p.n + '</div>'
+      + '<div class="rcm">' + p.t + ' min &middot; ' + getCL(p.c) + '</div></div>'
+      + '<div class="rck">&#x2713;</div></div>';
+  });
+  document.getElementById('rgrid').innerHTML = html;
+  document.querySelectorAll('.rc').forEach(function(card) {
+    card.addEventListener('click', function() { tog(this.getAttribute('data-name')); });
+  });
+}
+function tog(n) {
+  var i = sel.indexOf(n);
+  if (i >= 0) sel.splice(i, 1); else sel.push(n);
+  renderG(); renderChips();
+  document.getElementById('btnl').disabled = sel.length === 0;
+  document.getElementById('scnt').textContent = sel.length + ' platos';
+}
+function renderChips() {
+  var wrap = document.getElementById('chips');
+  wrap.innerHTML = '';
+  sel.forEach(function(n) {
+    var p = PL.find(function(x) { return x.n === n; }) || {e: '🍽'};
+    var div = document.createElement('div');
+    div.className = 'chip';
+    div.innerHTML = p.e + ' ' + n;
+    var btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.addEventListener('click', function() { tog(n); });
+    div.appendChild(btn);
+    wrap.appendChild(div);
+  });
+}
+function addC() {
+  var inp = document.getElementById('cinp');
+  var v = inp.value.trim();
+  if (!v || sel.indexOf(v) >= 0) return;
+  sel.push(v); inp.value = '';
+  renderChips();
+  document.getElementById('btnl').disabled = false;
+  document.getElementById('scnt').textContent = sel.length + ' platos';
+}
+
+var MSGS = ['Analizando los platos seleccionados...', 'Calculando porciones semanales...', 'Consolidando ingredientes compartidos...', 'Optimizando cantidades para supermercado...'];
+
+function genLista() {
+  goS(3);
+  // Show recipes and platos IMMEDIATELY - no waiting
+  document.getElementById('ldg3').classList.add('hidden');
+  document.getElementById('res3').classList.remove('hidden');
+  renderPlatosResumen();
+  // Show loading only for ingredients section
+  document.getElementById('lbody').innerHTML = '<div style="text-align:center;padding:32px 0"><div style="font-size:28px;animation:pulse 1.5s infinite">🤖</div><p style="color:#888;font-size:14px;margin-top:8px">Calculando ingredientes con IA...</p><div style="width:160px;height:3px;background:#E8E5DC;border-radius:2px;margin:12px auto;overflow:hidden"><div style="height:100%;background:#1B5E3B;animation:lb 2s ease-in-out infinite"></div></div></div>';
+  document.getElementById('stabs').innerHTML = '';
+  document.getElementById('l3sub').textContent = 'Calculando...';
+  // Load ingredients in background
+  doGen();
+}
+
+async function doGen() {
+  try {
+      var prompt = 'Eres un chef peruano experto. Genera la lista de compra COMPLETA y DETALLADA para cocinar estos platos: ' + sel.join(', ') + '. Para ' + pers + ' personas durante 7 dias. IMPORTANTE: incluye TODOS los ingredientes de CADA plato sin excepcion (proteinas, verduras, especias, condimentos, aceite, etc). Consolida ingredientes que se repiten. Usa cantidades reales de supermercado peruano. Responde SOLO con JSON valido: {"ingredientes":[{"nombre":"string","cantidad":"string con unidad","categoria":"verduras|carnes|lacteos|abarrotes|especias|otros"}]}';
+      var r2 = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'x-api-key': AKEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
+        body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{role: 'user', content: prompt}]})
+      });
+      var d2 = await r2.json();
+      var raw = (d2.content || []).map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim();
+      lista = JSON.parse(raw).ingredientes || fb();
+  } catch(e2) { 
+    console.error('Claude API error:', e2); 
+    lista = fb(); 
+  }
+  baseTotal = lista.reduce(function(a, it) { return a + (PUNIT[it.categoria || 'otros'] || 5); }, 0);
+  // Update only the ingredients section
+  document.getElementById('l3sub').innerHTML = 'Para ' + pers + ' personas &middot; 7 d&iacute;as &middot; ' + lista.length + ' productos';
+  renderStabs();
+  renderItems();
+  updProg();
+}
+
+function fb() {
+  return [
+    {nombre:'Pollo entero', cantidad:'3 kg', categoria:'carnes'},
+    {nombre:'Papa amarilla', cantidad:'2 kg', categoria:'verduras'},
+    {nombre:'Cebolla', cantidad:'1.5 kg', categoria:'verduras'},
+    {nombre:'Aji amarillo', cantidad:'10 unid', categoria:'verduras'},
+    {nombre:'Ajo', cantidad:'200 g', categoria:'verduras'},
+    {nombre:'Arroz extra', cantidad:'3 kg', categoria:'abarrotes'},
+    {nombre:'Leche evaporada', cantidad:'4 latas', categoria:'lacteos'},
+    {nombre:'Aceite vegetal', cantidad:'1 lt', categoria:'abarrotes'},
+    {nombre:'Sal', cantidad:'500 g', categoria:'especias'},
+  ];
+}
+
+function renderPlatosResumen() {
+  var html = '<div class="platos-sel">';
+  sel.forEach(function(n) {
+    var p = PL.find(function(x) { return x.n === n; }) || {e: '🍽'};
+    html += '<div class="plato-chip"><span class="ico">' + p.e + '</span><span>' + n + '</span></div>';
+  });
+  html += '</div>';
+  document.getElementById('platos-resumen').innerHTML = html;
+
+  // Analisis nutricional del conjunto
+  var totalKcal = 0, hasProteina = false, hasFibra = false, hasVegetales = false;
+  var tips = [];
+  sel.forEach(function(n) {
+    var info = getNutri(n);
+    totalKcal += info.kcal;
+    if (parseInt(info.prot) > 20) hasProteina = true;
+    if (n.indexOf('verdura') >= 0 || n.indexOf('ensalada') >= 0) hasVegetales = true;
+    if (n === 'Lentejas guisadas' || n === 'Frejoles con seco') hasFibra = true;
+  });
+  var avgKcal = Math.round(totalKcal / sel.length);
+  if (!hasFibra) tips.push('Agrega legumbres (lentejas, frejoles) para mas fibra');
+  if (!hasVegetales) tips.push('Incorpora una ensalada fresca al menos 3 veces a la semana');
+  if (sel.length > 5) tips.push('Buena variedad de platos — mantiene el interes y el balance nutricional');
+
+  var primerPlato = sel[0] ? getNutri(sel[0]) : NUTRI['default'];
+  var nutriHtml = '<div class="nutri-box">'
+    + '<strong>Analisis nutricional de tu semana</strong>'
+    + '<div class="nutri-tags">'
+    + '<div class="nutri-tag">~' + avgKcal + ' kcal/plato</div>'
+    + '<div class="nutri-tag">' + sel.length + ' platos distintos</div>'
+    + '<div class="nutri-tag">' + (hasProteina ? 'Alta proteina' : 'Proteina moderada') + '</div>'
+    + '</div>'
+    + '<div class="nutri-tip">&#x1F4A1; ' + (tips[0] || primerPlato.tip) + '</div>'
+    + '</div>';
+  document.getElementById('nutri-resumen').innerHTML = nutriHtml;
+}
+
+function calcTotal(k) {
+  return Math.round(baseTotal * SP[k].mult) + SP[k].d;
+}
+
+function renderStabs() {
+  var stabs = document.getElementById('stabs');
+  stabs.innerHTML = '';
+  Object.keys(SP).forEach(function(k) {
+    var s = SP[k];
+    var total = calcTotal(k);
+    var isOn = k === superA;
+    var btn = document.createElement('button');
+    btn.className = 'stab' + (isOn ? ' on' : '');
+    btn.style.borderColor = isOn ? s.bg : '#E8E5DC';
+    btn.style.background = isOn ? s.bg : '#fff';
+    btn.style.color = isOn ? s.fg : '#1A1914';
+    btn.innerHTML = '<div class="stab-name">' + s.n + '</div>'
+      + '<div class="stab-total">S/ ' + total + '</div>'
+      + '<div class="stab-del" style="opacity:.7">' + (s.d > 0 ? '+ S/' + s.d + ' delivery' : 'Sin delivery') + '</div>';
+    btn.addEventListener('click', function() { setSuperA(k); });
+    stabs.appendChild(btn);
+  });
+}
+
+function setSuperA(k) {
+  superA = k;
+  renderStabs();
+  renderItems();
+}
+
+
+var RECIPES = {
+  'Ceviche': {
+    tiempo: '20 min', dificultad: 'Fácil', porciones: 4,
+    utensilios: ['Bowl grande', 'Tabla de cortar', 'Cuchillo filoso', 'Cuchara', 'Exprimidor'],
+    pasos: [
+      {titulo: 'Preparar el pescado', ingredientes: 'Filete de corvina o lenguado en cubos de 2cm', metodo: 'Limpiar el pescado retirando espinas y piel. Cortar en cubos parejos de 2cm. Mantener en frío.'},
+      {titulo: 'Hacer la leche de tigre', ingredientes: 'Limón (1 taza), sal, ají limo, cebolla, apio, kion', metodo: 'Exprimir los limones. Licuar con un trozo de pescado, ají limo, cebolla, apio y kion. Colar. Sazonar con sal.'},
+      {titulo: 'Marinar', ingredientes: 'Pescado + leche de tigre + ají limo + cebolla roja', metodo: 'Mezclar el pescado con la leche de tigre fría. Agregar ají limo picado fino y cebolla roja en juliana. Dejar reposar 2-3 minutos máximo.'},
+      {titulo: 'Acabado', ingredientes: 'Culantro, camote sancochado, choclo desgranado', metodo: 'Servir inmediatamente. Acompañar con camote sancochado y choclo. Decorar con culantro picado y ají limo en rodajas.'},
+    ]
+  },
+  'Lomo saltado': {
+    tiempo: '30 min', dificultad: 'Media', porciones: 4,
+    utensilios: ['Wok o sartén grande', 'Tabla de cortar', 'Cuchillo', 'Espátula de madera'],
+    pasos: [
+      {titulo: 'Preparar ingredientes', ingredientes: 'Lomo fino en tiras, tomate, cebolla, ají amarillo', metodo: 'Cortar el lomo en tiras de 1cm de ancho. Cortar el tomate y cebolla en gajos. El ají amarillo en tiras finas.'},
+      {titulo: 'Sellar la carne', ingredientes: 'Lomo fino, aceite, sal, pimienta', metodo: 'Calentar el wok a fuego muy alto hasta que humee. Agregar aceite y sellar la carne en tandas pequeñas para que dore, no cueza. Retirar y reservar.'},
+      {titulo: 'Saltear verduras', ingredientes: 'Cebolla, tomate, ají amarillo, ajo, sillao, vinagre', metodo: 'En el mismo wok muy caliente, saltear la cebolla 1 min. Agregar el ajo, tomate y ají. Verter sillao y vinagre — habrá flambeo, es normal. Mezclar rápido.'},
+      {titulo: 'Unir y servir', ingredientes: 'Perejil, papas fritas, arroz blanco', metodo: 'Regresar la carne al wok. Mezclar 30 segundos. Agregar perejil picado. Servir con arroz blanco y papas fritas recién hechas.'},
+    ]
+  },
+  'Aji de gallina': {
+    tiempo: '60 min', dificultad: 'Media', porciones: 4,
+    utensilios: ['Olla grande', 'Sartén', 'Tabla de cortar', 'Licuadora', 'Cuchillo'],
+    pasos: [
+      {titulo: 'Cocinar el pollo', ingredientes: '1 pechuga de pollo, cebolla, ajo, sal', metodo: 'Hervir la pechuga con cebolla, ajo y sal por 25 minutos. Retirar y deshilachar cuando enfríe. Reservar el caldo.'},
+      {titulo: 'Preparar la salsa', ingredientes: 'Ají amarillo (5 unid), pan de molde (3 rebanadas), caldo, leche evaporada', metodo: 'Sofreír cebolla y ajo picados. Agregar ají amarillo licuado. Añadir pan de molde remojado en caldo y licuado. Incorporar leche evaporada. Cocinar 10 min a fuego bajo.'},
+      {titulo: 'Incorporar pollo', ingredientes: 'Pollo deshilachado, nueces, queso parmesano', metodo: 'Agregar el pollo deshilachado a la salsa. Mezclar bien. Ajustar consistencia con caldo. Debe quedar cremosa y untuosa. Agregar nueces picadas.'},
+      {titulo: 'Servir', ingredientes: 'Papa amarilla sancochada, arroz blanco, aceituna, huevo duro', metodo: 'Servir sobre papas amarillas sancochadas. Acompañar con arroz blanco. Decorar con aceitunas negras y rodajas de huevo duro.'},
+    ]
+  },
+  'Arroz con pollo': {
+    tiempo: '60 min', dificultad: 'Fácil', porciones: 4,
+    utensilios: ['Olla grande con tapa', 'Tabla de cortar', 'Cuchillo', 'Licuadora'],
+    pasos: [
+      {titulo: 'Preparar el pollo', ingredientes: 'Piezas de pollo, ajo, sal, pimienta, comino', metodo: 'Sazonar el pollo con ajo molido, sal, pimienta y comino. Dorar en aceite caliente por todos lados hasta que esté bien sellado.'},
+      {titulo: 'Hacer el aderezo', ingredientes: 'Cebolla, ajo, ají amarillo, culantro, cerveza negra', metodo: 'En la misma olla sofreír cebolla y ajo. Agregar ají amarillo licuado y culantro licuado. Verter cerveza negra y dejar reducir 5 minutos.'},
+      {titulo: 'Cocinar el arroz', ingredientes: 'Arroz extra, arvejas, zanahoria, caldo de pollo', metodo: 'Agregar el arroz al aderezo y mezclar bien. Incorporar el caldo caliente en proporción 1:1.5. Agregar arvejas y zanahoria. Tapar y cocinar 20 min a fuego bajo.'},
+      {titulo: 'Terminar y servir', ingredientes: 'Ají amarillo en tiras para decorar', metodo: 'Colocar las piezas de pollo sobre el arroz los últimos 5 minutos. Servir con salsa criolla y papa sancochada.'},
+    ]
+  },
+  'default': {
+    tiempo: '45 min', dificultad: 'Media', porciones: 4,
+    utensilios: ['Olla', 'Sartén', 'Tabla de cortar', 'Cuchillo'],
+    pasos: [
+      {titulo: 'Preparar ingredientes', ingredientes: 'Según la lista de compra', metodo: 'Lavar, pelar y cortar todos los ingredientes antes de comenzar. El mise en place es clave.'},
+      {titulo: 'Cocinar', ingredientes: 'Todos los ingredientes', metodo: 'Seguir la técnica tradicional del plato. Ajustar sazón al gusto.'},
+    ]
+  }
+};
+
+function getRecipe(nombre) {
+  return RECIPES[nombre] || RECIPES['default'];
+}
+
+function renderRecetas() {
+  var section = document.getElementById('recetas-section');
+  if (!sel.length) { section.innerHTML = ''; return; }
+  
+  var html = '<h2 style="font-size:22px;margin-bottom:16px;font-family:Playfair Display,serif">Recetas de la semana</h2>';
+  
+  sel.forEach(function(nombre) {
+    var r = getRecipe(nombre);
+    var p = PL.find(function(x) { return x.n === nombre; }) || {e:'🍽'};
+    
+    html += '<div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;margin-bottom:20px;overflow:hidden">';
+    
+    // Header
+    html += '<div style="background:#F5F0E8;padding:18px 22px;border-bottom:1px solid #E8E5DC">';
+    html += '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+    html += '<span style="font-size:32px">' + p.e + '</span>';
+    html += '<div style="flex:1">';
+    html += '<h3 style="font-family:Playfair Display,serif;font-size:20px;margin-bottom:4px">' + nombre + '</h3>';
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:#888">';
+    html += '<span>⏱ ' + r.tiempo + '</span>';
+    html += '<span>👨‍🍳 ' + r.dificultad + '</span>';
+    html += '<span>👥 ' + r.porciones + ' porciones</span>';
+    html += '</div></div></div>';
+    
+    // Utensilios
+    html += '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">';
+    r.utensilios.forEach(function(u) {
+      html += '<span style="background:#fff;border:1px solid #B2DFCC;border-radius:20px;padding:3px 10px;font-size:12px;color:#1B5E3B">🔪 ' + u + '</span>';
+    });
+    html += '</div>';
+    html += '</div>'; // end header
+    
+    // Pasos
+    html += '<div style="padding:18px 22px">';
+    r.pasos.forEach(function(paso, i) {
+      html += '<div style="display:flex;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:' + (i < r.pasos.length-1 ? '1px solid #E8E5DC' : 'none') + '">';
+      html += '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#1B5E3B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">' + (i+1) + '</div>';
+      html += '<div style="flex:1">';
+      html += '<div style="font-weight:600;font-size:15px;margin-bottom:4px">' + paso.titulo + '</div>';
+      html += '<div style="font-size:12px;color:#1B5E3B;background:#EAF5EE;border-radius:6px;padding:4px 10px;margin-bottom:6px;font-weight:500">🛒 ' + paso.ingredientes + '</div>';
+      html += '<div style="font-size:13px;color:#3D3D35;line-height:1.55">' + paso.metodo + '</div>';
+      html += '</div></div>';
+    });
+    html += '</div></div>'; // end pasos + card
+  });
+  
+  section.innerHTML = html;
+}
+
+function renderLista() {
+  document.getElementById('ldg3').classList.add('hidden');
+  document.getElementById('res3').classList.remove('hidden');
+  document.getElementById('l3sub').innerHTML = 'Para ' + pers + ' personas &middot; 7 d&iacute;as &middot; ' + lista.length + ' productos';
+  renderPlatosResumen();
+  renderRecetas();
+  renderStabs();
+  renderItems();
+  updProg();
+}
+
+function renderItems() {
+  var s = SP[superA];
+  var lbody = document.getElementById('lbody');
+  lbody.innerHTML = '';
+
+  // Group by category
+  var cats = {};
+  lista.forEach(function(it, idx) {
+    var c = it.categoria || 'otros';
+    if (!cats[c]) cats[c] = [];
+    cats[c].push({nom: it.nombre, qty: it.cantidad, cat: c, idx: idx});
+  });
+
+  Object.keys(cats).forEach(function(c) {
+    var header = document.createElement('div');
+    header.className = 'cath';
+    header.textContent = (CLBL[c] || c).replace(/[🥩🥬🥛🛒🧂📦]/g, '').trim();
+    header.innerHTML = CLBL[c] || c;
+    lbody.appendChild(header);
+
+    cats[c].forEach(function(it) {
+      var price = PUNIT[it.cat] || 5;
+      var row = document.createElement('div');
+      row.className = 'irow';
+      row.id = 'ir' + it.idx;
+
+      var box = document.createElement('div');
+      box.className = 'ibox';
+      box.id = 'ib' + it.idx;
+      if (ck.has(it.idx)) { box.textContent = '✓'; row.classList.add('ck'); }
+      box.addEventListener('click', function() { tck(it.idx); });
+
+      var name = document.createElement('span');
+      name.className = 'iname';
+      name.textContent = it.nom;
+      name.addEventListener('click', function() { tck(it.idx); });
+
+      var qty = document.createElement('span');
+      qty.className = 'iqty';
+      qty.textContent = it.qty;
+
+      var pr = document.createElement('span');
+      pr.className = 'iprice';
+      pr.textContent = '~S/' + price;
+
+      var agrBtn = document.createElement('button');
+      agrBtn.className = 'iagr';
+      agrBtn.style.background = s.bg;
+      agrBtn.style.color = s.fg;
+      agrBtn.textContent = '+ Agregar';
+      // Use closure to capture the correct nombre
+      (function(nombre, sk) {
+        agrBtn.addEventListener('click', function() {
+          window.open(searchUrl(sk, nombre), '_blank');
+        });
+      })(it.nom, superA);
+
+      row.appendChild(box);
+      row.appendChild(name);
+      row.appendChild(qty);
+      row.appendChild(pr);
+      row.appendChild(agrBtn);
+      lbody.appendChild(row);
+    });
+  });
+}
+
+function tck(i) {
+  var row = document.getElementById('ir' + i);
+  var box = document.getElementById('ib' + i);
+  if (!row) return;
+  if (ck.has(i)) { ck.delete(i); row.classList.remove('ck'); box.textContent = ''; }
+  else { ck.add(i); row.classList.add('ck'); box.textContent = '✓'; }
+  updProg();
+}
+
+function updProg() {
+  var total = lista.length, done = ck.size;
+  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('pnum').textContent = pct + '%';
+  document.getElementById('plbl').textContent = done + ' de ' + total + ' tachados';
+  document.getElementById('pf').style.width = pct + '%';
+}
+
+function waShare() {
+  var lines = lista.map(function(it) { return '• ' + it.nombre + ' — ' + it.cantidad; }).join('\n');
+  window.open('https://wa.me/?text=' + encodeURIComponent('Cocina Semanal (' + pers + ' personas)\n\n' + lines + '\n\nGenerado en cocinasemanal.pe'), '_blank');
+}
+
+async function cmpSupers() {
+  goS(4);
+  document.getElementById('ldg4').classList.remove('hidden');
+  document.getElementById('res4').classList.add('hidden');
+  await new Promise(function(r) { setTimeout(r, 1500); });
+  showSupers();
+}
+
+function showSupers() {
+  document.getElementById('ldg4').classList.add('hidden');
+  document.getElementById('res4').classList.remove('hidden');
+
+  var rows = Object.keys(SP).map(function(k) {
+    var s = SP[k];
+    var prod = Math.round(baseTotal * s.mult);
+    return {k: k, prod: prod, d: s.d, tot: prod + s.d};
+  }).sort(function(a, b) { return a.tot - b.tot; });
+
+  var vtexBest = rows.filter(function(r) { return SP[r.k].vtex; })[0] || rows[0];
+  var si = SP[vtexBest.k];
+
+  var wbox = document.getElementById('wbox');
+  wbox.innerHTML = '';
+  var wdiv = document.createElement('div');
+  wdiv.className = 'wbox';
+  wdiv.innerHTML = '<div><h3>&#x1F3C6; ' + si.n + ' &mdash; mejor precio con carrito</h3>'
+    + '<p>S/ ' + vtexBest.prod + ' en productos + ' + (vtexBest.d > 0 ? 'S/ ' + vtexBest.d + ' delivery' : 'sin delivery') + ' = Total S/ ' + vtexBest.tot + '</p></div>';
+  wdiv.style.background = si.bg;
+  var wb = document.createElement('button');
+  wb.className = 'wbtn';
+  wb.textContent = 'Comprar en ' + si.n + ' →';
+  wb.addEventListener('click', function() { goS(3); setSuperA(vtexBest.k); });
+  wdiv.appendChild(wb);
+  wbox.appendChild(wdiv);
+
+  var sgrid = document.getElementById('sgrid');
+  sgrid.innerHTML = '';
+  rows.forEach(function(r, i) {
+    var s = SP[r.k];
+    var card = document.createElement('div');
+    card.className = 'sc' + (i === 0 ? ' best' : '');
+    card.innerHTML = (i === 0 ? '<div class="btag">&#x2713; M&aacute;s barato</div>' : '')
+      + '<div class="sn" style="background:' + s.bg + ';color:' + s.fg + ';padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:4px">' + s.n + '</div>'
+      + '<div class="sp">S/ ' + r.prod + '</div>'
+      + '<div class="sd">' + (r.d > 0 ? '+ S/ ' + r.d + ' delivery' : 'Sin delivery') + '</div>'
+      + '<div class="st"><span>Total:</span><strong>S/ ' + r.tot + '</strong></div>'
+      + (!s.vtex ? '<div class="enote">&#x1F50C; Extensi&oacute;n Chrome</div>' : '');
+    card.addEventListener('click', function() { goS(3); setSuperA(r.k); });
+    sgrid.appendChild(card);
+  });
+}
+
+function renderCmpCards() {
+  var sorted = cmpSorted;
+  var totals = cmpTotals;
+  if (!sorted.length) return;
+  var sgrid = document.getElementById('cmp-supers');
+  sgrid.innerHTML = '';
+  sorted.forEach(function(k, i) {
+    var s = SP[k];
+    var total = Math.round((totals[k] + s.d) * 10) / 10;
+    var isBest = i === 0;
+    var isActive = k === cmpSuperActivo;
+    var card = document.createElement('div');
+    card.style.cssText = 'border:' + (isActive?'3px solid '+s.bg:(isBest?'2px solid #1B5E3B':'1.5px solid #E8E5DC')) 
+      + ';border-radius:12px;padding:16px;background:' + (isActive?s.bg+'22':(isBest?'#EAF5EE':'#fff')) 
+      + ';text-align:center;position:relative;cursor:pointer;transition:.15s';
+    card.innerHTML = (isBest?'<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#1B5E3B;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">✓ Más barato</div>':'')
+      + (isActive?'<div style="position:absolute;top:-10px;right:10px;background:'+s.bg+';color:'+s.fg+';font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">📋 Seleccionado</div>':'')
+      + '<div style="font-weight:700;font-size:14px;margin-bottom:5px;color:'+s.bg+'">'+s.n+'</div>'
+      + '<div style="font-family:Playfair Display,serif;font-size:24px;font-weight:700">S/ '+Math.round(totals[k]*10)/10+'</div>'
+      + '<div style="font-size:11px;color:#888;margin:3px 0 6px">'+(s.d>0?'+ S/'+s.d+' delivery':'Sin delivery')+'</div>'
+      + '<div style="font-size:12px;border-top:1px solid #E8E5DC;padding-top:6px;font-weight:600">Total: S/ '+total+'</div>'
+      + '<div style="margin-top:8px;font-size:11px;color:'+s.bg+';font-weight:600">'+(isActive?'✓ Comprando aquí':'Clic para comprar aquí →')+'</div>';
+    (function(key) {
+      card.addEventListener('click', function() {
+        cmpSuperActivo = key;
+        renderCmpCards();
+        renderCmpStabs();
+        renderCmpLista();
+        document.getElementById('cmp-lista').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    })(k);
+    sgrid.appendChild(card);
+  });
+  
+
+
+  var slist = document.getElementById('slist');
+  slist.innerHTML = '';
+  rows.forEach(function(r) {
+    var s = SP[r.k];
+    var row = document.createElement('div');
+    row.className = 'srow';
+    row.innerHTML = '<div class="sdot" style="background:' + s.bg + '"></div>'
+      + '<div class="sname">' + s.n + '</div>'
+      + '<div class="sinfo">S/ ' + r.tot + ' total</div>'
+      + '<div class="sact">Comprar &rarr;</div>';
+    row.addEventListener('click', function() { goS(3); setSuperA(r.k); });
+    slist.appendChild(row);
+  });
+}
+
+function renderFeat() {
+  var names = ['Aji de gallina', 'Lomo saltado', 'Ceviche', 'Arroz con pollo'];
+  var fc = document.getElementById('feat-cards');
+  if (!fc) return;
+  fc.innerHTML = '';
+  names.forEach(function(nm, i) {
+    var p = PL.find(function(x) { return x.n === nm; }) || PL[i];
+    var card = document.createElement('div');
+    card.className = 'rcard' + (i === 0 ? ' big' : '');
+    card.innerHTML = '<div class="rcard-img"><img src="' + p.img + '" alt="" loading="lazy"/></div>'
+      + '<div class="rcard-body"><div class="rcard-cat">' + p.r + '</div><div class="rcard-name">' + p.n + '</div>'
+      + '<div class="rcard-meta">' + p.t + ' min &middot; ' + getCL(p.c) + '</div></div>';
+    card.addEventListener('click', startPlan);
+    fc.appendChild(card);
+  });
+}
+
+// ── COMPARAR LISTA ────────────────────────────────────────────────────────────
+var cmpItems = [];
+var cmpSuperActivo = 'wong';
+var cmpTotals = {};
+var cmpSorted = [];
+
+async function compararLista() {
+  var txt = document.getElementById('cmp-input').value.trim();
+  if (!txt) return;
+  var btn = document.getElementById('cmp-btn');
+  btn.textContent = 'Procesando...';
+  btn.disabled = true;
+  document.getElementById('cmp-loading').classList.remove('hidden');
+  document.getElementById('cmp-result').classList.add('hidden');
+
+  // Send the raw text to Claude - let it identify individual products
+  var lines = [txt]; // Send as single string, Claude will parse individual products
+
+  try {
+    var prompt = 'Eres un asistente de compras de supermercado peruano. El usuario dictó o escribió esta lista de compras en texto libre: "' + txt + '". IMPORTANTE: Identifica CADA producto individual aunque vengan sin comas ni separadores (ej: "baterias papel higienico papa limones" son 4 productos distintos). Ignora palabras que no sean productos (saludos, muletillas, etc).\n\nInstrucciones:\n1. Corrige errores de dictado/ortografia (ej: ideos->fideos, materias->baterias, papas puede ser papa o papas fritas)\n2. Normaliza a nombres de supermercado peruano (Wong/Metro/Plaza Vea)\n3. Si no se especifica cantidad, asigna la unidad tipica de supermercado (ej: papa->1 kg, leche->1 lt, fideos->500 g, baterias->4 unid AA)\n4. Para productos ambiguos escribe una pregunta de aclaracion corta (ej: baterias->"¿Tipo AA, AAA o recargables?", leche->"¿Evaporada, fresca o UHT?", arroz->"¿Kilo de arroz extra, integral o arborio?")\n5. Estima precios REALES en soles peruanos 2024 por la cantidad indicada\n\nResponde SOLO con JSON valido sin texto extra ni markdown:\n{"items":[{"nombre":"string","cantidad":"string con unidad (ej: 1 kg, 500 g, 4 unid, 1 lt)","categoria":"verduras|carnes|lacteos|abarrotes|especias|otros","precio_estimado_wong":number,"precio_estimado_metro":number,"precio_estimado_plazavea":number,"precio_estimado_makro":number,"precio_estimado_vivanda":number,"aclaracion":"pregunta corta o null","busqueda_sugerida":"termino especifico para buscar en supermercado"}]}';
+
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    var d = await r.json();
+    var raw = (d.content||[]).map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
+    console.log('Claude raw response:', raw.substring(0,200));
+    var parsed = JSON.parse(raw);
+    cmpItems = parsed.items || [];
+
+  } catch(e) {
+    console.error('Claude API error en comparar:', e);
+    // Silently use fallback - no error shown to user
+    await new Promise(function(r){setTimeout(r,300);});
+    // Smart fallback: split by spaces, filter non-products
+    var SKIP_WORDS = ['y','de','el','la','los','las','un','una','unos','unas','tu','que','tal','con','sin','para','por','como','hola','oye','eh','ah','ok','okey'];
+    var words = txt.split(/[\s,]+/).map(function(w){return w.trim().toLowerCase();}).filter(function(w){ return w.length > 1 && SKIP_WORDS.indexOf(w) < 0; });
+    // Group compound products (papel higienico, aceite vegetal, etc)
+    var COMPOUNDS = ['papel higienico','aceite vegetal','aceite de oliva','leche evaporada','leche fresca','pollo entero','carne molida','papa amarilla','papa blanca','arroz extra','fideos spaghetti'];
+    var rawLines = txt.toLowerCase();
+    var identified = [];
+    COMPOUNDS.forEach(function(c){ if(rawLines.indexOf(c)>=0){ identified.push(c); rawLines=rawLines.replace(c,''); } });
+    // Remaining words
+    rawLines.split(/[\s,]+/).forEach(function(w){ w=w.trim(); if(w.length>1 && SKIP_WORDS.indexOf(w)<0) identified.push(w); });
+    var lines2 = identified.length > 0 ? identified : [txt];
+    cmpItems = lines2.map(function(line) {
+      line = line.trim();
+      var match = line.match(/^([0-9][0-9.,]*\s*(?:kg|g|lt|l|ml|unid|unidades|latas?|atados?|cabezas?)?\s*(?:de\s+)?)?(.+)$/i);
+      var cantidad = match && match[1] ? match[1].trim() : '1 unid';
+      var nombre = match && match[2] ? match[2].trim() : line;
+      nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+      // Smart default units
+      var nl = nombre.toLowerCase();
+      var unidad = 'unid';
+      var precioBase = 10;
+      if (/papa|cebolla|tomate|zanahoria|zapallo|camote|yuca|platano|manzana|naranja|limon|palta|brocoli|espinaca|lechuga|apio/.test(nl)) { unidad='kg'; precioBase=4; cantidad='1 kg'; }
+      else if (/pollo|carne|res|cerdo|lomo|pechuga|filete|pescado|trucha|salmon/.test(nl)) { unidad='kg'; precioBase=18; cantidad='1 kg'; }
+      else if (/leche|aceite|vinagre|sillao|ketchup/.test(nl)) { unidad='lt'; precioBase=8; cantidad='1 lt'; }
+      else if (/arroz|azucar|harina|sal|fideo|pasta|lenteja|frejol|garbanzo/.test(nl)) { unidad='kg'; precioBase=5; cantidad='1 kg'; }
+      else if (/huevo/.test(nl)) { unidad='unid'; precioBase=12; cantidad='12 unid'; }
+      else if (/bateria|pila/.test(nl)) { unidad='unid'; precioBase=15; cantidad='4 unid'; aclaracion='¿Tipo AA, AAA o recargables?'; }
+      else if (/papel|servilleta|pañal/.test(nl)) { unidad='paquete'; precioBase=12; cantidad='1 paquete'; }
+      else if (/shampoo|jabon|detergente|suavizante|lejia|limpiadon/.test(nl)) { unidad='unid'; precioBase=12; cantidad='1 unid'; }
+      var aclaracion2 = /bateria|pila/.test(nl) ? '¿Tipo AA, AAA o recargables?' : 
+                       /leche/.test(nl) ? '¿Evaporada, fresca o UHT?' :
+                       /papa/.test(nl) ? '¿Amarilla, blanca o negra?' :
+                       /pollo/.test(nl) ? '¿Entero, pechuga o piernas?' :
+                       /arroz/.test(nl) ? '¿Arroz extra, integral?' : null;
+      var aclaracion = aclaracion2;
+      var base = precioBase + Math.random() * 5;
+      return {nombre:nombre, cantidad:cantidad, categoria:
+        /papa|cebolla|tomate|zanahoria|zapallo|camote|yuca|platano|manzana|naranja|limon|palta|brocoli|espinaca|lechuga|pollo|carne|res|pescado/.test(nl)?'verduras':'abarrotes',
+        aclaracion:aclaracion2||null, busqueda_sugerida:nombre,
+        precio_estimado_wong:Math.round(base*0.92*10)/10, precio_estimado_metro:Math.round(base*0.95*10)/10,
+        precio_estimado_plazavea:Math.round(base*0.97*10)/10, precio_estimado_makro:Math.round(base*0.85*10)/10,
+        precio_estimado_vivanda:Math.round(base*1.10*10)/10};
+    });
+  }
+
+  document.getElementById('cmp-loading').classList.add('hidden');
+  document.getElementById('cmp-result').classList.remove('hidden');
+  btn.textContent = '🔍 Comparar precios';
+  btn.disabled = false;
+  renderCmpItems();
+  renderCmpSupers();
+  renderCmpLista();
+}
+
+function renderCmpItems() {
+  var CLBL2 = {carnes:'🥩',verduras:'🥬',lacteos:'🥛',abarrotes:'🛒',especias:'🧂',otros:'📦'};
+  // Smart icon based on product name
+  function getItemIcon(nombre, cat) {
+    var n = nombre.toLowerCase();
+    if (/pollo|gallina|pavo/.test(n)) return '🍗';
+    if (/carne|res|lomo|bistec|cerdo|chancho|tocino|jamon|salchicha/.test(n)) return '🥩';
+    if (/pescado|trucha|salmon|atun|corvina|lenguado|tilapia/.test(n)) return '🐟';
+    if (/camaron|langostino|mariscos|concha|pulpo|calamar/.test(n)) return '🦐';
+    if (/huevo/.test(n)) return '🥚';
+    if (/leche|queso|yogur|mantequilla|crema/.test(n)) return '🥛';
+    if (/papa|camote|yuca|olluco/.test(n)) return '🥔';
+    if (/tomate/.test(n)) return '🍅';
+    if (/cebolla|ajo/.test(n)) return '🧅';
+    if (/limon|naranja|mandarina|pina|mango|platano|manzana|pera/.test(n)) return '🍋';
+    if (/palta|aguacate/.test(n)) return '🥑';
+    if (/zanahoria|brocoli|espinaca|lechuga|apio|pepino/.test(n)) return '🥦';
+    if (/aji|rocoto|pimiento/.test(n)) return '🌶';
+    if (/arroz/.test(n)) return '🍚';
+    if (/fideo|pasta|spaghetti|tallar/.test(n)) return '🍝';
+    if (/pan|toast/.test(n)) return '🍞';
+    if (/aceite/.test(n)) return '🫙';
+    if (/azucar|chancaca/.test(n)) return '🍬';
+    if (/sal|pimienta|comino|oregano|culantro|perejil|hierbas|especias/.test(n)) return '🧂';
+    if (/bateria|pila/.test(n)) return '🔋';
+    if (/papel|servilleta|panial/.test(n)) return '🧻';
+    if (/jabon|shampoo|detergente|lejia|limpiador/.test(n)) return '🧴';
+    if (/agua|gaseosa|refresco|jugo|cerveza|vino|pisco/.test(n)) return '🥤';
+    if (/chocolate|galleta|dulce|caramelo/.test(n)) return '🍫';
+    return CLBL2[cat] || '🛒';
+  }
+  var div = document.getElementById('cmp-items');
+  div.innerHTML = '';
+  cmpItems.forEach(function(it, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:10px 0;border-bottom:1px solid #E8E5DC';
+    var main = document.createElement('div');
+    main.style.cssText = 'display:flex;align-items:center;gap:10px';
+    main.innerHTML = '<span style="font-size:18px">'+getItemIcon(it.nombre, it.categoria)+'</span>'
+      +'<span style="flex:1;font-size:14px;font-weight:500">'+it.nombre+'</span>'
+      +'<span style="font-size:12px;color:#888">'+it.cantidad+'</span>';
+    row.appendChild(main);
+    // Parse quantity into number + unit
+    var cantStr = it.cantidad || '1 unid';
+    var qMatch = cantStr.match(/^([0-9]+[.,]?[0-9]*)\s*(.*)$/);
+    var qNum = qMatch ? qMatch[1] : '1';
+    var qUnit = qMatch ? qMatch[2].trim() : 'unid';
+    
+    var extras = document.createElement('div');
+    extras.style.cssText = 'margin-top:6px;margin-left:26px;display:flex;flex-wrap:wrap;gap:8px;align-items:center';
+    
+    // Clarification bubble if present
+    if (it.aclaracion) {
+      var cbubble = document.createElement('span');
+      cbubble.style.cssText = 'font-size:12px;color:#C47A0A;background:#FEF3DC;border-radius:6px;padding:3px 9px';
+      cbubble.textContent = '💡 ' + it.aclaracion;
+      extras.appendChild(cbubble);
+    }
+
+    // Clarification answer input if needed
+    if (it.aclaracion) {
+      var cinp = document.createElement('input');
+      cinp.type='text'; cinp.placeholder='Especifica aquí...';
+      cinp.style.cssText='border:1px solid #F0C060;border-radius:6px;padding:4px 9px;font-size:12px;font-family:DM Sans,sans-serif;outline:none;width:150px;background:#FFFDF0';
+      (function(i, nom, inp){
+        var fired = false;
+        async function applySpec() {
+          if (fired) return;
+          var spec = inp.value.trim();
+          if (!spec) return;
+          fired = true;
+          inp.style.background = '#EAF5EE';
+          inp.style.color = '#888';
+          cmpItems[i].aclaracion = null;
+          cmpItems[i].nombre = nom + ' ' + spec;
+          cmpItems[i].busqueda_sugerida = spec + ' ' + nom;
+          await refineItemPrice(i, nom + ' ' + spec);
+          renderCmpItems();
+        }
+        inp.addEventListener('blur', function(){ applySpec(); });
+        inp.addEventListener('keydown', function(e){
+          if (e.key === 'Enter'){ e.preventDefault(); inp.blur(); }
+        });
+      })(idx, it.nombre, cinp);
+      extras.appendChild(cinp);
+    }
+    
+    // Quantity: only number is editable, unit is fixed label
+    var qlbl = document.createElement('span');
+    qlbl.style.cssText='font-size:11px;color:#888;margin-left:4px';
+    qlbl.textContent='Cantidad:';
+    
+    var qinp = document.createElement('input');
+    qinp.type='number'; qinp.value=qNum; qinp.min='0.1'; qinp.step='0.5';
+    qinp.style.cssText='border:1px solid #B2DFCC;border-radius:6px;padding:4px 8px;font-size:13px;font-family:DM Sans,sans-serif;outline:none;width:64px;background:#EAF5EE;color:#1B5E3B;font-weight:600;text-align:center';
+    (function(i, unit){ qinp.addEventListener('change', function() { 
+      var n = parseFloat(this.value) || 1;
+      cmpItems[i].cantidad = n + ' ' + unit;
+      // Recalculate prices proportionally
+      var oldQty = parseFloat(cmpItems[i]._lastQty || 1);
+      var ratio = oldQty > 0 ? n / oldQty : 1;
+      cmpItems[i]._lastQty = n;
+      ['wong','metro','plazavea','makro','vivanda'].forEach(function(k){
+        var cur = cmpItems[i]['precio_estimado_'+k] || 0;
+        if (cur) cmpItems[i]['precio_estimado_'+k] = Math.round(cur * ratio * 10) / 10;
+      });
+      renderCmpSupers();
+    }); })(idx, qUnit);
+    
+    var qunitlbl = document.createElement('span');
+    qunitlbl.style.cssText='font-size:13px;color:#1B5E3B;font-weight:500';
+    qunitlbl.textContent=qUnit;
+    
+    extras.appendChild(qlbl);
+    extras.appendChild(qinp);
+    extras.appendChild(qunitlbl);
+    row.appendChild(extras);
+    div.appendChild(row);
+  });
+  if (!cmpItems.length) div.innerHTML = '<p style="color:#888;font-size:14px">No se pudieron identificar productos</p>';
+}
+
+function renderCmpSupers() {
+  // Always use current prices (no stale cache)
+  var superKeys = ['wong','metro','plazavea','makro','vivanda'];
+  cmpTotals = {};
+  superKeys.forEach(function(k) {
+    cmpTotals[k] = cmpItems.reduce(function(acc,it){return acc+(it['precio_estimado_'+k]||0);},0);
+  });
+  cmpSorted = superKeys.slice().sort(function(a,b){return (cmpTotals[a]+SP[a].d)-(cmpTotals[b]+SP[b].d);});
+  var best = cmpSorted[0];
+  cmpSuperActivo = best;
+  renderCmpCards();
+  var ws = SP[best];
+  var wbox = document.getElementById('cmp-winner');
+  wbox.innerHTML = '';
+  var wd = document.createElement('div');
+  wd.style.cssText = 'background:#1B5E3B;color:#fff;border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px';
+  wd.innerHTML = '<div><div style="font-family:Playfair Display,serif;font-size:18px;margin-bottom:3px">🏆 '+ws.n+' — la opción más económica</div>'
+    +'<div style="font-size:13px;opacity:.8">S/ '+Math.round(cmpTotals[best]*10)/10+' en productos + '+(ws.d>0?'S/ '+ws.d+' delivery':'sin delivery')+' = Total S/ '+Math.round((cmpTotals[best]+ws.d)*10)/10+'</div></div>';
+  var wb = document.createElement('button');
+  wb.style.cssText = 'padding:11px 20px;background:#fff;color:#1B5E3B;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  wb.textContent = 'Comprar en '+ws.n+' →';
+  (function(k){ wb.addEventListener('click', function(){ cmpSuperActivo=k; renderCmpCards(); renderCmpStabs(); renderCmpLista(); }); })(best);
+  wd.appendChild(wb);
+  wbox.appendChild(wd);
+  renderCmpStabs();
+  renderCmpLista();
+}
+
+function renderCmpCards() {
+  var sgrid = document.getElementById('cmp-supers');
+  sgrid.innerHTML = '';
+  cmpSorted.forEach(function(k, i) {
+    var s = SP[k];
+    var isBest = i === 0;
+    var isActive = k === cmpSuperActivo;
+    var total = Math.round((cmpTotals[k]+s.d)*10)/10;
+    var card = document.createElement('div');
+    card.style.cssText = 'border:'+(isActive?'3px solid '+s.bg:(isBest?'2px solid #1B5E3B':'1.5px solid #E8E5DC'))
+      +';border-radius:12px;padding:16px;background:'+(isActive?s.bg+'22':(isBest?'#EAF5EE':'#fff'))
+      +';text-align:center;position:relative;cursor:pointer;transition:.15s';
+    card.innerHTML = (isBest?'<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#1B5E3B;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">✓ Más barato</div>':'')
+      +(isActive?'<div style="position:absolute;top:8px;right:8px;background:'+s.bg+';color:'+s.fg+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">✓ Activo</div>':'')
+      +'<div style="font-weight:700;font-size:14px;margin-bottom:5px;color:'+s.bg+'">'+s.n+'</div>'
+      +'<div style="font-family:Playfair Display,serif;font-size:24px;font-weight:700">S/ '+Math.round(cmpTotals[k]*10)/10+'</div>'
+      +'<div style="font-size:11px;color:#888;margin:3px 0 6px">'+(s.d>0?'+ S/'+s.d+' delivery':'Sin delivery')+'</div>'
+      +'<div style="font-size:12px;border-top:1px solid #E8E5DC;padding-top:6px;font-weight:600">Total: S/ '+total+'</div>';
+    (function(key){
+      card.addEventListener('click', function(){
+        cmpSuperActivo = key;
+        renderCmpCards();
+        renderCmpStabs();
+        renderCmpLista();
+        document.getElementById('cmp-lista').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    })(k);
+    sgrid.appendChild(card);
+  });
+}
+
+function renderCmpStabs() {
+  var stabs = document.getElementById('cmp-stabs');
+  stabs.innerHTML = '';
+  Object.keys(SP).forEach(function(k) {
+    var s = SP[k];
+    var isOn = k === cmpSuperActivo;
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:7px 14px;border-radius:20px;border:1.5px solid '+(isOn?s.bg:'#E8E5DC')+';background:'+(isOn?s.bg:'#fff')+';color:'+(isOn?s.fg:'#3D3D35')+';font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif';
+    btn.textContent = s.n;
+    (function(key){ btn.addEventListener('click', function(){ cmpSuperActivo=key; renderCmpCards(); renderCmpStabs(); renderCmpLista(); }); })(k);
+    stabs.appendChild(btn);
+  });
+}
+
+function renderCmpLista() {
+  var s = SP[cmpSuperActivo];
+  if (!s) return;
+  var div = document.getElementById('cmp-lista');
+  if (!div) return;
+  div.innerHTML = '';
+  cmpItems.forEach(function(it) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E8E5DC';
+
+    // Checkbox
+    var box = document.createElement('div');
+    box.style.cssText = 'width:20px;height:20px;border-radius:5px;border:1.5px solid #E8E5DC;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff';
+    var checked = false;
+    box.addEventListener('click', function(){
+      checked = !checked;
+      box.style.background = checked ? '#1B5E3B' : '';
+      box.style.borderColor = checked ? '#1B5E3B' : '#E8E5DC';
+      box.textContent = checked ? '✓' : '';
+      row.style.opacity = checked ? '0.4' : '1';
+    });
+
+    // Name + qty together
+    var nameWrap = document.createElement('div');
+    nameWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:1px';
+    var nameEl = document.createElement('span');
+    nameEl.style.cssText = 'font-size:14px;font-weight:500;color:#1A1914';
+    nameEl.textContent = it.nombre;
+    var qtyEl = document.createElement('span');
+    qtyEl.style.cssText = 'font-size:11px;color:#888';
+    qtyEl.textContent = it.cantidad;
+    nameWrap.appendChild(nameEl);
+    nameWrap.appendChild(qtyEl);
+
+    // Price
+    var pr = document.createElement('span');
+    pr.style.cssText = 'font-size:13px;font-weight:600;color:#1B5E3B;white-space:nowrap';
+    var precio = it['precio_estimado_' + cmpSuperActivo] || 0;
+    pr.textContent = '~S/' + precio;
+
+    // Add button
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:6px 12px;color:'+s.fg+';background:'+s.bg+';border-radius:6px;font-size:12px;font-weight:700;border:none;cursor:pointer;white-space:nowrap';
+    btn.textContent = '+ Agregar';
+    (function(q, url){
+      btn.addEventListener('click', function(){
+        var enc = encodeURIComponent(q);
+        var href = url.includes('makro') ? url+'/busca/?ft='+enc : url+'/'+enc+'?_q='+enc+'&map=ft';
+        window.open(href, '_blank');
+      });
+    })(it.busqueda_sugerida || it.nombre, s.url);
+
+    row.appendChild(box);
+    row.appendChild(nameWrap);
+    row.appendChild(pr);
+    row.appendChild(btn);
+    div.appendChild(row);
+  });
+}
+
+function startCmpVoice() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert('Tu navegador no soporta dictado. Usa Chrome.'); return; }
+  var btn = document.getElementById('cmp-mic-btn');
+  var status = document.getElementById('cmp-voice-status');
+  var preview = document.getElementById('cmp-voice-preview');
+  var textarea = document.getElementById('cmp-input');
+  if (window.cmpRecognition) { window.cmpRecognition.stop(); window.cmpRecognition=null; return; }
+  var rec = new SpeechRecognition();
+  rec.lang='es-PE'; rec.continuous=true; rec.interimResults=true;
+  window.cmpRecognition = rec;
+  var accumulated = textarea.value ? textarea.value.trim() : '';
+  var lastFinalIdx = 0;
+  rec.onstart = function(){ btn.textContent='⏹ Detener'; btn.style.background='#B83232'; btn.style.borderColor='#B83232'; btn.style.color='#fff'; status.style.display='block'; preview.style.display='block'; };
+  var silenceTimer = null;
+  rec.onresult = function(e){
+    var interim='';
+    for(var i=lastFinalIdx;i<e.results.length;i++){
+      if(e.results[i].isFinal){
+        var chunk=e.results[i][0].transcript.trim();
+        if(chunk){
+          // Clear silence timer - accumulate words, split on pause
+          clearTimeout(silenceTimer);
+          // Add to buffer
+          if(accumulated) accumulated+=', ';
+          accumulated+=chunk;
+          textarea.value=accumulated;
+          // After 1.2s silence = new product boundary (visual only, commas already added)
+          silenceTimer=setTimeout(function(){
+            var count=accumulated.split(',').filter(function(s){return s.trim();}).length;
+            preview.textContent='✓ '+count+' producto(s). Sigue hablando o detén.';
+          },1200);
+        }
+        lastFinalIdx=i+1;
+      } else {
+        interim=e.results[i][0].transcript;
+      }
+    }
+    if(interim) preview.textContent='📝 '+interim;
+  };
+  rec.onend = function(){ window.cmpRecognition=null; btn.textContent='🎤 Dictar'; btn.style.background='#fff'; btn.style.borderColor='#1B5E3B'; btn.style.color='#1B5E3B'; status.style.display='none'; setTimeout(function(){preview.style.display='none';},2000); };
+  rec.onerror = function(){ rec.stop(); };
+  rec.start();
+}
+
+
+async function refineItemPrice(idx, nombreCompleto) {
+  try {
+    var prompt = 'Precio de "' + nombreCompleto + '" en soles peruanos en supermercados de Lima 2024. Responde UNICAMENTE con este JSON: {"precio_wong":number,"precio_metro":number,"precio_plazavea":number,"precio_makro":number,"precio_vivanda":number}';
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': AKEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 100,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
+    var text = (data.content || []).map(function(c){ return c.text || ''; }).join('');
+    var clean = text.replace(/```json|```/g, '').trim();
+    var p = JSON.parse(clean);
+    // Update prices if we got valid numbers
+    if (typeof p.precio_wong === 'number') {
+      cmpItems[idx].precio_estimado_wong     = p.precio_wong;
+      cmpItems[idx].precio_estimado_metro    = p.precio_metro;
+      cmpItems[idx].precio_estimado_plazavea = p.precio_plazavea;
+      cmpItems[idx].precio_estimado_makro    = p.precio_makro;
+      cmpItems[idx].precio_estimado_vivanda  = p.precio_vivanda;
+      var m = (cmpItems[idx].cantidad||'1').match(/^([0-9]+[.,]?[0-9]*)/);
+      cmpItems[idx]._lastQty = m ? parseFloat(m[1]) : 1;
+      renderCmpSupers();
+      renderCmpLista();
+    }
+  } catch(e) {
+    console.warn('refineItemPrice failed:', e.message);
+    // Silently keep existing estimates
+  }
+}
+
+function abrirTodos() {
+  var s = SP[cmpSuperActivo];
+  if (!s || !cmpItems.length) return;
+  // Open all tabs synchronously within the same user gesture (bypasses popup blocker)
+  cmpItems.forEach(function(it) {
+    var q = encodeURIComponent(it.busqueda_sugerida || it.nombre);
+    var href = s.url.includes('makro') ? s.url+'/busca/?ft='+q : s.url+'/'+q+'?_q='+q+'&map=ft';
+    window.open(href, '_blank');
+  });
+}
+
+
+// ── VOICE INPUT FOR PLANNER (step 3) ─────────────────────────────────────────
+var plannerRecognition = null;
+function startVoiceInput() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert('Dictado no disponible. Usa Chrome en desktop.'); return; }
+  var btn = document.getElementById('mic-btn');
+  var status = document.getElementById('voice-status');
+  if (plannerRecognition) { plannerRecognition.stop(); plannerRecognition = null; return; }
+  var rec = new SpeechRecognition();
+  rec.lang = 'es-PE';
+  rec.continuous = true;
+  rec.interimResults = true;
+  plannerRecognition = rec;
+  var lastFinalIdx = 0;
+  rec.onstart = function() {
+    if (btn) { btn.textContent = '⏹ Detener'; btn.style.background='#B83232'; btn.style.borderColor='#B83232'; btn.style.color='#fff'; }
+    if (status) status.style.display = 'block';
+  };
+  rec.onresult = function(e) {
+    var area = document.getElementById('extra-ing-input');
+    if (!area) return;
+    var finalChunk = '';
+    for (var i = lastFinalIdx; i < e.results.length; i++) {
+      if (e.results[i].isFinal) { finalChunk += e.results[i][0].transcript; lastFinalIdx = i+1; }
+    }
+    if (finalChunk) {
+      area.value = (area.value ? area.value + ', ' : '') + finalChunk.trim();
+    }
+  };
+  rec.onend = function() {
+    plannerRecognition = null;
+    if (btn) { btn.textContent = '🎤 Dictar'; btn.style.background='#fff'; btn.style.borderColor='#1B5E3B'; btn.style.color='#1B5E3B'; }
+    if (status) status.style.display = 'none';
+  };
+  rec.onerror = function() { rec.stop(); };
+  rec.start();
+}
+
+// ── SHOW RECIPES (step 4) ─────────────────────────────────────────────────────
+var activeRecipe = 0;
+function showRecipes() {
+  goS(4);
+  activeRecipe = 0;
+  renderRecipeTabs();
+  showRecipeCard(0);
+}
+
+function renderRecipeTabs() {
+  var tabs = document.getElementById('recipe-tabs');
+  if (!tabs) return;
+  tabs.innerHTML = '';
+  sel.forEach(function(nombre, i) {
+    var p = PL.find(function(x) { return x.n === nombre; }) || {e:'🍽'};
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:8px 16px;border-radius:20px;border:1.5px solid '+(i===activeRecipe?'#1B5E3B':'#E8E5DC')+';background:'+(i===activeRecipe?'#1B5E3B':'#fff')+';color:'+(i===activeRecipe?'#fff':'#3D3D35')+';font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;display:flex;align-items:center;gap:6px';
+    btn.innerHTML = p.e + ' ' + nombre;
+    (function(idx){ btn.addEventListener('click', function() { activeRecipe=idx; renderRecipeTabs(); showRecipeCard(idx); }); })(i);
+    tabs.appendChild(btn);
+  });
+}
+
+function showRecipeCard(idx) {
+  var nombre = sel[idx];
+  if (!nombre) return;
+  var r = getRecipe(nombre);
+  var p = PL.find(function(x) { return x.n === nombre; }) || {e:'🍽'};
+  var div = document.getElementById('recipe-content');
+  if (!div) return;
+  var html = '<div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;overflow:hidden">';
+  html += '<div style="background:#F5F0E8;padding:20px 24px;border-bottom:1px solid #E8E5DC">';
+  html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">';
+  html += '<span style="font-size:40px">'+p.e+'</span>';
+  html += '<div><h3 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:5px">'+nombre+'</h3>';
+  html += '<div style="display:flex;gap:16px;font-size:13px;color:#888"><span>⏱ '+r.tiempo+'</span><span>👨‍🍳 '+r.dificultad+'</span><span>👥 '+r.porciones+' porciones</span></div></div></div>';
+  html += '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:8px">Utensilios</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  r.utensilios.forEach(function(u){ html += '<span style="background:#fff;border:1px solid #B2DFCC;border-radius:20px;padding:4px 12px;font-size:12px;color:#1B5E3B">🔪 '+u+'</span>'; });
+  html += '</div></div>';
+  html += '<div style="padding:22px 24px">';
+  r.pasos.forEach(function(paso, i) {
+    var last = i === r.pasos.length-1;
+    html += '<div style="display:flex;gap:14px;margin-bottom:'+(last?'0':'22px')+';padding-bottom:'+(last?'0':'22px')+';border-bottom:'+(last?'none':'1px solid #E8E5DC')+'">';
+    html += '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#1B5E3B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">'+(i+1)+'</div>';
+    html += '<div style="flex:1"><div style="font-weight:600;font-size:15px;margin-bottom:6px">'+paso.titulo+'</div>';
+    html += '<div style="font-size:12px;color:#1B5E3B;background:#EAF5EE;border-radius:6px;padding:5px 10px;margin-bottom:8px">🛒 '+paso.ingredientes+'</div>';
+    html += '<div style="font-size:13px;color:#3D3D35;line-height:1.6">'+paso.metodo+'</div></div></div>';
+  });
+  html += '</div>';
+  // Navigation
+  html += '<div style="display:flex;justify-content:space-between;padding:16px 24px;border-top:1px solid #E8E5DC">';
+  html += '<button onclick="if('+idx+'>0){activeRecipe='+(idx-1)+';renderRecipeTabs();showRecipeCard('+(idx-1)+')}" style="padding:10px 20px;border-radius:8px;border:1.5px solid #E8E5DC;background:#fff;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;'+(idx===0?'opacity:.3;cursor:not-allowed':'')+'">&larr; Anterior</button>';
+  html += '<button onclick="if('+idx+'<sel.length-1){activeRecipe='+(idx+1)+';renderRecipeTabs();showRecipeCard('+(idx+1)+')}" style="padding:10px 20px;border-radius:8px;border:none;background:#1B5E3B;color:#fff;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;'+(idx===sel.length-1?'opacity:.3;cursor:not-allowed':'')+' ">Siguiente &rarr;</button>';
+  html += '</div></div>';
+  div.innerHTML = html;
+}
+
+// ── ADD EXTRA INGREDIENTS (step 3) ────────────────────────────────────────────
+function addExtraIngredientes() {
+  var txt = document.getElementById('extra-ing-input');
+  if (!txt || !txt.value.trim()) return;
+  var lines = txt.value.split(/[,\n]+/).map(function(l){ return l.trim(); }).filter(Boolean);
+  lines.forEach(function(line) {
+    var match = line.match(/^([0-9][0-9.,]*\s*(?:kg|g|lt|l|ml|unid|unidades|latas?|atados?)?\s*(?:de\s+)?)?(.+)$/i);
+    var cantidad = match && match[1] ? match[1].trim() : '1 unid';
+    var nombre = match && match[2] ? match[2].trim() : line;
+    nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    lista.push({nombre:nombre, cantidad:cantidad, categoria:'otros'});
+  });
+  txt.value = '';
+  baseTotal = lista.reduce(function(a,it){ return a+(PUNIT[it.categoria||'otros']||5); },0);
+  document.getElementById('l3sub').innerHTML = 'Para '+pers+' personas &middot; 7 d&iacute;as &middot; '+lista.length+' productos';
+  renderStabs();
+  renderItems();
+  updProg();
+}
+
+
+// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
+const SUPA_URL = 'https://jmkvphayyhwzootlybde.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impta3ZwaGF5eWh3em9vdGx5YmRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODE3ODEsImV4cCI6MjA5MzU1Nzc4MX0.EP2vv5avU1FIXlZn4jFo3QkvqnxOdLOrICqNV8qAZxM';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Init auth state after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  supa.auth.getSession().then(function(resp) {
+    if (resp.data && resp.data.session) setUser(resp.data.session.user);
+  });
+  supa.auth.onAuthStateChange(function(event, session) {
+    if (session) setUser(session.user);
+    else clearUser();
+  });
+});
+
+function setUser(user) {
+  currentUser = user;
+  var btn = document.getElementById('auth-btn');
+  var label = document.getElementById('auth-label');
+  var menu = document.getElementById('user-menu');
+  if (!btn) return;
+  var name = user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0];
+  var avatar = user.user_metadata && user.user_metadata.avatar_url;
+  label.textContent = name;
+  if (avatar) btn.innerHTML = '<img src="'+avatar+'" class="user-avatar"/> <span>'+name+'</span>';
+  document.getElementById('user-name-dd').textContent = name;
+  document.getElementById('user-email-dd').textContent = user.email;
+  // Upsert user in db
+  supa.from('cs_users').upsert({ id: user.id, email: user.email, nombre: name, avatar_url: avatar||null, last_seen: new Date().toISOString() });
+}
+
+function clearUser() {
+  currentUser = null;
+  var label = document.getElementById('auth-label');
+  var btn = document.getElementById('auth-btn');
+  if (label) label.textContent = 'Iniciar sesión';
+  if (btn) btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Iniciar sesión</span>';
+}
+
+function handleAuthClickFull() {
+  if (currentUser) {
+    var dd = document.getElementById('user-dropdown');
+    if (dd) {
+      dd.classList.toggle('open');
+      setTimeout(function() {
+        document.addEventListener('click', function handler(e) {
+          var menu = document.getElementById('user-menu');
+          if (menu && !menu.contains(e.target)) {
+            dd.classList.remove('open');
+            document.removeEventListener('click', handler);
+          }
+        });
+      }, 10);
+    }
+  } else {
+    signInWithGoogle();
+  }
+}
+// Override the simple handleAuthClick once main script loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Now handleAuthClickFull is available, reassign
+  window.handleAuthClick = handleAuthClickFull;
+});
+
+async function signInWithGoogle() {
+  var { error } = await supa.auth.signInWithOAuth({
+    provider: 'google',
+    options: { 
+      redirectTo: window.location.origin,
+      queryParams: {
+        client_id: '93093318127-gs26msk3hro8mgks7q4iti8ao0tn0bq8.apps.googleusercontent.com'
+      }
+    }
+  });
+  if (error) console.error('Auth error:', error);
+}
+
+async function signOut() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  await supa.auth.signOut();
+}
+
+async function saveCurrentList() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  if (!currentUser) { signInWithGoogle(); return; }
+  if (!lista.length && !sel.length) { alert('No hay lista activa para guardar'); return; }
+  var nombre = prompt('Nombre para esta lista:', 'Lista ' + new Date().toLocaleDateString('es-PE'));
+  if (!nombre) return;
+  var { error } = await supa.from('cs_listas').insert({
+    user_id: currentUser.id,
+    nombre: nombre,
+    platos: sel,
+    personas: pers,
+    ingredientes: lista
+  });
+  if (!error) showToast('✓ Lista guardada como "' + nombre + '"');
+  else showToast('Error al guardar: ' + error.message, true);
+}
+
+async function loadUserData() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  if (!currentUser) { signInWithGoogle(); return; }
+  var { data, error } = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false }).limit(10);
+  if (error || !data || !data.length) { showToast('No tienes listas guardadas aún'); return; }
+  showListasModal(data);
+}
+
+
+async function loadUserData() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  if (!currentUser) { signInWithGoogle(); return; }
+  var { data, error } = await supa.from('cs_listas').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false }).limit(10);
+  if (error || !data || !data.length) { showToast('No tienes listas guardadas aún'); return; }
+  showListasModal(data);
+}
+
+function showListasModal(listas) {
+  var overlay = document.createElement('div');
+  overlay.className = 'cs-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px';
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:#fff;border-radius:14px;max-width:500px;width:100%;overflow:hidden;max-height:80vh;display:flex;flex-direction:column';
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'background:#1B5E3B;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0';
+  var title = document.createElement('h3');
+  title.style.cssText = 'font-family:Playfair Display,serif;font-size:18px';
+  title.textContent = 'Mis listas guardadas';
+  var closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0';
+  closeBtn.textContent = '×';
+  closeBtn.addEventListener('click', function(){ overlay.remove(); });
+  hdr.appendChild(title);
+  hdr.appendChild(closeBtn);
+  var body = document.createElement('div');
+  body.style.cssText = 'padding:16px;overflow-y:auto';
+  listas.forEach(function(l) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:8px;border:1px solid #E8E5DC;margin-bottom:8px';
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0';
+    var nm = document.createElement('div');
+    nm.style.cssText = 'font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    nm.textContent = l.nombre;
+    var meta = document.createElement('div');
+    meta.style.cssText = 'font-size:12px;color:#888';
+    meta.textContent = ((l.platos||[]).length)+' platos · '+(l.personas||4)+' personas · '+new Date(l.created_at).toLocaleDateString('es-PE');
+    info.appendChild(nm);
+    info.appendChild(meta);
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:6px 14px;background:#1B5E3B;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0';
+    btn.textContent = 'Cargar';
+    (function(item){ btn.addEventListener('click', function(){ loadLista(item); overlay.remove(); }); })(l);
+    row.appendChild(info);
+    row.appendChild(btn);
+    body.appendChild(row);
+  });
+  modal.appendChild(hdr);
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+>
