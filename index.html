@@ -2180,31 +2180,11 @@ function updateListaBadge() {
   }
 }
 
-// Subscribe to realtime changes (sync across devices)
 function subscribeListaActiva() {
-  if (!currentUser) return;
-  supa.channel('lista_activa_' + currentUser.id)
-    .on('postgres_changes', {
-      event: 'UPDATE',
-      schema: 'public',
-      table: 'cs_lista_activa',
-      filter: 'user_id=eq.' + currentUser.id
-    }, function(payload) {
-      // Another device updated the list
-      if (payload.new && payload.new.items) {
-        cmpItems = payload.new.items;
-        cmpSuperActivo = payload.new.supermercado || 'wong';
-        updateListaBadge();
-        showToast('📱 Lista actualizada desde otro dispositivo');
-        var scomp = document.getElementById('scomparar');
-        if (scomp && !scomp.classList.contains('hidden')) {
-          renderCmpItems();
-          renderCmpSupers();
-          renderCmpLista();
-        }
-      }
-    })
-    .subscribe();
+  // Realtime disabled - polling on focus instead
+  window.addEventListener('focus', function() {
+    if (currentUser) loadListaActiva();
+  });
 }
 
 function handleAuthClickFull() {
