@@ -1495,22 +1495,22 @@ async function compararLista() {
     console.error('Claude API error en comparar:', e);
     // Silently use fallback - no error shown to user
     await new Promise(function(r){setTimeout(r,300);});
-    // Smart fallback: split by spaces, filter non-products
-    var SKIP_WORDS = ['y','de','el','la','los','las','un','una','unos','unas','tu','que','tal','con','sin','para','por','como','hola','oye','eh','ah','ok','okey'];
-    var words = txt.split(/[\s,]+/).map(function(w){return w.trim().toLowerCase();}).filter(function(w){ return w.length > 1 && SKIP_WORDS.indexOf(w) < 0; });
-    // Group compound products (papel higienico, aceite vegetal, etc)
-    var COMPOUNDS = ['papel higienico','aceite vegetal','aceite de oliva','leche evaporada','leche fresca','pollo entero','carne molida','papa amarilla','papa blanca','arroz extra','fideos spaghetti'];
-    var rawLines = txt.toLowerCase();
-    var identified = [];
-    COMPOUNDS.forEach(function(c){ if(rawLines.indexOf(c)>=0){ identified.push(c); rawLines=rawLines.replace(c,''); } });
-    // Remaining words
-    rawLines.split(/[\s,]+/).forEach(function(w){ w=w.trim(); if(w.length>1 && SKIP_WORDS.indexOf(w)<0) identified.push(w); });
-    var lines2 = identified.length > 0 ? identified : [txt];
+    // Simple fallback: split only by newlines/commas, keep full product names
+    var lines2 = txt.split(/[\n\r,]+/).map(function(l){ return l.trim(); }).filter(Boolean);
+    if (lines2.length === 0) lines2 = [txt.trim()];
     cmpItems = lines2.map(function(line) {
       line = line.trim();
-      var match = line.match(/^([0-9][0-9.,]*\s*(?:kg|g|lt|l|ml|unid|unidades|latas?|atados?|cabezas?)?\s*(?:de\s+)?)?(.+)$/i);
-      var cantidad = match && match[1] ? match[1].trim() : '1 unid';
-      var nombre = match && match[2] ? match[2].trim() : line;
+      // Match quantity at START: "475ml crema" or "2 kg papa" or "500g queso"
+      var match = line.match(/^([0-9]+[.,]?[0-9]*\s*(?:kg|g|gr|lt|l|ml|cc|unid|unidades|latas?|tazas?|cdas?|cucharadas?)?)\s+(.+)$/i);
+      var cantidad, nombre;
+      if (match && match[1] && match[2]) {
+        cantidad = match[1].trim();
+        nombre = match[2].trim();
+      } else {
+        // No quantity found - use defaults
+        cantidad = '1 unid';
+        nombre = line;
+      }
       nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
       // Smart default units
       var nl = nombre.toLowerCase();
