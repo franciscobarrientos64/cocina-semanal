@@ -1,6 +1,6 @@
 {
   "name": "cocina-semanal",
   "scripts": {
-    "build": "sed -i 's/__ANTHROPIC_KEY_PLACEHOLDER__/'\"$ANTHROPIC_API_KEY\"'/g' index.html"
+    "build": "node build.js"
   }
 }
