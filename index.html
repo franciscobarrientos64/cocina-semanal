@@ -185,6 +185,8 @@ h1,h2,h3{font-family:'Playfair Display',serif}
       <a id="nav-planificar" onclick="showSection('plan')">Planificar</a>
       <a id="nav-recetas" onclick="showSection('recetas')">Recetas</a>
       <a id="nav-comparar" onclick="showSection('comparar')">📋 Mi lista</a>
+      <a id="nav-hogar" onclick="showSection('hogar')">🏠 Mi hogar</a>
+      <a id="nav-stock" onclick="showSection('stock')">🥫 En casa</a>
     </nav>
     <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
       <button class="hcta" onclick="startPlan()">Empezar semana &rarr;</button>
@@ -352,11 +354,62 @@ h1,h2,h3{font-family:'Playfair Display',serif}
           <div style="font-weight:600;font-size:15px">Lista de compra organizada</div>
           <button onclick="abrirTodos()" style="padding:7px 14px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🛒 Abrir todos en supermercado</button>
         </div>
-        <div style="font-size:13px;color:#888;margin-bottom:14px">Selecciona el supermercado y agrega cada producto</div>
+        <div style="font-size:13px;color:#888;margin-bottom:10px">Toca el círculo para tachar lo que ya compraste</div>
+        <div id="compra-progress" style="display:none;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px">
+            <span id="compra-progress-label">0 de 0 comprados</span>
+            <span id="compra-progress-pct">0%</span>
+          </div>
+          <div style="height:5px;background:#E8E5DC;border-radius:3px;overflow:hidden">
+            <div id="compra-progress-bar" style="height:100%;background:#1B5E3B;border-radius:3px;transition:.3s;width:0%"></div>
+          </div>
+        </div>
         <div id="cmp-stabs" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px"></div>
         <div id="cmp-lista"></div>
       </div>
     </div>
+  </div>
+</div>
+
+
+<div id="shogar" class="hidden">
+  <div style="max-width:800px;margin:0 auto;padding:40px 24px 80px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px">Mi hogar</h2>
+    <p style="color:#888;font-size:15px;margin-bottom:28px">Comparte listas de compra con tu familia o compañeros</p>
+    <div id="hogar-content">
+      <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:28px;text-align:center">
+        <div style="font-size:48px;margin-bottom:12px">🏠</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px">No tienes un hogar aún</h3>
+        <p style="color:#888;font-size:14px;margin-bottom:24px">Crea un hogar y comparte el código con tu familia para agregar productos juntos</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onclick="crearHogar()" style="padding:12px 24px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">+ Crear hogar</button>
+          <button onclick="unirseHogar()" style="padding:12px 24px;background:#fff;color:#1B5E3B;border:1.5px solid #1B5E3B;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Unirse con código</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sstock" class="hidden">
+  <div style="max-width:800px;margin:0 auto;padding:40px 24px 80px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px">
+      <div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px">En casa</h2>
+        <p style="color:#888;font-size:15px">Lo que ya tienes — no lo comprarás de nuevo</p>
+      </div>
+      <button onclick="showAddStock()" style="padding:10px 20px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">+ Agregar</button>
+    </div>
+    <!-- Add stock form -->
+    <div id="add-stock-form" style="display:none;background:#fff;border:1px solid #E8E5DC;border-radius:12px;padding:20px;margin-bottom:20px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input id="stock-nombre" type="text" placeholder="Producto (ej: arroz, aceite)" style="flex:2;min-width:160px;border:1.5px solid #E8E5DC;border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"/>
+        <input id="stock-cantidad" type="text" placeholder="Cantidad (ej: 2 kg)" style="flex:1;min-width:100px;border:1.5px solid #E8E5DC;border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"/>
+        <input id="stock-vence" type="date" style="flex:1;min-width:130px;border:1.5px solid #E8E5DC;border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"/>
+        <button onclick="agregarStock()" style="padding:9px 18px;background:#1B5E3B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Guardar</button>
+        <button onclick="document.getElementById('add-stock-form').style.display='none'" style="padding:9px 14px;background:#F5F0E8;color:#3D3D35;border:none;border-radius:8px;font-size:14px;cursor:pointer">Cancelar</button>
+      </div>
+    </div>
+    <div id="stock-list"></div>
   </div>
 </div>
 
@@ -921,6 +974,8 @@ function showSection(s) {
   document.getElementById('srecetas').classList.add('hidden');
   document.getElementById('splan').classList.add('hidden');
   document.getElementById('scomparar').classList.add('hidden');
+  document.getElementById('shogar').classList.add('hidden');
+  document.getElementById('sstock').classList.add('hidden');
   document.querySelectorAll('.hnav a').forEach(function(a) { a.classList.remove('on'); });
   if (s === 'home') {
     document.getElementById('shome').classList.remove('hidden');
@@ -932,6 +987,14 @@ function showSection(s) {
   } else if (s === 'comparar') {
     document.getElementById('scomparar').classList.remove('hidden');
     document.getElementById('nav-comparar').classList.add('on');
+  } else if (s === 'hogar') {
+    document.getElementById('shogar').classList.remove('hidden');
+    document.getElementById('nav-hogar').classList.add('on');
+    loadHogar();
+  } else if (s === 'stock') {
+    document.getElementById('sstock').classList.remove('hidden');
+    document.getElementById('nav-stock').classList.add('on');
+    loadStock();
   } else if (s === 'plan') {
     document.getElementById('splan').classList.remove('hidden');
     document.getElementById('nav-planificar').classList.add('on');
@@ -1700,6 +1763,7 @@ function renderCmpSupers() {
   wbox.appendChild(wd);
   renderCmpStabs();
   renderCmpLista();
+  updateCompraProgress();
 }
 
 function renderCmpCards() {
@@ -1747,26 +1811,35 @@ function renderCmpStabs() {
   });
 }
 
+var checkedItems = {};
+
 function renderCmpLista() {
   var s = SP[cmpSuperActivo];
   if (!s) return;
   var div = document.getElementById('cmp-lista');
   if (!div) return;
   div.innerHTML = '';
-  cmpItems.forEach(function(it) {
+  cmpItems.forEach(function(it, idx) {
+    var isChecked = checkedItems[it.nombre] || false;
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E8E5DC';
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E8E5DC;transition:.2s';
+    if (isChecked) row.style.opacity = '0.4';
 
     // Checkbox
     var box = document.createElement('div');
-    box.style.cssText = 'width:20px;height:20px;border-radius:5px;border:1.5px solid #E8E5DC;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff';
-    var checked = false;
+    box.style.cssText = 'width:22px;height:22px;border-radius:6px;border:1.5px solid '+(isChecked?'#1B5E3B':'#E8E5DC')+';flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:'+(isChecked?'#1B5E3B':'')+';transition:.15s';
+    box.textContent = isChecked ? '✓' : '';
     box.addEventListener('click', function(){
-      checked = !checked;
-      box.style.background = checked ? '#1B5E3B' : '';
-      box.style.borderColor = checked ? '#1B5E3B' : '#E8E5DC';
-      box.textContent = checked ? '✓' : '';
-      row.style.opacity = checked ? '0.4' : '1';
+      checkedItems[it.nombre] = !checkedItems[it.nombre];
+      var ck = checkedItems[it.nombre];
+      box.style.background = ck ? '#1B5E3B' : '';
+      box.style.borderColor = ck ? '#1B5E3B' : '#E8E5DC';
+      box.textContent = ck ? '✓' : '';
+      row.style.opacity = ck ? '0.4' : '1';
+      // Save checked state
+      saveListaActiva();
+      // Update progress
+      updateCompraProgress();
     });
 
     // Name + qty together
@@ -1891,6 +1964,23 @@ async function refineItemPrice(idx, nombreCompleto) {
     console.warn('refineItemPrice failed:', e.message);
     // Silently keep existing estimates
   }
+}
+
+function updateCompraProgress() {
+  if (!cmpItems.length) return;
+  var done = Object.values(checkedItems).filter(Boolean).length;
+  var total = cmpItems.length;
+  var pct = Math.round(done / total * 100);
+  var bar = document.getElementById('compra-progress-bar');
+  var lbl = document.getElementById('compra-progress-label');
+  var pctEl = document.getElementById('compra-progress-pct');
+  var wrap = document.getElementById('compra-progress');
+  if (wrap) wrap.style.display = total > 0 ? 'block' : 'none';
+  if (bar) bar.style.width = pct + '%';
+  if (bar) bar.style.background = pct === 100 ? '#C47A0A' : '#1B5E3B';
+  if (lbl) lbl.textContent = done + ' de ' + total + ' comprados';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (pct === 100) showToast('🎉 ¡Lista completada! Todo comprado.');
 }
 
 function abrirTodos() {
@@ -2099,6 +2189,7 @@ async function loadListaActiva() {
     if (data && data.items && data.items.length > 0) {
       cmpItems = data.items;
       if (data.supermercado) cmpSuperActivo = data.supermercado;
+      if (data.checked_items) checkedItems = data.checked_items;
       // Show comparar section if items exist
       showToast('✓ Lista cargada — ' + cmpItems.length + ' productos');
       // If user is in comparar section, re-render
@@ -2127,6 +2218,7 @@ async function saveListaActiva() {
         user_id: currentUser.id,
         items: cmpItems,
         supermercado: cmpSuperActivo,
+        checked_items: checkedItems,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
 
