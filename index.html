@@ -2489,6 +2489,92 @@ function showListasModal(listas) {
   document.body.appendChild(overlay);
 }
 
+// ── AGREGAR MÁS PRODUCTOS ─────────────────────────────────────────────────────
+var agregarMasVoiceRec = null;
+
+function toggleAgregarMas() {
+  var form = document.getElementById('agregar-mas-form');
+  var btn = document.getElementById('toggle-agregar-btn');
+  if (!form) return;
+  var open = form.style.display === 'none' || form.style.display === '';
+  form.style.display = open ? 'block' : 'none';
+  if (btn) btn.textContent = open ? '✕ Cerrar' : '+ Agregar';
+  if (open) setTimeout(function(){ var a = document.getElementById('agregar-mas-input'); if(a) a.focus(); }, 50);
+}
+
+function startAgregarMasVoice() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert('Dictado no disponible en este navegador'); return; }
+  var btn = document.getElementById('agregar-mic-btn');
+  var status = document.getElementById('agregar-mas-status');
+  if (agregarMasVoiceRec) { agregarMasVoiceRec.stop(); agregarMasVoiceRec = null; return; }
+  var rec = new SpeechRecognition();
+  rec.lang = 'es-PE'; rec.continuous = true; rec.interimResults = false;
+  agregarMasVoiceRec = rec;
+  rec.onstart = function() {
+    if (btn) { btn.textContent = '⏹ Detener'; btn.style.background = '#B83232'; btn.style.borderColor = '#B83232'; btn.style.color = '#fff'; }
+    if (status) status.style.display = 'block';
+  };
+  rec.onresult = function(e) {
+    var area = document.getElementById('agregar-mas-input');
+    if (!area) return;
+    var txt = e.results[e.results.length-1][0].transcript.trim();
+    area.value = (area.value ? area.value + ', ' : '') + txt;
+  };
+  rec.onend = function() {
+    agregarMasVoiceRec = null;
+    if (btn) { btn.textContent = '🎤 Dictar'; btn.style.background = '#fff'; btn.style.borderColor = '#1B5E3B'; btn.style.color = '#1B5E3B'; }
+    if (status) status.style.display = 'none';
+  };
+  rec.start();
+}
+
+async function procesarAgregarMas() {
+  var area = document.getElementById('agregar-mas-input');
+  if (!area || !area.value.trim()) { showToast('Escribe o dicta los productos a agregar', true); return; }
+  var txt = area.value.trim();
+  var btn = document.querySelector('[onclick="procesarAgregarMas()"]');
+  if (btn) { btn.textContent = '⏳ Cotizando...'; btn.disabled = true; }
+  try {
+    var prompt = 'Lista de compras en Peru. El usuario quiere agregar: "' + txt + '". Devuelve SOLO JSON: {"ingredientes":[{"nombre":"string","cantidad":"string con unidad","categoria":"verduras|carnes|lacteos|abarrotes|especias|otros"}]}';
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':AKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    var data = await r.json();
+    var raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    var parsed = JSON.parse(raw);
+    var nuevos = parsed.ingredientes || [];
+    if (!nuevos.length) { showToast('No se encontraron productos', true); return; }
+    var existingNames = cmpItems.map(function(i){ return i.nombre.toLowerCase(); });
+    var added = 0;
+    var newIdxs = [];
+    nuevos.forEach(function(nuevo) {
+      if (existingNames.indexOf(nuevo.nombre.toLowerCase()) < 0) {
+        cmpItems.push(nuevo);
+        newIdxs.push(cmpItems.length - 1);
+        existingNames.push(nuevo.nombre.toLowerCase());
+        added++;
+      }
+    });
+    newIdxs.forEach(function(i){ refineItemPrice(i, cmpItems[i].nombre); });
+    showToast('✓ ' + added + ' producto' + (added!==1?'s':'') + ' agregado' + (added!==1?'s':''));
+    area.value = '';
+    toggleAgregarMas();
+    renderCmpItems();
+    renderCmpSupers();
+    renderCmpLista();
+    updateListaBadge();
+    saveListaActiva();
+  } catch(e) {
+    console.error('procesarAgregarMas:', e);
+    showToast('Error procesando productos', true);
+  } finally {
+    if (btn) { btn.textContent = '🔍 Agregar y cotizar'; btn.disabled = false; }
+  }
+}
+
 </script>
 </body>
 </html>
