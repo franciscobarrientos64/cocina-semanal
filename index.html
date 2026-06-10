@@ -2544,6 +2544,11 @@ async function procesarAgregarMas() {
       body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
     });
     var data = await r.json();
+    console.log('API response:', JSON.stringify(data).substring(0,200));
+    if (!r.ok || !data.content || !data.content[0]) {
+      showToast('Error API: ' + (data.error && data.error.message ? data.error.message : r.status), true);
+      return;
+    }
     var raw = data.content[0].text.replace(/```json|```/g,'').trim();
     var parsed = JSON.parse(raw);
     var nuevos = parsed.ingredientes || [];
