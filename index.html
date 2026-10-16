@@ -186,7 +186,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
       <a id="nav-recetas" onclick="showSection('recetas')">Recetas</a>
       <a id="nav-comparar" onclick="showSection('comparar')">📋 Mi lista</a>
       <a id="nav-hogar" onclick="showSection('hogar')">🏠 Mi hogar</a>
-      <a id="nav-stock" onclick="showSection('stock')">❄️ Congeladora</a>
+      <a id="nav-stock" onclick="showSection('stock')">❄️ Congeladoras</a>
     </nav>
     <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
       <button class="hcta" onclick="startPlan()">Empezar semana &rarr;</button>
@@ -399,8 +399,8 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   <div class="pr-wrap">
     <div class="pr-head">
       <div>
-        <h2>Congeladora y refri</h2>
-        <p>Comida ya preparada: qué hay, de qué tamaño, hasta cuándo, y qué toca cocinar.</p>
+        <h2>Congeladoras y refri</h2>
+        <p>Arrastra una tanda (⠿) o un envase suelto de un equipo a otro. Toca una tanda para editarla.</p>
       </div>
       <div class="pr-actions">
         <label class="pr-btn pr-btn-main">📷 Actualizar con foto
@@ -411,23 +411,19 @@ h1,h2,h3{font-family:'Playfair Display',serif}
       </div>
     </div>
 
-    <div class="pr-tabs">
-      <button id="pr-tab-congeladora" class="on" onclick="prTab('congeladora')">Congeladora</button>
-      <button id="pr-tab-refri" onclick="prTab('refri')">Refri</button>
-    </div>
-
     <div id="pr-login" class="pr-empty hidden">Inicia sesión para guardar tu inventario.</div>
     <div id="pr-todo"></div>
-    <div id="pr-list"></div>
+    <div id="pr-board"></div>
 
     <details class="pr-help">
       <summary>Cómo funciona</summary>
-      <p><b>En la hoja:</b> una raya en una casilla cuando entra un envase y la cruz completa cuando sale. Lo que queda son las rayas sin cruzar.</p>
-      <p><b>En la refri:</b> se anota en el día en que hay que comerlo. Descongelado dura 3 días; hecho y no congelado, 4.</p>
-      <p><b>La foto:</b> toma la hoja entera y de frente, con las cuatro esquinas a la vista. La app lee lo que hay y te lo muestra para que lo confirmes antes de guardar; lo que confirmas reemplaza el inventario de esa hoja.</p>
-      <p><b>Mínimo:</b> cuando una sección baja a su mínimo pasa a "Por hacer". Desde ahí puedes mandar los ingredientes a Mi lista.</p>
+      <p><b>Arrastrar:</b> desde ⠿ mueves la tanda completa; desde un envase (250, 500, 1 L) mueves solo uno. Al soltar en la refri vence en 3 días; al soltar en "Se comió" se descuenta.</p>
+      <p><b>En la hoja impresa:</b> una raya en la casilla cuando entra un envase y la cruz completa cuando sale. En la refri se anota en el día en que hay que comerlo.</p>
+      <p><b>La foto:</b> toma la hoja entera, de frente y con las cuatro esquinas a la vista. La app reconoce de qué equipo es la hoja, te muestra lo que leyó y, al confirmar, reemplaza el inventario de ese equipo.</p>
+      <p><b>Mínimo:</b> cuando una sección, sumando las dos congeladoras, baja a su mínimo, pasa a "Por hacer".</p>
     </details>
   </div>
+  <div id="pr-dock" class="pr-dock"></div>
 </div>
 
 <div id="splan" class="hidden">
@@ -2588,78 +2584,86 @@ async function procesarAgregarMas() {
 
 </script>
 <style>
-.pr-wrap{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+.pr-wrap{max-width:1200px;margin:0 auto;padding:40px 24px 120px}
 .pr-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 .pr-head h2{font-size:32px;margin-bottom:4px}
-.pr-head p{color:var(--mu);font-size:15px}
+.pr-head p{color:var(--mu);font-size:15px;max-width:560px}
 .pr-actions{display:flex;gap:8px;flex-wrap:wrap}
 .pr-btn{padding:10px 16px;border-radius:8px;font:600 14px 'DM Sans',sans-serif;cursor:pointer;border:1.5px solid var(--bo);background:#fff;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .pr-btn:hover{background:var(--wa)}
 .pr-btn-main{background:var(--g);border-color:var(--g);color:#fff}.pr-btn-main:hover{background:var(--g2)}
-.pr-tabs{display:flex;border-bottom:1.5px solid var(--ink);margin-bottom:18px}
-.pr-tabs button{background:none;border:none;padding:10px 18px;font:600 15px 'DM Sans',sans-serif;color:var(--mu);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1.5px}
-.pr-tabs button.on{color:var(--ink);border-bottom-color:var(--g)}
+.pr-btn-red{color:#B83232;border-color:#E9C6C6}
 .pr-empty{padding:28px 0;color:var(--mu);text-align:center}
-.pr-todo{border-left:4px solid #C47A0A;background:#FBF4E8;padding:14px 18px;margin-bottom:22px}
-.pr-todo h3{font-size:18px;margin-bottom:6px}
-.pr-todo li{margin-left:18px;font-size:14px}
-.pr-todo .pr-btn{margin-top:10px;font-size:13px;padding:7px 12px}
-.pr-cat{margin-bottom:26px}
-.pr-cat-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:4px;margin-bottom:2px}
-.pr-cat-h h3{font-size:19px}
-.pr-cat-h .pr-min{font-size:13px;color:var(--mu)}
-.pr-min input{width:46px;padding:3px 6px;border:1px solid var(--bo);border-radius:6px;font:inherit;text-align:center}
-.pr-tot{font-size:13px;color:var(--mu);margin-left:10px}
-.pr-row{display:grid;grid-template-columns:1fr 92px repeat(3,96px) 34px;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bo);font-size:14px}
-.pr-row.hd{font-size:12px;color:var(--mu);font-weight:600;padding:6px 0}
-.pr-name{font-weight:500}
-.pr-name small{display:block;color:var(--mu);font-weight:400;font-size:12px}
-.pr-v{font-size:13px}
-.pr-v.warn{color:#C47A0A;font-weight:600}.pr-v.bad{color:#B83232;font-weight:600}
-.pr-n{display:flex;align-items:center;justify-content:center;gap:4px}
-.pr-n b{min-width:20px;text-align:center;font-size:16px}
-.pr-n b.zero{color:#ccc}
-.pr-n button{width:24px;height:24px;border-radius:50%;border:1px solid var(--bo);background:#fff;cursor:pointer;font-size:14px;line-height:1;color:var(--ink)}
-.pr-n button:hover{background:var(--gl)}
-.pr-x{background:none;border:none;color:#bbb;cursor:pointer;font-size:16px}
-.pr-x:hover{color:#B83232}
-.pr-day{display:grid;grid-template-columns:120px 1fr;border-top:1.5px solid var(--ink);padding:10px 0}
-.pr-day .dn{font:700 17px 'Playfair Display',serif;display:flex;align-items:center;gap:7px}
-.pr-day .dd{font-size:12px;color:var(--mu);margin-left:23px}
-.pr-dot{width:14px;height:14px;border-radius:50%;display:inline-block;flex:none;border:1px solid rgba(0,0,0,.2)}
-.pr-it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:14px}
-.pr-it .sz{color:var(--mu);font-size:13px}
-.pr-help{margin-top:30px;font-size:14px;color:#555}
+.pr-todo{border-left:4px solid #C47A0A;background:#FBF4E8;padding:14px 18px;margin-bottom:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.pr-todo h3{font-size:18px;margin-bottom:4px}
+.pr-todo ul{margin:0 0 0 18px;font-size:14px}
+.pr-todo .ok{font-size:14px;color:var(--mu)}
+.pr-mins{font-size:13px;color:var(--mu)}
+.pr-mins summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.pr-mins div{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:5px}
+.pr-mins input{width:50px;padding:3px 6px;border:1px solid var(--bo);border-radius:6px;font:inherit;text-align:center}
+
+.pr-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.pr-col{background:#fff;border:1.5px solid var(--bo);border-radius:12px;padding:14px 14px 16px;min-height:220px;transition:border-color .12s,background .12s}
+.pr-col.over{border-color:var(--g);background:var(--gl)}
+.pr-col-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid var(--ink);padding-bottom:6px;margin-bottom:8px}
+.pr-col-h h3{font-size:20px}
+.pr-col-h span{font-size:13px;color:var(--mu)}
+.pr-grp{font:600 12px 'DM Sans',sans-serif;color:var(--mu);margin:12px 0 4px;display:flex;align-items:center;gap:6px}
+.pr-grp.day{font:700 15px 'Playfair Display',serif;color:var(--ink)}
+.pr-grp .rel{font:600 12px 'DM Sans',sans-serif;color:var(--mu)}
+.pr-grp .rel.bad{color:#B83232}
+.pr-dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:none;border:1px solid rgba(0,0,0,.2)}
+.pr-vacia{color:#bbb;font-size:14px;padding:22px 0;text-align:center;border:1.5px dashed var(--bo);border-radius:8px;margin-top:8px}
+.pr-card{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--bo);border-radius:8px;padding:8px 10px 8px 6px;margin-bottom:6px;background:#fff;cursor:pointer}
+.pr-card:hover{border-color:#cfcabd}
+.pr-card.vencido{border-color:#E9C6C6;background:#FDF5F5}
+.pr-grip{cursor:grab;color:#aaa;font-size:18px;line-height:1;padding:2px 4px;touch-action:none;user-select:none}
+.pr-cb{flex:1;min-width:0}
+.pr-cn{font-weight:600;font-size:14px;line-height:1.3}
+.pr-cv{font-size:12px;color:var(--mu)}
+.pr-cv.warn{color:#C47A0A;font-weight:600}.pr-cv.bad{color:#B83232;font-weight:600}
+.pr-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.pr-chip{font-size:12px;border:1px solid var(--g);color:var(--g);border-radius:50px;padding:2px 9px;cursor:grab;touch-action:none;user-select:none;background:#fff}
+.pr-chip b{font-weight:700}
+.pr-chip:hover{background:var(--gl)}
+.pr-ghost{position:fixed;left:0;top:0;z-index:700;pointer-events:none;background:var(--g);color:#fff;font:600 13px 'DM Sans',sans-serif;padding:7px 12px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);white-space:nowrap}
+.pr-dock{position:fixed;left:0;right:0;bottom:0;z-index:600;display:none;gap:8px;justify-content:center;padding:12px;background:rgba(250,250,246,.96);border-top:1px solid var(--bo)}
+.pr-dock.on{display:flex}
+.pr-dock div{flex:1;max-width:190px;text-align:center;padding:14px 6px;border:1.5px dashed var(--mu);border-radius:10px;font:600 14px 'DM Sans',sans-serif;background:#fff}
+.pr-dock div.over{border-style:solid;border-color:var(--g);background:var(--gl);color:var(--g)}
+.pr-dock div.comio.over{border-color:#C47A0A;background:#FBF4E8;color:#C47A0A}
+body.pr-dragging{user-select:none;cursor:grabbing}
+.pr-help{margin-top:30px;font-size:14px;color:#555;max-width:760px}
 .pr-help summary{cursor:pointer;font-weight:600;color:var(--ink);margin-bottom:8px}
 .pr-help p{margin-bottom:8px}
-.pr-modal-bg{position:fixed;inset:0;background:rgba(26,25,20,.55);z-index:500;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px}
+.pr-modal-bg{position:fixed;inset:0;background:rgba(26,25,20,.55);z-index:800;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px}
 .pr-modal{background:#fff;border-radius:12px;max-width:820px;width:100%;padding:24px}
 .pr-modal h3{font-size:22px;margin-bottom:4px}
 .pr-modal p.sub{color:var(--mu);font-size:14px;margin-bottom:14px}
 .pr-modal table{width:100%;border-collapse:collapse;font-size:13px}
 .pr-modal th{text-align:left;color:var(--mu);font-weight:600;padding:4px;border-bottom:1px solid var(--ink)}
 .pr-modal td{padding:3px;border-bottom:1px solid var(--bo)}
-.pr-modal input,.pr-modal select{width:100%;padding:5px 6px;border:1px solid var(--bo);border-radius:6px;font:inherit}
-.pr-modal input[type=number]{width:52px}
+.pr-modal input,.pr-modal select{width:100%;padding:6px 7px;border:1px solid var(--bo);border-radius:6px;font:inherit}
+.pr-modal input[type=number]{width:56px}
 .pr-modal .foot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
-.pr-note{font-size:13px;color:#C47A0A}
-@media(max-width:700px){
-  .pr-wrap{padding:28px 16px 60px}
-  .pr-row{grid-template-columns:minmax(0,1fr) repeat(3,62px);gap:4px}
-  .pr-row .pr-v{grid-column:1;grid-row:2;margin-top:-6px}
-  .pr-row .pr-x{grid-column:4;grid-row:2;justify-self:end}
-  .pr-row.hd>span:last-child{display:none}
-  .pr-n{gap:1px}.pr-n button{width:21px;height:21px;font-size:12px}.pr-n b{min-width:16px;font-size:15px}
-  .pr-cat-h{flex-wrap:wrap}
-  .pr-row.hd .pr-v{display:none}
-  .pr-day{grid-template-columns:1fr}
+.pr-modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:13px;color:var(--mu)}
+.pr-modal .grid label{display:flex;flex-direction:column;gap:3px}
+.pr-modal .grid .full{grid-column:1/-1}
+.pr-modal .sizes{display:flex;gap:14px}
+.pr-note{font-size:13px;color:#C47A0A;margin-bottom:10px}
+@media(max-width:860px){
+  .pr-wrap{padding:28px 16px 120px}
+  .pr-board{grid-template-columns:1fr}
   .pr-modal{padding:16px}
   .pr-modal .hide-m{display:none}
+  .pr-dock div{padding:16px 4px;font-size:13px}
 }
 </style>
 <script>
-// ── CONGELADORA Y REFRI ─────────────────────────────────────────────────────
-var PR = { tab: 'congeladora', rows: [], mins: {} };
+// ── CONGELADORAS Y REFRI (tablero) ───────────────────────────────────────────
+var PR = { rows: [], mins: {} };
+var PR_APAR = [['refri','Refri'],['congeladora','Congeladora 1'],['congeladora2','Congeladora 2']];
 var PR_CATS = [['acompanamientos','Acompañamientos'],['salsas','Salsas'],['proteinas','Proteínas'],['guisos','Guisos'],['otros','Sopas, cremas y otros']];
 var PR_SIZES = [['n250','250 ml'],['n500','500 ml'],['n1000','1 L']];
 // Mismos colores que la hoja impresa (sistema de "day dots"); índice = getDay()
@@ -2672,10 +2676,13 @@ function prMas(iso, dias) { var d = iso ? new Date(iso + 'T12:00:00') : new Date
 function prDias(iso) { if (!iso) return null; return Math.round((new Date(iso + 'T12:00:00') - new Date(prHoy() + 'T12:00:00')) / 864e5); }
 function prFecha(iso) { if (!iso) return '—'; var p = iso.split('-'); return p[2] + '/' + p[1]; }
 function prTotal(r) { return (r.n250||0) + (r.n500||0) + (r.n1000||0); }
+function prFrio(u) { return u !== 'refri'; }
+function prNombreAp(u) { return (PR_APAR.find(function(a) { return a[0] === u; }) || [u, u])[1]; }
+function prRow(id) { return PR.rows.find(function(x) { return x.id === id; }); }
 
 async function loadStock() {
   document.getElementById('pr-login').classList.toggle('hidden', !!currentUser);
-  if (!currentUser) { document.getElementById('pr-list').innerHTML = ''; document.getElementById('pr-todo').innerHTML = ''; return; }
+  if (!currentUser) { document.getElementById('pr-board').innerHTML = ''; document.getElementById('pr-todo').innerHTML = ''; return; }
   var res = await Promise.all([
     supa.from('cs_preparados').select('*').order('vence', { ascending: true, nullsFirst: false }),
     supa.from('cs_prep_minimos').select('*')
@@ -2687,166 +2694,258 @@ async function loadStock() {
   prRender();
 }
 
-function prTab(t) {
-  PR.tab = t;
-  ['congeladora','refri'].forEach(function(x) { document.getElementById('pr-tab-' + x).classList.toggle('on', x === t); });
-  prRender();
-}
-
 function prVence(r) {
   var d = prDias(r.vence);
-  var cls = d == null ? '' : d < 0 ? 'bad' : (r.ubicacion === 'refri' ? d <= 1 : d <= 14) ? 'warn' : '';
-  var txt = d == null ? '—' : d < 0 ? 'Vencido ' + prFecha(r.vence) : d === 0 ? 'Vence hoy' : d === 1 ? 'Vence mañana' : 'Vence ' + prFecha(r.vence);
-  return '<span class="pr-v ' + cls + '">' + txt + '</span>';
+  var cls = d == null ? '' : d < 0 ? 'bad' : (prFrio(r.ubicacion) ? d <= 14 : d <= 1) ? 'warn' : '';
+  var txt = d == null ? 'sin fecha' : d < 0 ? 'vencido ' + prFecha(r.vence) : d === 0 ? 'vence hoy' : d === 1 ? 'vence mañana' : 'vence ' + prFecha(r.vence);
+  return '<div class="pr-cv ' + cls + '">' + txt + (prFrio(r.ubicacion) && r.hecho ? ' · hecho ' + prFecha(r.hecho) : '') + '</div>';
+}
+
+function prCard(r) {
+  var vencido = r.vence && prDias(r.vence) < 0;
+  return '<div class="pr-card' + (vencido ? ' vencido' : '') + '" data-edit="' + r.id + '">'
+    + '<span class="pr-grip" data-drag data-id="' + r.id + '" title="Arrastra la tanda completa">⠿</span>'
+    + '<div class="pr-cb"><div class="pr-cn">' + prEsc(r.nombre) + '</div>' + prVence(r)
+    + '<div class="pr-chips">' + PR_SIZES.filter(function(s) { return r[s[0]] > 0; }).map(function(s) {
+        return '<span class="pr-chip" data-drag data-id="' + r.id + '" data-campo="' + s[0] + '" title="Arrastra un envase">' + s[1] + ' <b>×' + r[s[0]] + '</b></span>';
+      }).join('') + '</div></div></div>';
+}
+
+function prColumna(ap) {
+  var u = ap[0];
+  var rows = PR.rows.filter(function(r) { return r.ubicacion === u; });
+  var tot = rows.reduce(function(a, r) { return a + prTotal(r); }, 0);
+  var body = '';
+  if (!rows.length) body = '<div class="pr-vacia">Vacía · arrastra aquí</div>';
+  else if (u === 'refri') {
+    var porDia = {};
+    rows.forEach(function(r) { var k = r.vence || 'sin'; (porDia[k] = porDia[k] || []).push(r); });
+    body = Object.keys(porDia).sort().map(function(k) {
+      var day = k === 'sin' ? ['Sin fecha', '#ccc'] : PR_DAYS[new Date(k + 'T12:00:00').getDay()];
+      var dd = prDias(k === 'sin' ? null : k);
+      var rel = dd == null ? '' : dd < 0 ? 'vencido' : dd === 0 ? 'hoy' : dd === 1 ? 'mañana' : prFecha(k);
+      return '<div class="pr-grp day"><span class="pr-dot" style="background:' + day[1] + '"></span>' + day[0] + ' <span class="rel' + (dd != null && dd <= 0 ? ' bad' : '') + '">' + rel + '</span></div>'
+        + porDia[k].map(prCard).join('');
+    }).join('');
+  } else {
+    body = PR_CATS.map(function(c) {
+      var cr = rows.filter(function(r) { return r.categoria === c[0]; });
+      return cr.length ? '<div class="pr-grp">' + c[1] + '</div>' + cr.map(prCard).join('') : '';
+    }).join('');
+  }
+  return '<div class="pr-col" data-drop="' + u + '"><div class="pr-col-h"><h3>' + ap[1] + '</h3><span>' + tot + ' envase' + (tot === 1 ? '' : 's') + '</span></div>' + body + '</div>';
 }
 
 function prRender() {
   if (!currentUser) return;
-  var rows = PR.rows.filter(function(r) { return r.ubicacion === PR.tab; });
-  var list = document.getElementById('pr-list');
-  var todo = document.getElementById('pr-todo');
-  todo.innerHTML = '';
-
-  if (PR.tab === 'congeladora') {
-    var falta = [];
-    PR_CATS.forEach(function(c) {
-      var min = PR.mins[c[0]] || 0;
-      var tot = rows.filter(function(r) { return r.categoria === c[0]; }).reduce(function(a, r) { return a + prTotal(r); }, 0);
-      if (min > 0 && tot <= min) falta.push({ cat: c, tot: tot, min: min });
-    });
-    if (falta.length) {
-      todo.innerHTML = '<div class="pr-todo"><h3>Por hacer</h3><ul>' + falta.map(function(f) {
-        return '<li><b>' + f.cat[1] + '</b>: quedan ' + f.tot + ' envase' + (f.tot === 1 ? '' : 's') + ' (mínimo ' + f.min + ')</li>';
-      }).join('') + '</ul><button class="pr-btn" onclick="prAPlan()">Elegir qué cocinar y armar la lista →</button></div>';
-    }
-    var html = '<div class="pr-row hd"><span>Elaboración</span><span class="pr-v">Vence</span>' + PR_SIZES.map(function(s) { return '<span style="text-align:center">' + s[1] + '</span>'; }).join('') + '<span></span></div>';
-    PR_CATS.forEach(function(c) {
-      var cr = rows.filter(function(r) { return r.categoria === c[0]; });
-      var tot = cr.reduce(function(a, r) { return a + prTotal(r); }, 0);
-      html += '<div class="pr-cat"><div class="pr-cat-h"><h3>' + c[1] + '<span class="pr-tot">' + tot + ' envase' + (tot === 1 ? '' : 's') + '</span></h3>'
-        + '<span class="pr-min">mínimo <input type="number" min="0" value="' + (PR.mins[c[0]] || '') + '" placeholder="–" onchange="prMin(\'' + c[0] + '\', this.value)"/></span></div>';
-      if (!cr.length) html += '<div class="pr-row" style="color:#bbb"><span>Nada todavía</span></div>';
-      cr.forEach(function(r) { html += prFila(r); });
-      html += '</div>';
-    });
-    list.innerHTML = html;
-  } else {
-    if (!rows.length) { list.innerHTML = '<div class="pr-empty">La refri está vacía. Saca algo de la congeladora con el botón ↓ refri, o agrega una tanda.</div>'; return; }
-    var porDia = {};
-    rows.forEach(function(r) { var k = r.vence || 'sin'; (porDia[k] = porDia[k] || []).push(r); });
-    list.innerHTML = Object.keys(porDia).sort().map(function(k) {
-      var d = k === 'sin' ? null : new Date(k + 'T12:00:00');
-      var day = d ? PR_DAYS[d.getDay()] : ['Sin fecha', '#ccc'];
-      var dd = prDias(k);
-      var rel = dd == null ? '' : dd < 0 ? 'vencido' : dd === 0 ? 'hoy' : dd === 1 ? 'mañana' : prFecha(k);
-      return '<div class="pr-day"><div><div class="dn"><span class="pr-dot" style="background:' + day[1] + '"></span>' + day[0] + '</div><div class="dd"' + (dd != null && dd <= 0 ? ' style="color:#B83232;font-weight:600"' : '') + '>' + rel + '</div></div><div>'
-        + porDia[k].map(function(r) {
-          return '<div class="pr-it"><span>' + prEsc(r.nombre) + ' <span class="sz">' + PR_SIZES.filter(function(s) { return r[s[0]]; }).map(function(s) { return r[s[0]] + '×' + s[1]; }).join(' · ') + '</span></span>'
-            + '<span><button class="pr-btn" style="padding:4px 10px;font-size:12px" onclick="prComido(\'' + r.id + '\')">✓ se comió</button> <button class="pr-x" title="Se botó" onclick="prBorrar(\'' + r.id + '\')">✕</button></span></div>';
-        }).join('') + '</div></div>';
-    }).join('');
-  }
-}
-
-function prFila(r) {
-  return '<div class="pr-row"><span class="pr-name">' + prEsc(r.nombre) + '<small>hecho ' + prFecha(r.hecho) + '</small></span>' + prVence(r)
-    + PR_SIZES.map(function(s) {
-      var n = r[s[0]] || 0;
-      return '<span class="pr-n"><button title="Sacar uno" onclick="prMover(\'' + r.id + '\',\'' + s[0] + '\')">' + (n ? '↓' : '·') + '</button><b class="' + (n ? '' : 'zero') + '">' + n + '</b><button title="Agregar uno" onclick="prSumar(\'' + r.id + '\',\'' + s[0] + '\',1)">+</button></span>';
-    }).join('')
-    + '<button class="pr-x" title="Borrar fila" onclick="prBorrar(\'' + r.id + '\')">✕</button></div>';
-}
-
-async function prGuardar(r, cambios) {
-  Object.assign(r, cambios, { updated_at: new Date().toISOString() });
-  prRender();
-  var res = await supa.from('cs_preparados').update(Object.assign({}, cambios, { updated_at: r.updated_at })).eq('id', r.id);
-  if (res.error) { showToast('No se guardó el cambio', true); loadStock(); }
-}
-
-function prSumar(id, campo, d) {
-  var r = PR.rows.find(function(x) { return x.id === id; });
-  if (!r) return;
-  var c = {}; c[campo] = Math.max(0, (r[campo] || 0) + d);
-  prGuardar(r, c);
-}
-
-// Sacar un envase de la congeladora: pregunta si va a la refri (vence en 3 días) o se come hoy
-function prMover(id, campo) {
-  var r = PR.rows.find(function(x) { return x.id === id; });
-  if (!r || !(r[campo] > 0)) return;
-  var bg = document.createElement('div');
-  bg.className = 'pr-modal-bg';
-  bg.innerHTML = '<div class="pr-modal" style="max-width:420px"><h3>' + prEsc(r.nombre) + '</h3><p class="sub">Sale un envase de ' + PR_SIZES.find(function(s) { return s[0] === campo; })[1] + '.</p>'
-    + '<div style="display:flex;flex-direction:column;gap:8px"><button class="pr-btn pr-btn-main" data-a="refri">Pasa a la refri (consumir hasta el ' + PR_DAYS[new Date(prMas(null, 3) + 'T12:00:00').getDay()][0].toLowerCase() + ')</button>'
-    + '<button class="pr-btn" data-a="hoy">Se come hoy</button><button class="pr-btn" data-a="x">Cancelar</button></div></div>';
-  bg.addEventListener('click', async function(e) {
-    var a = e.target.getAttribute && e.target.getAttribute('data-a');
-    if (e.target !== bg && !a) return;
-    bg.remove();
-    if (!a || a === 'x') return;
-    prSumar(id, campo, -1);
-    if (a === 'refri') {
-      var nueva = { ubicacion: 'refri', categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, vence: prMas(null, 3), n250: 0, n500: 0, n1000: 0, origen: 'congeladora' };
-      nueva[campo] = 1;
-      var res = await supa.from('cs_preparados').insert(nueva).select().single();
-      if (res.error) { showToast('No se pudo pasar a la refri', true); return; }
-      PR.rows.push(res.data);
-      showToast('✓ En la refri hasta el ' + prFecha(nueva.vence));
-    }
+  var frio = PR.rows.filter(function(r) { return prFrio(r.ubicacion); });
+  var falta = [];
+  PR_CATS.forEach(function(c) {
+    var min = PR.mins[c[0]] || 0;
+    var tot = frio.filter(function(r) { return r.categoria === c[0]; }).reduce(function(a, r) { return a + prTotal(r); }, 0);
+    if (min > 0 && tot <= min) falta.push({ cat: c, tot: tot, min: min });
   });
-  document.body.appendChild(bg);
-}
-
-function prComido(id) { prBorrar(id, true); }
-
-async function prBorrar(id, silencioso) {
-  var r = PR.rows.find(function(x) { return x.id === id; });
-  if (!r) return;
-  if (!silencioso && !window.confirm('¿Borrar "' + r.nombre + '"?')) return;
-  PR.rows = PR.rows.filter(function(x) { return x.id !== id; });
-  prRender();
-  var res = await supa.from('cs_preparados').delete().eq('id', id);
-  if (res.error) { showToast('No se pudo borrar', true); loadStock(); }
+  document.getElementById('pr-todo').innerHTML = '<div class="pr-todo"><div><h3>Por hacer</h3>'
+    + (falta.length ? '<ul>' + falta.map(function(f) { return '<li><b>' + f.cat[1] + '</b>: quedan ' + f.tot + ' envase' + (f.tot === 1 ? '' : 's') + ' (mínimo ' + f.min + ')</li>'; }).join('') + '</ul>'
+        + '<button class="pr-btn" style="margin-top:10px;font-size:13px;padding:7px 12px" onclick="prAPlan()">Elegir qué cocinar y armar la lista →</button>'
+      : '<div class="ok">Todo sobre el mínimo' + (Object.keys(PR.mins).some(function(k) { return PR.mins[k] > 0; }) ? '.' : '. Define los mínimos por sección →') + '</div>')
+    + '</div><details class="pr-mins"><summary>Mínimos por sección</summary>'
+    + PR_CATS.map(function(c) { return '<div>' + c[1] + ' <input type="number" min="0" value="' + (PR.mins[c[0]] || '') + '" placeholder="–" onchange="prMin(\'' + c[0] + '\', this.value)"/></div>'; }).join('')
+    + '</details></div>';
+  document.getElementById('pr-board').innerHTML = '<div class="pr-board">' + PR_APAR.map(prColumna).join('') + '</div>';
 }
 
 async function prMin(cat, v) {
   var n = Math.max(0, parseInt(v, 10) || 0);
   PR.mins[cat] = n;
-  prRender();
   var res = await supa.from('cs_prep_minimos').upsert({ user_id: currentUser.id, categoria: cat, minimo: n });
   if (res.error) showToast('No se guardó el mínimo', true);
+  prRender();
 }
 
-function prAPlan() {
-  showSection('plan');
-  goS(1);
-  showToast('Elige los platos que vas a cocinar y arma la lista');
+function prAPlan() { showSection('plan'); goS(1); showToast('Elige los platos que vas a cocinar y arma la lista'); }
+
+// ── Mover entre equipos ──────────────────────────────────────────────────────
+// campo = null mueve la tanda completa; 'n250' | 'n500' | 'n1000' mueve un envase
+async function prMoverA(id, campo, destino) {
+  var r = prRow(id);
+  if (!r) return;
+  if (destino === r.ubicacion) return;
+  try {
+    if (destino === 'comio') {
+      if (!campo || prTotal(r) <= 1) { await prBorrarFila(r); showToast('✓ ' + r.nombre + (campo ? ': último envase' : '') + ' fuera'); }
+      else { var c = {}; c[campo] = r[campo] - 1; await prActualizar(r, c); showToast('✓ Un envase de ' + r.nombre + ' menos'); }
+      return;
+    }
+    // Al pasar a la refri: descongelado dura 3 días. De la refri a una congeladora: 2 meses. Entre congeladoras: igual.
+    var vence = destino === 'refri' ? prMas(null, 3) : r.ubicacion === 'refri' ? prMas(null, 60) : r.vence;
+    var mov = { n250: 0, n500: 0, n1000: 0 };
+    if (campo) mov[campo] = 1; else { mov.n250 = r.n250 || 0; mov.n500 = r.n500 || 0; mov.n1000 = r.n1000 || 0; }
+    // Si en el destino ya hay la misma tanda con el mismo vencimiento, se suma ahí
+    var dest = PR.rows.find(function(x) { return x.id !== r.id && x.ubicacion === destino && x.nombre.toLowerCase() === r.nombre.toLowerCase() && x.hecho === r.hecho && x.vence === vence; });
+    if (!campo && !dest) {
+      await prActualizar(r, { ubicacion: destino, vence: vence });
+    } else {
+      if (campo && prTotal(r) > 1) { var c2 = {}; c2[campo] = r[campo] - 1; await prActualizar(r, c2); }
+      else await prBorrarFila(r);
+      if (dest) await prActualizar(dest, { n250: dest.n250 + mov.n250, n500: dest.n500 + mov.n500, n1000: dest.n1000 + mov.n1000 });
+      else {
+        var nueva = Object.assign({ ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, vence: vence, origen: r.ubicacion }, mov);
+        var ins = await supa.from('cs_preparados').insert(nueva).select().single();
+        if (ins.error) throw ins.error;
+        PR.rows.push(ins.data);
+      }
+    }
+    prRender();
+    showToast('✓ ' + (campo ? 'Un envase de ' : '') + r.nombre + ' → ' + prNombreAp(destino) + (destino === 'refri' ? ' (hasta el ' + PR_DAYS[new Date(vence + 'T12:00:00').getDay()][0].toLowerCase() + ')' : ''));
+  } catch (e) {
+    console.error(e);
+    showToast('No se pudo mover', true);
+    loadStock();
+  }
 }
 
-// ── Alta manual y revisión (la misma tabla sirve para ambas) ─────────────────
+async function prActualizar(r, cambios) {
+  cambios.updated_at = new Date().toISOString();
+  var res = await supa.from('cs_preparados').update(cambios).eq('id', r.id);
+  if (res.error) throw res.error;
+  Object.assign(r, cambios);
+  prRender();
+}
+
+async function prBorrarFila(r) {
+  var res = await supa.from('cs_preparados').delete().eq('id', r.id);
+  if (res.error) throw res.error;
+  PR.rows = PR.rows.filter(function(x) { return x.id !== r.id; });
+  prRender();
+}
+
+// ── Arrastrar y soltar con pointer events (mouse y táctil) ───────────────────
+var PRD = null;
+function prDockHTML() {
+  return PR_APAR.map(function(a) { return '<div data-drop="' + a[0] + '">' + a[1] + '</div>'; }).join('') + '<div class="comio" data-drop="comio">🍽 Se comió</div>';
+}
+function prDestinoEn(x, y) {
+  var el = document.elementFromPoint(x, y);
+  return el && el.closest ? el.closest('[data-drop]') : null;
+}
+function prLimpiarDrag() {
+  if (!PRD) return;
+  if (PRD.ghost) PRD.ghost.remove();
+  document.querySelectorAll('[data-drop].over').forEach(function(e) { e.classList.remove('over'); });
+  var dock = document.getElementById('pr-dock');
+  if (dock) dock.classList.remove('on');
+  document.body.classList.remove('pr-dragging');
+  PRD = null;
+}
+document.addEventListener('pointerdown', function(e) {
+  if (e.button > 0) return;
+  var board = document.getElementById('pr-board');
+  if (!board || !board.contains(e.target)) return;
+  var drag = e.target.closest('[data-drag]');
+  var card = e.target.closest('[data-edit]');
+  if (!drag && !card) return;
+  PRD = { drag: drag, edit: card && card.getAttribute('data-edit'), x: e.clientX, y: e.clientY, started: false };
+});
+document.addEventListener('pointermove', function(e) {
+  if (!PRD || !PRD.drag) return;
+  if (!PRD.started) {
+    if (Math.hypot(e.clientX - PRD.x, e.clientY - PRD.y) < 6) return;
+    var r = prRow(PRD.drag.getAttribute('data-id'));
+    if (!r) { prLimpiarDrag(); return; }
+    PRD.started = true;
+    PRD.id = r.id;
+    PRD.campo = PRD.drag.getAttribute('data-campo');
+    PRD.desde = r.ubicacion;
+    PRD.ghost = document.createElement('div');
+    PRD.ghost.className = 'pr-ghost';
+    PRD.ghost.textContent = PRD.campo ? '1 × ' + PR_SIZES.find(function(s) { return s[0] === PRD.campo; })[1] + ' · ' + r.nombre : r.nombre + ' · ' + prTotal(r) + ' envases';
+    document.body.appendChild(PRD.ghost);
+    var dock = document.getElementById('pr-dock');
+    dock.innerHTML = prDockHTML();
+    dock.classList.add('on');
+    document.body.classList.add('pr-dragging');
+  }
+  e.preventDefault();
+  PRD.ghost.style.transform = 'translate(' + (e.clientX + 12) + 'px,' + (e.clientY + 12) + 'px)';
+  var t = prDestinoEn(e.clientX, e.clientY);
+  document.querySelectorAll('[data-drop].over').forEach(function(x) { if (x !== t) x.classList.remove('over'); });
+  if (t && t.getAttribute('data-drop') !== PRD.desde) t.classList.add('over');
+}, { passive: false });
+document.addEventListener('pointerup', function(e) {
+  if (!PRD) return;
+  var d = PRD;
+  if (d.started) {
+    var t = prDestinoEn(e.clientX, e.clientY);
+    prLimpiarDrag();
+    if (t) prMoverA(d.id, d.campo, t.getAttribute('data-drop'));
+  } else {
+    PRD = null;
+    if (d.edit && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) prEditar(d.edit);
+  }
+});
+document.addEventListener('pointercancel', prLimpiarDrag);
+
+// ── Editar una tanda ─────────────────────────────────────────────────────────
+function prOpts(lista, sel) { return lista.map(function(c) { return '<option value="' + c[0] + '"' + (c[0] === sel ? ' selected' : '') + '>' + c[1] + '</option>'; }).join(''); }
+
+function prEditar(id) {
+  var r = prRow(id);
+  if (!r) return;
+  var bg = document.createElement('div');
+  bg.className = 'pr-modal-bg';
+  bg.innerHTML = '<div class="pr-modal" style="max-width:480px"><h3>' + prEsc(r.nombre) + '</h3><p class="sub">' + prNombreAp(r.ubicacion) + '</p><div class="grid">'
+    + '<label class="full">Qué es<input data-k="nombre" value="' + prEsc(r.nombre) + '"/></label>'
+    + '<label>Dónde está<select data-k="ubicacion">' + prOpts(PR_APAR, r.ubicacion) + '</select></label>'
+    + '<label>Sección<select data-k="categoria">' + prOpts(PR_CATS, r.categoria) + '</select></label>'
+    + '<label>Hecho<input data-k="hecho" type="date" value="' + (r.hecho || '') + '"/></label>'
+    + '<label>Vence<input data-k="vence" type="date" value="' + (r.vence || '') + '"/></label>'
+    + '<div class="full sizes">' + PR_SIZES.map(function(s) { return '<label>' + s[1] + '<input data-k="' + s[0] + '" type="number" min="0" value="' + (r[s[0]] || 0) + '"/></label>'; }).join('') + '</div>'
+    + '</div><div class="foot"><button class="pr-btn pr-btn-red" data-a="borrar">Borrar</button><div style="display:flex;gap:8px"><button class="pr-btn" data-a="x">Cancelar</button><button class="pr-btn pr-btn-main" data-a="ok">Guardar</button></div></div></div>';
+  bg.addEventListener('click', async function(e) {
+    var a = e.target.getAttribute && e.target.getAttribute('data-a');
+    if (e.target === bg || a === 'x') { bg.remove(); return; }
+    try {
+      if (a === 'borrar') {
+        if (!window.confirm('¿Borrar "' + r.nombre + '"?')) return;
+        bg.remove(); await prBorrarFila(r);
+      } else if (a === 'ok') {
+        var c = {};
+        bg.querySelectorAll('[data-k]').forEach(function(el) {
+          var k = el.getAttribute('data-k');
+          c[k] = el.type === 'number' ? Math.max(0, parseInt(el.value, 10) || 0) : (el.value.trim() || null);
+        });
+        if (!c.nombre) { showToast('Falta el nombre', true); return; }
+        bg.remove();
+        if (prTotal(c) === 0) await prBorrarFila(r); else await prActualizar(r, c);
+      }
+    } catch (err) { console.error(err); showToast('No se pudo guardar', true); loadStock(); }
+  });
+  document.body.appendChild(bg);
+}
+
+// ── Alta manual y revisión de la foto (misma tabla) ──────────────────────────
 function prNueva() {
   if (!currentUser) { showToast('Inicia sesión primero', true); return; }
   var hoy = prHoy();
-  prRevisar(PR.tab, [{ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, PR.tab === 'refri' ? 4 : 60), n250: 0, n500: 0, n1000: 0 }], false);
+  prRevisar('congeladora', [{ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, 60) }], false);
 }
 
 function prRevisar(ubic, filas, desdeFoto, nota) {
   var bg = document.createElement('div');
   bg.className = 'pr-modal-bg';
-  var opts = function(sel) { return PR_CATS.map(function(c) { return '<option value="' + c[0] + '"' + (c[0] === sel ? ' selected' : '') + '>' + c[1] + '</option>'; }).join(''); };
   var fila = function(f) {
     return '<tr><td><input data-k="nombre" value="' + prEsc(f.nombre) + '" placeholder="Ej: Ají de gallina"/></td>'
-      + '<td class="hide-m"><select data-k="categoria">' + opts(f.categoria) + '</select></td>'
+      + '<td class="hide-m"><select data-k="categoria">' + prOpts(PR_CATS, f.categoria) + '</select></td>'
       + '<td class="hide-m"><input data-k="hecho" type="date" value="' + (f.hecho || '') + '"/></td>'
       + '<td><input data-k="vence" type="date" value="' + (f.vence || '') + '"/></td>'
       + PR_SIZES.map(function(s) { return '<td><input data-k="' + s[0] + '" type="number" min="0" value="' + (f[s[0]] || 0) + '"/></td>'; }).join('')
-      + '<td><button class="pr-x" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+      + '<td><button class="pr-x" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:16px" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
   };
-  bg.innerHTML = '<div class="pr-modal"><h3>' + (desdeFoto ? 'Esto leí en la hoja' : 'Agregar a la ' + ubic) + '</h3>'
-    + '<p class="sub">' + (desdeFoto ? 'Revisa y corrige antes de guardar. Al confirmar, esto <b>reemplaza</b> lo que había en la ' + ubic + '.' : 'Una fila por tanda. Las cantidades son envases llenos.') + '</p>'
+  bg.innerHTML = '<div class="pr-modal"><h3>' + (desdeFoto ? 'Esto leí en la hoja' : 'Agregar tandas') + '</h3>'
+    + '<p class="sub">' + (desdeFoto ? 'Revisa y corrige antes de guardar. Al confirmar, esto <b>reemplaza</b> lo que había en ese equipo.' : 'Una fila por tanda. Las cantidades son envases llenos.') + '</p>'
     + (nota ? '<p class="pr-note">' + prEsc(nota) + '</p>' : '')
-    + '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:14px;align-items:center">Hoja: <select id="pr-ubic" style="width:auto;padding:5px 8px;border:1px solid var(--bo);border-radius:6px;font:inherit"><option value="congeladora"' + (ubic === 'congeladora' ? ' selected' : '') + '>Congeladora</option><option value="refri"' + (ubic === 'refri' ? ' selected' : '') + '>Refri</option></select></div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:14px;align-items:center">Equipo: <select id="pr-ubic" style="width:auto">' + prOpts(PR_APAR, ubic) + '</select></div>'
     + '<div style="overflow-x:auto"><table><thead><tr><th>Qué es</th><th class="hide-m">Sección</th><th class="hide-m">Hecho</th><th>Vence</th><th>250</th><th>500</th><th>1 L</th><th></th></tr></thead><tbody>'
     + filas.map(fila).join('') + '</tbody></table></div>'
     + '<div class="foot"><button class="pr-btn" id="pr-mas-fila">+ Otra fila</button><div style="display:flex;gap:8px"><button class="pr-btn" id="pr-cancel">Cancelar</button><button class="pr-btn pr-btn-main" id="pr-ok">' + (desdeFoto ? 'Confirmar y reemplazar' : 'Guardar') + '</button></div></div></div>';
@@ -2877,8 +2976,7 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
       if (ins.error) { showToast('No se pudo guardar', true); console.error(ins.error); this.disabled = false; return; }
     }
     bg.remove();
-    showToast('✓ ' + (u === 'refri' ? 'Refri' : 'Congeladora') + ' actualizada');
-    if (PR.tab !== u) prTab(u);
+    showToast('✓ ' + prNombreAp(u) + ' actualizada');
     loadStock();
   };
 }
@@ -2910,11 +3008,11 @@ async function prFoto(input) {
   try {
     var b64 = await prReducir(file, 1800);
     var hoy = prHoy();
-    var prompt = 'Hoy es ' + hoy + ' (' + PR_DAYS[new Date().getDay()][0] + '). La foto es una hoja impresa de control de comida preparada de una casa. Hay dos tipos de hoja; el pie dice cuál es: "HOJA C · CONGELADORA" o "HOJA R · REFRIGERADORA".\n\n'
-      + 'HOJA C (congeladora): filas por tanda agrupadas en secciones (Acompañamientos, Salsas, Proteínas, Guisos, Sopas cremas y otros). Columnas: Elaboración, Hecho (fecha), Vence (fecha), y casillas para 250 ml, 500 ml y 1 litro. En cada casilla: vacía = no cuenta; una raya diagonal = un envase que ESTÁ; una cruz completa (X) = envase que YA SALIÓ. Para cada fila con nombre, cuenta SOLO las casillas con una raya sin cruzar, por tamaño.\n'
-      + 'HOJA R (refrigeradora): bloques por día de la semana (Lunes a Domingo), con "Semana del __ al __" arriba. Cada línea: casilla ✓, qué es, tamaño marcado (250/500/1 L) y si viene de congeladora (C) o fresco (F). El día del bloque es la fecha de vencimiento. Ignora las líneas con ✓ marcado o tachadas (ya se comieron o se botaron). Cuenta cada línea viva como 1 envase del tamaño marcado (si no hay tamaño marcado, 500).\n\n'
-      + 'Las fechas escritas a mano suelen ser dd/mm; conviértelas a AAAA-MM-DD usando el año más lógico respecto a hoy. Si en la congeladora falta "Vence", usa Hecho + 60 días; si falta todo, deja null. Categorías válidas: acompanamientos, salsas, proteinas, guisos, otros (según la sección donde está la fila).\n\n'
-      + 'Responde SOLO JSON válido: {"hoja":"congeladora"|"refri","filas":[{"nombre":"string","categoria":"acompanamientos|salsas|proteinas|guisos|otros","hecho":"AAAA-MM-DD"|null,"vence":"AAAA-MM-DD"|null,"n250":0,"n500":0,"n1000":0}],"dudas":"una frase con lo que no se leyó bien, o null"}';
+    var prompt = 'Hoy es ' + hoy + ' (' + PR_DAYS[new Date().getDay()][0] + '). La foto es una hoja impresa de control de comida preparada de una casa con dos congeladoras y una refrigeradora. El pie de la hoja dice cuál es: "HOJA C1 · CONGELADORA 1", "HOJA C2 · CONGELADORA 2" o "HOJA R · REFRIGERADORA". Si el título dice "Congeladora" sin número y no se ve el pie, asume la 1.\n\n'
+      + 'HOJAS C1 y C2 (congeladoras): filas por tanda agrupadas en secciones (Acompañamientos, Salsas, Proteínas, Guisos, Sopas cremas y otros). Columnas: Elaboración, Hecho (fecha), Vence (fecha), y casillas para 250 ml, 500 ml y 1 litro. En cada casilla: vacía = no cuenta; una raya diagonal = un envase que ESTÁ; una cruz completa (X) = envase que YA SALIÓ. Para cada fila con nombre, cuenta SOLO las casillas con una raya sin cruzar, por tamaño.\n'
+      + 'HOJA R (refrigeradora): bloques por día de la semana (Lunes a Domingo), con "Semana del __ al __" arriba. Cada línea: casilla ✓, qué es, tamaño marcado (250/500/1 L) y si viene de congeladora (C) o fresco (F). El día del bloque es la fecha de vencimiento. Ignora las líneas con ✓ marcado o tachadas (ya se comieron o se botaron). Cada línea viva es 1 envase del tamaño marcado (si no hay tamaño marcado, 500).\n\n'
+      + 'Las fechas escritas a mano suelen ser dd/mm; conviértelas a AAAA-MM-DD usando el año más lógico respecto a hoy. Si en una congeladora falta "Vence", usa Hecho + 60 días; si falta todo, deja null. Categorías válidas: acompanamientos, salsas, proteinas, guisos, otros (según la sección donde está la fila).\n\n'
+      + 'Responde SOLO JSON válido: {"hoja":"congeladora"|"congeladora2"|"refri","filas":[{"nombre":"string","categoria":"acompanamientos|salsas|proteinas|guisos|otros","hecho":"AAAA-MM-DD"|null,"vence":"AAAA-MM-DD"|null,"n250":0,"n500":0,"n1000":0}],"dudas":"una frase con lo que no se leyó bien, o null"}';
     var r = await fetch('/api/claude', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -2929,7 +3027,8 @@ async function prFoto(input) {
     var p = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
     var filas = (p.filas || []).filter(function(f) { return f && f.nombre; });
     if (!filas.length) { showToast('No encontré filas con envases en la foto', true); return; }
-    prRevisar(p.hoja === 'refri' ? 'refri' : 'congeladora', filas, true, p.dudas);
+    var hoja = PR_APAR.some(function(a) { return a[0] === p.hoja; }) ? p.hoja : 'congeladora';
+    prRevisar(hoja, filas, true, p.dudas);
   } catch (e) {
     console.error('Foto:', e);
     showToast('No pude leer la hoja: ' + e.message, true);

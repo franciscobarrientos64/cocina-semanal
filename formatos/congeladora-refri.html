@@ -95,12 +95,12 @@
 </style>
 </head>
 <body>
-<div class="bar"><a href="/">← Volver a Cocina Semanal</a><button onclick="print()">Imprimir las dos hojas</button></div>
+<div class="bar"><a href="/">← Volver a Cocina Semanal</a><button onclick="print()">Imprimir las tres hojas</button></div>
 
 <!-- ============ HOJA 1: CONGELADORA ============ -->
-<section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA C · CONGELADORA</span>
+<section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA C1 · CONGELADORA 1</span>
   <header>
-    <h1>Congeladora<small>Lo que hay, de qué tamaño y hasta cuándo</small></h1>
+    <h1>Congeladora 1<small>Lo que hay, de qué tamaño y hasta cuándo</small></h1>
     <div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div>
   </header>
 
@@ -110,7 +110,45 @@
     <div><b>Lo que queda</b> = las rayas sin cruzar. Las casillas vacías no cuentan.</div>
   </div>
 
-  <table id="freezer">
+  <table class="freezer">
+    <colgroup>
+      <col style="width:30%"><col style="width:9%"><col style="width:9%">
+      <col style="width:19%"><col style="width:19%"><col style="width:14%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Elaboración (una fila por tanda)</th><th>Hecho</th><th>Vence</th>
+        <th class="sz">250 ml<span>1 persona</span></th>
+        <th class="sz">500 ml<span>2 personas</span></th>
+        <th class="sz">1 litro<span>toda la familia</span></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="todo">
+    <h3>Por hacer<span>cuando una sección llega a su mínimo, se anota aquí y se marca al cocinarla</span></h3>
+    <div class="cols">
+      <div class="ln"><span class="bx"></span></div><div class="ln"><span class="bx"></span></div>
+      <div class="ln"><span class="bx"></span></div><div class="ln"><span class="bx"></span></div>
+      </div>
+  </div>
+</section>
+
+<!-- ============ HOJA 2: CONGELADORA 2 ============ -->
+<section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA C2 · CONGELADORA 2</span>
+  <header>
+    <h1>Congeladora 2<small>Lo que hay, de qué tamaño y hasta cuándo</small></h1>
+    <div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div>
+  </header>
+
+  <div class="how">
+    <div><b>Entra un envase:</b> una raya <span class="demo"><span class="bx half"></span></span> en el tamaño que corresponda.</div>
+    <div><b>Sale un envase:</b> cierra la cruz <span class="demo"><span class="bx full"></span></span>. Si va a la refri, anótalo en la otra hoja.</div>
+    <div><b>Lo que queda</b> = las rayas sin cruzar. Las casillas vacías no cuentan.</div>
+  </div>
+
+  <table class="freezer">
     <colgroup>
       <col style="width:30%"><col style="width:9%"><col style="width:9%">
       <col style="width:19%"><col style="width:19%"><col style="width:14%">
@@ -170,8 +208,7 @@
     { n:'Sopas, cremas y otros', rows:Array(3).fill('') },
   ];
   const boxes = n => '<span class="bx"></span>'.repeat(n);
-  const tb = document.querySelector('#freezer tbody');
-  tb.innerHTML = cats.map(c =>
+  document.querySelectorAll('.freezer tbody').forEach(tb => tb.innerHTML = cats.map(c =>
     `<tr class="cat"><td colspan="6"><span class="cn">${c.n}</span><span class="par">mínimo en stock <span class="blank"></span> envases</span></td></tr>` +
     c.rows.map(r => `<tr><td class="n">${r}</td><td class="d"></td><td class="d"></td>
       <td class="boxes">${boxes(6)}</td><td class="boxes">${boxes(6)}</td><td class="boxes">${boxes(4)}</td></tr>`).join('')
