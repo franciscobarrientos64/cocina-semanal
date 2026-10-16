@@ -212,7 +212,7 @@
     `<tr class="cat"><td colspan="6"><span class="cn">${c.n}</span><span class="par">mínimo en stock <span class="blank"></span> envases</span></td></tr>` +
     c.rows.map(r => `<tr><td class="n">${r}</td><td class="d"></td><td class="d"></td>
       <td class="boxes">${boxes(6)}</td><td class="boxes">${boxes(6)}</td><td class="boxes">${boxes(4)}</td></tr>`).join('')
-  ).join('');
+  ).join(''));
 
   // Hoja 2: un bloque por día, con su color (sistema de "day dots" de cocina profesional)
   const days = [
