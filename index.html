@@ -192,8 +192,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <div class="hdr-r">
       <div class="user-menu" id="user-menu">
         <button class="auth-btn" id="auth-btn" onclick="handleAuthClick()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span id="auth-label">Iniciar sesión</span>
+          <span class="ms">person</span><span id="auth-label">Iniciar sesión</span>
         </button>
         <div class="user-dropdown" id="user-dropdown">
           <div style="padding:8px 12px;font-size:13px;font-weight:600;color:#1A1914" id="user-name-dd"></div>
@@ -2127,8 +2126,12 @@ function setUser(user) {
   function updateDOM() {
     var btn = document.getElementById('auth-btn');
     var label = document.getElementById('auth-label');
-    if (label) label.textContent = name;
-    if (btn && avatar) btn.innerHTML = '<img src="'+avatar+'" class="user-avatar"/> <span>'+name+'</span>';
+    if (btn) {
+      btn.classList.add('in');
+      btn.title = name;
+      btn.setAttribute('aria-label', 'Cuenta de ' + name);
+      btn.innerHTML = avatar ? '<img src="'+avatar+'" class="user-avatar" alt=""/>' : '<span class="user-ini">' + name.charAt(0).toUpperCase() + '</span>';
+    }
     var nameDD = document.getElementById('user-name-dd');
     var emailDD = document.getElementById('user-email-dd');
     if (nameDD) nameDD.textContent = name;
@@ -2155,7 +2158,7 @@ function clearUser() {
   var label = document.getElementById('auth-label');
   var btn = document.getElementById('auth-btn');
   if (label) label.textContent = 'Iniciar sesión';
-  if (btn) btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Iniciar sesión</span>';
+  if (btn) { btn.classList.remove('in'); btn.removeAttribute('title'); btn.innerHTML = '<span class="ms">person</span><span id="auth-label">Iniciar sesión</span>'; }
 }
 
 function showToast(msg, isError) {
@@ -2259,7 +2262,7 @@ function updateListaBadge() {
   var navLink = document.getElementById('nav-comparar');
   if (!navLink) return;
   if (cmpItems.length > 0) {
-    navLink.innerHTML = '📋 Mi lista <span style="background:#A15800;color:#fff;border-radius:2px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px">' + cmpItems.length + '</span>';
+    navLink.innerHTML = 'Precios <span class="n-badge">' + cmpItems.length + '</span>';
   }
 }
 
@@ -3253,12 +3256,22 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hdr-in{height:56px;padding:0 24px}
 .logo{font:600 13px var(--lx);letter-spacing:.3em;color:var(--g);padding:0;margin-right:32px;display:flex;align-items:baseline}
 .logo span{font-weight:300;letter-spacing:0;color:var(--mu);text-transform:lowercase}
-.hnav a{font:500 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);padding:20px 12px;border-bottom-width:1px}
+.hnav{flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;align-self:stretch}
+.hnav::-webkit-scrollbar{display:none}
+.hnav a{display:flex;align-items:center;gap:6px;height:56px;box-sizing:border-box;font:500 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);padding:0 12px;border-bottom-width:1px;flex:none}
+.n-badge{display:inline-block;min-width:18px;padding:3px 5px;background:var(--lemon);color:#141414;font:700 10px/1 var(--lx);letter-spacing:0;text-align:center;border-radius:2px}
+.saved-indicator{display:none}
 .hnav a.on,.hnav a:hover{color:var(--g);border-bottom-color:var(--g)}
-.hdr-r{margin-left:auto;display:flex;align-items:center;gap:10px}
-.auth-btn{font:500 11px var(--lx);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--g);color:var(--g);border-radius:2px;padding:8px 12px}
+.hdr-r{margin-left:16px;flex:none;display:flex;align-items:center;gap:10px}
+.auth-btn{display:flex;align-items:center;gap:8px;height:36px;font:500 11px var(--lx);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--g);color:var(--g);border-radius:2px;padding:0 12px;white-space:nowrap}
+.auth-btn .ms{font-size:18px}
 .auth-btn:hover{background:var(--g);color:#fff;border-color:var(--g)}
-.user-avatar{border:0}
+.auth-btn.in{border:0;padding:0;width:36px;height:36px;border-radius:50%;justify-content:center;background:transparent}
+.auth-btn.in:hover{background:transparent;box-shadow:0 0 0 2px var(--bo)}
+.user-avatar{width:32px;height:32px;border:0;border-radius:50%;object-fit:cover;display:block}
+.user-ini{width:32px;height:32px;border-radius:50%;background:var(--g);color:#fff;font:600 13px var(--lx);display:flex;align-items:center;justify-content:center}
+.user-dropdown{border-radius:2px;border-color:var(--bo)}
+@media(min-width:861px) and (max-width:1080px){.hnav a{padding:0 8px;letter-spacing:.1em}.logo{margin-right:16px}}
 /* Barra inferior (móvil) */
 .tabbar{display:none}
 @media(max-width:860px){
