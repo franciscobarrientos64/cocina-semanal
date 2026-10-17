@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Créditos de las fotos · Despensa</title><link rel="icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF9F4;color:#1B1C19;font:15px/1.55 'DM Sans',system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 20px 64px}
+a{color:#141414}h1{font:300 32px/1.2 Lexend,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px}h1 b{font-weight:600}
+p.s{color:#5F5E5E;max-width:62ch}
+table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
+th{font:600 10px Lexend,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-align:left;border-bottom:1px solid #141414;padding:8px 6px}
+td{border-bottom:1px solid #E4E2DD;padding:8px 6px;vertical-align:top}
+td img{width:64px;height:48px;object-fit:cover;display:block}
+.w{overflow-x:auto}
+</style></head><body><main>
+<p><a href="/">← Volver a Despensa</a></p>
+<h1>Créditos de <b>las fotos</b></h1>
+<p class="s">Las fotos de los platos vienen de Wikimedia Commons y Unsplash. Las recortamos y comprimimos para la app; las que tienen licencia CC BY-SA se comparten, recortadas, bajo esa misma licencia.</p>
+<div class="w"><table><thead><tr><th></th><th>Plato</th><th>Autor</th><th>Licencia</th><th>Fuente</th></tr></thead><tbody id="t"></tbody></table></div>
+<script>
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+fetch('/img/recetas/creditos.json').then(function(r){return r.json()}).then(function(c){
+  document.getElementById('t').innerHTML=c.map(function(x){var u=/^https:\/\//.test(x.fuente_url)?x.fuente_url:'#';
+    return '<tr><td><img src="'+esc(x.archivo)+'" alt="" loading="lazy"></td><td>'+esc(x.nombre)+'</td><td>'+esc(x.autor||'—')+'</td><td>'+esc(x.licencia)+'</td><td><a href="'+esc(u)+'" target="_blank" rel="noopener">ver original</a></td></tr>'}).join('')});
+</script></main></body></html>

@@ -1,0 +1,863 @@
+[
+ {
+  "nombre": "Aji de gallina",
+  "archivo": "/img/recetas/aji-de-gallina.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Aji_de_gallina_10.jpg",
+  "autor": "ta@keshi kimi",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Tiramisú",
+  "archivo": "/img/recetas/tiramisu.webp",
+  "fuente_url": "https://unsplash.com/photos/Rjc0kwgs1ps",
+  "autor": "Jay",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Spaghetti carbonara",
+  "archivo": "/img/recetas/spaghetti-carbonara.webp",
+  "fuente_url": "https://unsplash.com/photos/8sdRfiPf4Qo",
+  "autor": "Chris Weiher",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pad thai",
+  "archivo": "/img/recetas/pad-thai.webp",
+  "fuente_url": "https://unsplash.com/photos/EDoy1yjPLV0",
+  "autor": "Busy Bee and Green Tea",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pho vietnamita",
+  "archivo": "/img/recetas/pho-vietnamita.webp",
+  "fuente_url": "https://unsplash.com/photos/08aic3qPcag",
+  "autor": "Markus Winkler",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Ramen casero",
+  "archivo": "/img/recetas/ramen-casero.webp",
+  "fuente_url": "https://unsplash.com/photos/NHEL1M1Cv-A",
+  "autor": "Huyen Bui",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pollo tikka masala",
+  "archivo": "/img/recetas/pollo-tikka-masala.webp",
+  "fuente_url": "https://unsplash.com/photos/GOw8q6bRTRM",
+  "autor": "Mohammad Fahim",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pollo al curry",
+  "archivo": "/img/recetas/pollo-al-curry.webp",
+  "fuente_url": "https://unsplash.com/photos/VtNLbOAeO68",
+  "autor": "Kalindu Waranga",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Guacamole",
+  "archivo": "/img/recetas/guacamole.webp",
+  "fuente_url": "https://unsplash.com/photos/iiMIegrG3Ag",
+  "autor": "Zoshua Colah",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Hummus casero",
+  "archivo": "/img/recetas/hummus-casero.webp",
+  "fuente_url": "https://unsplash.com/photos/yr-sW_x9aHk",
+  "autor": "Ludovic Avice",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Cheesecake",
+  "archivo": "/img/recetas/cheesecake.webp",
+  "fuente_url": "https://unsplash.com/photos/s8_7AqkzCWY",
+  "autor": "Tina Guina",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Ensalada griega",
+  "archivo": "/img/recetas/ensalada-griega.webp",
+  "fuente_url": "https://unsplash.com/photos/25SHQMgsWEQ",
+  "autor": "Shoeib Abolhassani",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Ensalada César",
+  "archivo": "/img/recetas/ensalada-cesar.webp",
+  "fuente_url": "https://unsplash.com/photos/FK-UKNip0pE",
+  "autor": "Chris Tweten",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Lasaña bolognesa",
+  "archivo": "/img/recetas/lasana-bolognesa.webp",
+  "fuente_url": "https://unsplash.com/photos/flEUTTwGlJQ",
+  "autor": "Emanuel Ekström",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pasta al pesto",
+  "archivo": "/img/recetas/pasta-al-pesto.webp",
+  "fuente_url": "https://unsplash.com/photos/12eHC6FxPyg",
+  "autor": "Eaters Collective",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Risotto de hongos",
+  "archivo": "/img/recetas/risotto-de-hongos.webp",
+  "fuente_url": "https://unsplash.com/photos/noaP9Z9Ta2Y",
+  "autor": "Zoshua Colah",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Gnocchi al pomodoro",
+  "archivo": "/img/recetas/gnocchi-al-pomodoro.webp",
+  "fuente_url": "https://unsplash.com/photos/O7Uq62XKz34",
+  "autor": "Eva Greenberg",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pasta primavera",
+  "archivo": "/img/recetas/pasta-primavera.webp",
+  "fuente_url": "https://unsplash.com/photos/xJrI2FVg9cE",
+  "autor": "IamCristian",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pollo teriyaki",
+  "archivo": "/img/recetas/pollo-teriyaki.webp",
+  "fuente_url": "https://unsplash.com/photos/VhuC3z2o8vQ",
+  "autor": "Tomoyo S",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Pollo parmigiana",
+  "archivo": "/img/recetas/pollo-parmigiana.webp",
+  "fuente_url": "https://unsplash.com/photos/HhEfe0DeMiA",
+  "autor": "Clark Douglas",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Brownie de chocolate",
+  "archivo": "/img/recetas/brownie-de-chocolate.webp",
+  "fuente_url": "https://unsplash.com/photos/LjtviHokbr4",
+  "autor": "Anna Przepiorka",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Churros con chocolate",
+  "archivo": "/img/recetas/churros-con-chocolate.webp",
+  "fuente_url": "https://unsplash.com/photos/5CPn8_NE2Tc",
+  "autor": "Oscar Nord",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Muffins de banana",
+  "archivo": "/img/recetas/muffins-de-banana.webp",
+  "fuente_url": "https://unsplash.com/photos/BQF0OlTdhh0",
+  "autor": "Alimentos Fotogénicos",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Panacota",
+  "archivo": "/img/recetas/panacota.webp",
+  "fuente_url": "https://unsplash.com/photos/eKEBV50VeZs",
+  "autor": "Adél Grőber",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Tarta de manzana",
+  "archivo": "/img/recetas/tarta-de-manzana.webp",
+  "fuente_url": "https://unsplash.com/photos/es7aJ-3iBDo",
+  "autor": "Diliara Garifullina",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Tacos de carne",
+  "archivo": "/img/recetas/tacos-de-carne.webp",
+  "fuente_url": "https://unsplash.com/photos/oDC_9Uq1los",
+  "autor": "Robby McCullough",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Hamburguesa casera",
+  "archivo": "/img/recetas/hamburguesa-casera.webp",
+  "fuente_url": "https://unsplash.com/photos/LV2p9Utbkbw",
+  "autor": "mafe estudio",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Minestrone",
+  "archivo": "/img/recetas/minestrone.webp",
+  "fuente_url": "https://unsplash.com/photos/5eROVOJW2bA",
+  "autor": "Nathan Dumlao",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Sopa de cebolla francesa",
+  "archivo": "/img/recetas/sopa-de-cebolla-francesa.webp",
+  "fuente_url": "https://unsplash.com/photos/FjxEnioTNs0",
+  "autor": "sheri silver",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Sopa de lentejas",
+  "archivo": "/img/recetas/sopa-de-lentejas.webp",
+  "fuente_url": "https://unsplash.com/photos/MP_A0OK_O60",
+  "autor": "Steve Tsang",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Sopa de tomate",
+  "archivo": "/img/recetas/sopa-de-tomate.webp",
+  "fuente_url": "https://unsplash.com/photos/8q13bAl89uQ",
+  "autor": "Kaptured by Kasia",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Gazpacho andaluz",
+  "archivo": "/img/recetas/gazpacho-andaluz.webp",
+  "fuente_url": "https://unsplash.com/photos/M6baxXgSos8",
+  "autor": "Sara Dubler",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Taboulé",
+  "archivo": "/img/recetas/taboule.webp",
+  "fuente_url": "https://unsplash.com/photos/m5YZbsHYeWk",
+  "autor": "Chez Le Libanais",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Bowl de quinoa",
+  "archivo": "/img/recetas/bowl-de-quinoa.webp",
+  "fuente_url": "https://unsplash.com/photos/yhc4pSbl01A",
+  "autor": "Sonny Mauricio",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Adobo arequipeño",
+  "archivo": "/img/recetas/adobo-arequipeno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Adobo_Arequipe%C3%B1o_-_Pan_3_Cachetes.jpg",
+  "autor": "Angel Olin from Peru",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Aguadito de pollo",
+  "archivo": "/img/recetas/aguadito-de-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Aguadito.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Alfajor peruano",
+  "archivo": "/img/recetas/alfajor-peruano.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Alfajores_Per%C3%BA.jpg",
+  "autor": "tacowitte from Holland",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Algarrobina",
+  "archivo": "/img/recetas/algarrobina.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pisco_algarrobina.jpg",
+  "autor": "ta@keshi kimi",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Api morado",
+  "archivo": "/img/recetas/api-morado.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Api_morado.jpg",
+  "autor": "<a rel=\"mw:WikiLink\" href=\"https://commons.wikimedia.org/wiki/User:Gabby_Notta?action=edit&redlink=1\" title=\"User:Ga",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Arroz chaufa",
+  "archivo": "/img/recetas/arroz-chaufa.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_chaufa_de_carne_Chiqui%C3%A1n_Ancash_22112009.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Chaufa de arroz vegetariano",
+  "archivo": "/img/recetas/chaufa-de-arroz-vegetariano.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_chaufa_simple.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Arroz con leche",
+  "archivo": "/img/recetas/arroz-con-leche.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_con_leche_espolvoreado_con_canela_molida.jpg",
+  "autor": "Juan Emilio Prade",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Arroz con mariscos",
+  "archivo": "/img/recetas/arroz-con-mariscos.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_con_Mariscos_at_Limon_in_Burlingame.jpg",
+  "autor": "Neeta Lind",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Arroz con pollo",
+  "archivo": "/img/recetas/arroz-con-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_con_pollo_y_papa_a_la_huancaina.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Arroz tapado",
+  "archivo": "/img/recetas/arroz-tapado.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Arroz_tapado.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Bistec a lo pobre",
+  "archivo": "/img/recetas/bistec-a-lo-pobre.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Bisteck_a_lo_pobre_2.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Lomo fino a lo pobre",
+  "archivo": "/img/recetas/lomo-fino-a-lo-pobre.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Lomo_a_lo_pobre.JPG",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Jani_Mart%C3%ADnez&action=edit&redlink=1\" class=\"new\" ti",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Buñuelos limeños",
+  "archivo": "/img/recetas/bunuelos-limenos.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Api_y_bu%C3%B1uelos.jpg",
+  "autor": "Jhumeluvi",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Mazamorra morada",
+  "archivo": "/img/recetas/mazamorra-morada.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Lima_(Per%C3%BA)_-_Restaurante_El_Embrujo_-_Mazamorra_morada.jpg",
+  "autor": "Mover el Bigote",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Caldo de gallina",
+  "archivo": "/img/recetas/caldo-de-gallina.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Caldo_de_gallina_06092009.jpg",
+  "autor": "Gonza Rizzo",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Caldo de cabeza",
+  "archivo": "/img/recetas/caldo-de-cabeza.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Caldo_de_cabeza_18092010.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Butifarra",
+  "archivo": "/img/recetas/butifarra.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Butifara_Queirolo.jpg",
+  "autor": "Luis Tamayo",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Caldo verde",
+  "archivo": "/img/recetas/caldo-verde.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Caldo_verde,_Cajamarca_01.jpg",
+  "autor": "Carlo Brescia",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Carapulcra",
+  "archivo": "/img/recetas/carapulcra.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Carapulcra.jpg",
+  "autor": "No machine-readable author provided. <a href=\"//commons.wikimedia.org/wiki/User:Manuel_Gonz%C3%A1lez_Olaechea\" title=\"Us",
+  "licencia": "CC BY 3.0"
+ },
+ {
+  "nombre": "Caldo de res",
+  "archivo": "/img/recetas/caldo-de-res.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Caldo_de_res_con_elote.jpg",
+  "autor": "Wotancito",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Cau cau",
+  "archivo": "/img/recetas/cau-cau.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Caucau.jpg",
+  "autor": "MiguelAlanCS<",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Causa limena",
+  "archivo": "/img/recetas/causa-limena.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Causa_a_la_Lime%C3%B1a_(48836160237).jpg",
+  "autor": "F Delventhal from Outside",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Causa individual",
+  "archivo": "/img/recetas/causa-individual.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Causa_Peruvian_dish.jpg",
+  "autor": "CEllen",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Anticucho",
+  "archivo": "/img/recetas/anticucho.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Anticuchos_de_la_Tia_Grima.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:HugoMon&action=edit&redlink=1\" class=\"new\" title=\"User:H",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Ceviche",
+  "archivo": "/img/recetas/ceviche.webp",
+  "fuente_url": "https://unsplash.com/photos/YmC1_EP6TJQ",
+  "autor": "Pirata Studio Film",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Lomo saltado",
+  "archivo": "/img/recetas/lomo-saltado.webp",
+  "fuente_url": "https://unsplash.com/photos/BnkjG7OZzMw",
+  "autor": "Marcelo de la Torre",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Chairo paceño",
+  "archivo": "/img/recetas/chairo-paceno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chario_oficial_1.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:AnaBatuani&action=edit&redlink=1\" class=\"new\" title=\"Use",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Chancho al horno",
+  "archivo": "/img/recetas/chancho-al-horno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Roasted_pork_leg_served_with_golden_potatoes_and_fresh_vegetables.jpg",
+  "autor": "Shixart1985",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Chicha de jora",
+  "archivo": "/img/recetas/chicha-de-jora.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chicha_de_jora_en_vaso.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Chicha morada",
+  "archivo": "/img/recetas/chicha-morada.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chicha_Morada_2017.jpg",
+  "autor": "young shanahan from Bogotá",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Chicharrón de cerdo",
+  "archivo": "/img/recetas/chicharron-de-cerdo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chicharron_Cerdo_Cusco.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Soncco&action=edit&redlink=1\" class=\"new\" title=\"User:So",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Pan con chicharrón",
+  "archivo": "/img/recetas/pan-con-chicharron.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pan_con_Chicharrones_(Peru)_-_Sandwiches_of_History%E2%81%A3.png",
+  "autor": "https://www.youtube.com/@San",
+  "licencia": "CC BY 4.0"
+ },
+ {
+  "nombre": "Chilcano",
+  "archivo": "/img/recetas/chilcano.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chilcano_de_Pisco_Superba_09012010.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Choritos a la chalaca",
+  "archivo": "/img/recetas/choritos-a-la-chalaca.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Choritos_a_la_chalaca.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Chupe de camarones",
+  "archivo": "/img/recetas/chupe-de-camarones.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Chupe_de_camarones_20100512.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Conchitas a la parmesana",
+  "archivo": "/img/recetas/conchitas-a-la-parmesana.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Scallops_with_cheese_from_La_Rosa_Nautica_restaurant.jpg",
+  "autor": "Kim",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Crema volteada",
+  "archivo": "/img/recetas/crema-volteada.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_caramel_1.jpg",
+  "autor": "snowpea&bokchoi",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Leche asada",
+  "archivo": "/img/recetas/leche-asada.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cr%C3%A8me_caramel_(182729).jpg",
+  "autor": "<span title=\"Bangladeshi graphi",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Crepes suzette",
+  "archivo": "/img/recetas/crepes-suzette.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cr%C3%A9pe_Suzette_001.jpg",
+  "autor": "Ocdp",
+  "licencia": "CC0"
+ },
+ {
+  "nombre": "Cuy al horno",
+  "archivo": "/img/recetas/cuy-al-horno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cuy_al_horno_20100711.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Emoliente",
+  "archivo": "/img/recetas/emoliente.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:PRODUCE_y_la_Municipalidad_de_Independencia_celebraron_el_D%C3%ADa_del_Emoliente_-_54340620234.jpg",
+  "autor": "MINISTERIO DE LA PRODUCCIÓN - PRODUCE",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Empanadas criollas",
+  "archivo": "/img/recetas/empanadas-criollas.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Dos_Empanadas.jpg",
+  "autor": "F Delventhal",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Papa a la huancaina shots",
+  "archivo": "/img/recetas/papa-a-la-huancaina-shots.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Causa_de_cangrejo.jpg",
+  "autor": "franzconde",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Estofado de pollo",
+  "archivo": "/img/recetas/estofado-de-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Estofado_de_pollo.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Fideos con pollo",
+  "archivo": "/img/recetas/fideos-con-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Ckocko_de_pollo.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Dayana_Christ_Mart%C3%ADnez_Carrasco&action=edit&redlink",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Frejoles con seco",
+  "archivo": "/img/recetas/frejoles-con-seco.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Seco_de_cabrito_con_frejoles_en_Chiclayo,_Peru.jpg",
+  "autor": "H.dav.are",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Humitas",
+  "archivo": "/img/recetas/humitas.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Humitas_(open).jpg",
+  "autor": "E4024",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Inchicapi",
+  "archivo": "/img/recetas/inchicapi.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Inchicapi,_comida_t%C3%ADpica_de_la_selva_peruana.jpg",
+  "autor": "Neil Vega Murrieta",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Jalea de mariscos",
+  "archivo": "/img/recetas/jalea-de-mariscos.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Jalea_at_Limon_in_Burlingame.jpg",
+  "autor": "Neeta Lind",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Juane",
+  "archivo": "/img/recetas/juane.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Juane_2.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "King kong",
+  "archivo": "/img/recetas/king-kong.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:King_Kong_Lambayecana2.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/wiki/User:Miguel_Alan_C%C3%B3rdova_Silva\" class=\"mw-redirect\" title=\"User:Miguel Alan C",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Leche de tigre",
+  "archivo": "/img/recetas/leche-de-tigre.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Leche_de_tigre.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Lentejas guisadas",
+  "archivo": "/img/recetas/lentejas-guisadas.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:French_Lentil_Soup_(140491423).jpeg",
+  "autor": "J Doll",
+  "licencia": "CC BY 3.0"
+ },
+ {
+  "nombre": "Locro de zapallo",
+  "archivo": "/img/recetas/locro-de-zapallo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Locro_de_Zapallo_(Bolivia).jpg",
+  "autor": "<a rel=\"mw:WikiLink\" href=\"https://commons.wikimedia.org/wiki/User:Sheyla_Cordova_Nu%C3%B1ez?action=edit&redlink=1\"",
+  "licencia": "CC BY 4.0"
+ },
+ {
+  "nombre": "Milanesa de res",
+  "archivo": "/img/recetas/milanesa-de-res.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cotoletta_alla_milanese.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Brazeone&action=edit&redlink=1\" class=\"new\" title=\"User:",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Ocopa arequipeña",
+  "archivo": "/img/recetas/ocopa-arequipena.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:More_Ocopa.jpg",
+  "autor": "G M",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Olluco con charqui",
+  "archivo": "/img/recetas/olluco-con-charqui.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Olluquito_con_cerdo_y_arroz_blanco_21042010.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Pachamanca",
+  "archivo": "/img/recetas/pachamanca.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pachamanca_3_sabores_18092010.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Pescado frito",
+  "archivo": "/img/recetas/pescado-frito.webp",
+  "fuente_url": "https://unsplash.com/photos/nOpn-ScYv6A",
+  "autor": "lalo Hernandez",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Tallarines rojos",
+  "archivo": "/img/recetas/tallarines-rojos.webp",
+  "fuente_url": "https://unsplash.com/photos/sA3wymYqyaI",
+  "autor": "Homescreenify",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Chicharrón de pollo",
+  "archivo": "/img/recetas/chicharron-de-pollo.webp",
+  "fuente_url": "https://unsplash.com/photos/KWoq-eLsIEs",
+  "autor": "Ömer Taha Çetin",
+  "licencia": "Unsplash License"
+ },
+ {
+  "nombre": "Papa a la huancaina",
+  "archivo": "/img/recetas/papa-a-la-huancaina.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Cuisine_Per%C3%BA_Papa_a_la_Huanca%C3%ADna.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:AgainErick&action=edit&redlink=1\" class=\"new\" title=\"Use",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Papa rellena",
+  "archivo": "/img/recetas/papa-rellena.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Papas_rellenas.jpg",
+  "autor": "E4024",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Parihuela",
+  "archivo": "/img/recetas/parihuela.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Parihuela.jpg",
+  "autor": "merri from San Francisco,",
+  "licencia": "CC BY-SA 2.0"
+ },
+ {
+  "nombre": "Patachi",
+  "archivo": "/img/recetas/patachi.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Plato_tipico_Patachi_Andamarca_1.jpg",
+  "autor": "Candy Sotomayor",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Pepian de pollo",
+  "archivo": "/img/recetas/pepian-de-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pepi%C3%A1n_de_choclo.jpg",
+  "autor": "<a rel=\"mw:WikiLink\" href=\"https://commons.wikimedia.org/wiki/User:Miguel_Alan_C%C3%B3rdova_Silva\" title=\"User:Miguel Al",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Pescado a lo macho",
+  "archivo": "/img/recetas/pescado-a-lo-macho.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pescado_a_lo_macho.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Picarones",
+  "archivo": "/img/recetas/picarones.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Picarones_%26_Chancaca_(Sweet_Potato_Doughnuts_and_Syrup)_($8).jpg",
+  "autor": "Lou Stejskal",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Pisco sour",
+  "archivo": "/img/recetas/pisco-sour.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pisco_Sour_at_Se%C3%B1or_Ceviche.jpg",
+  "autor": "Bex Walton",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Pollo a la brasa",
+  "archivo": "/img/recetas/pollo-a-la-brasa.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pollo_a_la_brasa_pierna_con_papas.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Rachi",
+  "archivo": "/img/recetas/rachi.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Rachi_mistura_IMG_9941_(6157944292).jpg",
+  "autor": "Renzo Vallejo from Lima, P",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Rocoto relleno",
+  "archivo": "/img/recetas/rocoto-relleno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:%22rocoto%22_relleno.jpg",
+  "autor": "franzconde",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Sancochado",
+  "archivo": "/img/recetas/sancochado.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Sancochado_casero.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/wiki/User:Miguel_Alan_C%C3%B3rdova_Silva\" class=\"mw-redirect\" title=\"User:Miguel Alan C",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Seco de cabrito",
+  "archivo": "/img/recetas/seco-de-cabrito.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Seco_de_Cabrito.JPG",
+  "autor": "Dtarazona",
+  "licencia": "Public domain"
+ },
+ {
+  "nombre": "Seco de pollo",
+  "archivo": "/img/recetas/seco-de-pollo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Seco_de_Pollo.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Maryte_Peralta&action=edit&redlink=1\" class=\"new\" title=",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Seco de res",
+  "archivo": "/img/recetas/seco-de-res.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Seco_cusco.jpg",
+  "autor": "pratiproy",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Solterito de queso",
+  "archivo": "/img/recetas/solterito-de-queso.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Solterito.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Sopa de menestrón",
+  "archivo": "/img/recetas/sopa-de-menestron.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Menestron_17062011.jpg",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Sudado de pescado",
+  "archivo": "/img/recetas/sudado-de-pescado.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Sudado_Madrid_-_Restaurante_Pe_de_Pisco_-.jpg",
+  "autor": "Mover el Bigote",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Suspiro limeno",
+  "archivo": "/img/recetas/suspiro-limeno.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:3310_suspiro.jpg",
+  "autor": "Martin Lang",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Tacacho con cecina",
+  "archivo": "/img/recetas/tacacho-con-cecina.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Tacacho_con_cecina_y_chorizo_05072009.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Tacu tacu",
+  "archivo": "/img/recetas/tacu-tacu.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Tacu-tacu_Superba_09012010.jpg",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 3.0"
+ },
+ {
+  "nombre": "Tallarines verdes",
+  "archivo": "/img/recetas/tallarines-verdes.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Fideos_verdes_higado.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Tamales limeños",
+  "archivo": "/img/recetas/tamales-limenos.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Tamal_del_Per%C3%BA_(2).jpg",
+  "autor": "Francesc Fort",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Tequeños de queso",
+  "archivo": "/img/recetas/tequenos-de-queso.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Los_mas_esperados_en_las_fiestas_Teque%C3%B1os.jpg",
+  "autor": "Rodolfo pimentel",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Tiradito",
+  "archivo": "/img/recetas/tiradito.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Tiradito_al_aj%C3%AD.jpg",
+  "autor": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Culturesse&action=edit&redlink=1\" class=\"new\" title=\"Use",
+  "licencia": "CC0"
+ },
+ {
+  "nombre": "Turrón de Doña Pepa",
+  "archivo": "/img/recetas/turron-de-dona-pepa.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Turron_de_do%C3%B1a_Pepa_28.06.2009.JPG",
+  "autor": "Dtarazona",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Ceviche de hongos",
+  "archivo": "/img/recetas/ceviche-de-hongos.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Ceviche_de_setas_y_mango.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ }
+]
