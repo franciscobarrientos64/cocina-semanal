@@ -185,7 +185,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
       <a id="nav-inicio" class="on" onclick="showSection('home')">Inicio</a>
       <a id="nav-planificar" onclick="showSection('plan')">Planificar</a>
       <a id="nav-comparar" onclick="showSection('comparar')">Precios</a>
-      <a id="nav-stock" onclick="showSection('stock')">Refri y congeladoras</a>
+      <a id="nav-stock" onclick="showSection('stock')">En la refri</a>
       <a id="nav-hogar" onclick="showSection('hogar')">Hogar</a>
       <a id="nav-recetas" onclick="showSection('recetas')">Recetas</a>
     </nav>
@@ -198,8 +198,11 @@ h1,h2,h3{font-family:Lexend,sans-serif}
           <div style="padding:8px 12px;font-size:13px;font-weight:600;color:#1A1914" id="user-name-dd"></div>
           <div style="padding:2px 12px 8px;font-size:12px;color:#888" id="user-email-dd"></div>
           <hr/>
-          <a onclick="loadUserData()">📋 Mis listas guardadas</a>
-          <a onclick="saveCurrentList()">💾 Guardar lista actual</a>
+          <a onclick="closeUserDD();showSection('ajustes')"><span class="ms">settings</span>Ajustes</a>
+          <a onclick="closeUserDD();showSection('hogar')"><span class="ms">group</span>Mi hogar</a>
+          <hr/>
+          <a onclick="loadUserData()"><span class="ms">list_alt</span>Mis listas guardadas</a>
+          <a onclick="saveCurrentList()"><span class="ms">save</span>Guardar lista actual</a>
           <hr/>
           <a onclick="signOut()" style="color:#BA1A1A">Cerrar sesión</a>
         </div>
@@ -212,7 +215,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
   <a data-s="home" class="on" onclick="showSection('home')"><span class="ms">grid_view</span>Inicio</a>
   <a data-s="plan" onclick="showSection('plan')"><span class="ms">calendar_today</span>Planificar</a>
   <a data-s="comparar" onclick="showSection('comparar')"><span class="ms">analytics</span>Precios</a>
-  <a data-s="stock" onclick="showSection('stock')"><span class="ms">ac_unit</span>Refri</a>
+  <a data-s="stock" onclick="showSection('stock')"><span class="ms">ac_unit</span>En la refri</a>
   <a data-s="hogar" onclick="showSection('hogar')"><span class="ms">inventory_2</span>Hogar</a>
 </nav>
 
@@ -388,11 +391,19 @@ h1,h2,h3{font-family:Lexend,sans-serif}
   </div>
 </div>
 
+<div id="sajustes" class="hidden">
+  <div class="nwrap aj-wrap">
+    <section class="n-hero" style="padding-left:0;padding-right:0"><h1><span>Ajustes</span> <b>de la casa</b></h1>
+      <p>Tus casas y los equipos de frío de cada una. Cada refri o congeladora tiene su propia etiqueta NFC.</p></section>
+    <div id="aj-content"></div>
+  </div>
+</div>
+
 <div id="sstock" class="hidden">
   <div class="pr-wrap">
     <div class="pr-head">
       <div>
-        <h2>Refri y <b>congeladoras</b></h2>
+        <h2>En la <b>refri</b></h2>
         <p>Arrastra una tanda desde la manija o un envase suelto a otro equipo. Toca una tanda para editarla.</p>
       </div>
       <div class="pr-actions">
@@ -405,6 +416,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     </div>
 
     <div id="pr-login" class="pr-empty hidden"><p style="margin-bottom:12px">Entra con tu cuenta para ver lo que hay en casa.</p><button class="pr-btn pr-btn-main" onclick="prEntrar()">Entrar con Google</button></div>
+    <div id="pr-casas"></div>
     <div id="pr-todo"></div>
     <div id="pr-board"></div>
 
@@ -981,6 +993,7 @@ function showSection(s) {
   document.getElementById('scomparar').classList.add('hidden');
   document.getElementById('shogar').classList.add('hidden');
   document.getElementById('sstock').classList.add('hidden');
+  document.getElementById('sajustes').classList.add('hidden');
   document.querySelectorAll('.hnav a').forEach(function(a) { a.classList.remove('on'); });
   document.querySelectorAll('.tabbar a').forEach(function(a) { a.classList.toggle('on', a.getAttribute('data-s') === s); });
   window.scrollTo(0, 0);
@@ -999,6 +1012,9 @@ function showSection(s) {
     document.getElementById('shogar').classList.remove('hidden');
     document.getElementById('nav-hogar').classList.add('on');
     loadHogar();
+  } else if (s === 'ajustes') {
+    document.getElementById('sajustes').classList.remove('hidden');
+    ajRender();
   } else if (s === 'stock') {
     document.getElementById('sstock').classList.remove('hidden');
     document.getElementById('nav-stock').classList.add('on');
@@ -2650,7 +2666,10 @@ body.pr-dragging{user-select:none;cursor:grabbing}
 <script>
 // ── CONGELADORAS Y REFRI (tablero) ───────────────────────────────────────────
 var PR = { rows: [], mins: {}, hogar: null, foco: null };
-var PR_APAR = [['refri','Refri'],['congeladora','Congeladora 1'],['congeladora2','Congeladora 2']];
+// Equipos de la casa elegida ([clave, nombre]); se rearma al cargar cs_espacios (Ajustes)
+var PR_DEF = [['refri', 'refri', 'Refri'], ['congeladora', 'congeladora', 'Congeladora 1'], ['congeladora2', 'congeladora', 'Congeladora 2']];
+var PR_APAR = PR_DEF.map(function(d) { return [d[0], d[2]]; });
+var PR_APAR_TODOS = PR_APAR.slice();
 var PR_CATS = [['acompanamientos','Acompañamientos'],['salsas','Salsas'],['proteinas','Proteínas'],['guisos','Guisos'],['otros','Sopas, cremas y otros']];
 var PR_SIZES = [['n250','250 ml'],['n500','500 ml'],['n1000','1 L']];
 // Mismos colores que la hoja impresa (sistema de "day dots"); índice = getDay()
@@ -2663,8 +2682,24 @@ function prMas(iso, dias) { var d = iso ? new Date(iso + 'T12:00:00') : new Date
 function prDias(iso) { if (!iso) return null; return Math.round((new Date(iso + 'T12:00:00') - new Date(prHoy() + 'T12:00:00')) / 864e5); }
 function prFecha(iso) { if (!iso) return '—'; var p = iso.split('-'); return p[2] + '/' + p[1]; }
 function prTotal(r) { return (r.n250||0) + (r.n500||0) + (r.n1000||0); }
-function prFrio(u) { return u !== 'refri'; }
-function prNombreAp(u) { return (PR_APAR.find(function(a) { return a[0] === u; }) || [u, u])[1]; }
+function prEsp(u) { return (PR.espacios || []).find(function(e) { return e.clave === u; }); }
+function prFrio(u) { var e = prEsp(u); return e ? e.tipo !== 'refri' : u !== 'refri'; }
+function prNombreAp(u) { var e = prEsp(u); return e ? e.nombre : (PR_APAR_TODOS.find(function(a) { return a[0] === u; }) || [u, u])[1]; }
+function prCasas() { var v = []; (PR.espacios || []).forEach(function(e) { if (v.indexOf(e.casa) < 0) v.push(e.casa); }); return v; }
+function prArmarEquipos() {
+  var casas = prCasas();
+  var guardada = null; try { guardada = localStorage.getItem('cs_casa'); } catch (e) {}
+  if (!PR.casa || casas.indexOf(PR.casa) < 0) PR.casa = casas.indexOf(guardada) >= 0 ? guardada : casas[0];
+  PR_APAR = PR.espacios.filter(function(e) { return e.casa === PR.casa; }).map(function(e) { return [e.clave, e.nombre]; });
+  PR_APAR_TODOS = PR.espacios.map(function(e) { return [e.clave, casas.length > 1 ? e.casa + ' · ' + e.nombre : e.nombre]; });
+  if (PR.vista && !PR_APAR.some(function(a) { return a[0] === PR.vista; })) PR.vista = null;
+  if (!PR.vista && PR_APAR[0]) PR.vista = PR_APAR[0][0];
+}
+function prElegirCasa(c) {
+  PR.casa = c; PR.vista = null;
+  try { localStorage.setItem('cs_casa', c); } catch (e) {}
+  prArmarEquipos(); prRender();
+}
 function prAmbito() { return PR.hogar ? PR.hogar.id : currentUser.id; }
 function prRow(id) { return PR.rows.find(function(x) { return x.id === id; }); }
 
@@ -2688,6 +2723,15 @@ async function prCargar() {
   PR.rows = res[0].data || [];
   PR.mins = {};
   (res[1].data || []).forEach(function(m) { PR.mins[m.categoria] = m.minimo; });
+  var es = await supa.from('cs_espacios').select('*').eq('ambito', String(prAmbito())).order('orden');
+  if (!es.error && !(es.data || []).length) {
+    // Primera vez: la casa por defecto con la refri y las dos congeladoras de siempre
+    var base = PR_DEF.map(function(d, i) { return { ambito: String(prAmbito()), clave: d[0], casa: 'Casa', tipo: d[1], nombre: d[2], orden: i }; });
+    es = await supa.from('cs_espacios').insert(base).select('*');
+  }
+  PR.espacios = es.error ? PR_DEF.map(function(d, i) { return { clave: d[0], casa: 'Casa', tipo: d[1], nombre: d[2], orden: i }; }) : es.data;
+  if (PR.foco) { var ef = prEsp(PR.foco); if (ef) PR.casa = ef.casa; }
+  prArmarEquipos();
   return true;
 }
 
@@ -2700,7 +2744,8 @@ function prCinta(iso) {
   return '<span class="n-tape" style="background:' + day[1] + ';color:' + (claro ? '#141414' : '#fff') + '">' + day[0].slice(0, 3) + ' · ' + rel + '</span>';
 }
 function prStockCat(cat) {
-  return PR.rows.filter(function(r) { return prFrio(r.ubicacion) && r.categoria === cat; }).reduce(function(a, r) { return a + prTotal(r); }, 0);
+  var aqui = PR_APAR.map(function(a) { return a[0]; });
+  return PR.rows.filter(function(r) { return aqui.indexOf(r.ubicacion) >= 0 && prFrio(r.ubicacion) && r.categoria === cat; }).reduce(function(a, r) { return a + prTotal(r); }, 0);
 }
 function prBarra(tot, min) {
   if (!min) return '';
@@ -2722,14 +2767,14 @@ async function homeRender() {
     return;
   }
   if (!(await prCargar())) return;
-  var refri = PR.rows.filter(function(r) { return r.ubicacion === 'refri'; }).sort(function(a, b) { return (a.vence || '9') < (b.vence || '9') ? -1 : 1; });
+  var refri = PR.rows.filter(function(r) { return !prFrio(r.ubicacion); }).sort(function(a, b) { return (a.vence || '9') < (b.vence || '9') ? -1 : 1; });
   var pronto = refri.filter(function(r) { var d = prDias(r.vence); return d != null && d <= 3; });
   bv.innerHTML = '<div class="n-h"><h2>Vence pronto <small>(' + pronto.length + ')</small></h2><span>refri</span></div>'
     + (pronto.length ? pronto.map(function(r) {
         var f = PR_SIZES.find(function(s) { return r[s[0]] > 0; });
         return '<article class="n-row"><div class="n-row-top"><div class="n-tags">' + prCinta(r.vence) + prTamanos(r) + '</div>'
           + (f ? '<button class="n-mini" onclick="homeComio(\'' + r.id + '\',\'' + f[0] + '\')">Se comió</button>' : '') + '</div>'
-          + '<h3>' + prEsc(r.nombre) + '</h3>'
+          + '<h3>' + prEsc(r.nombre) + (prCasas().length > 1 ? ' <small class="n-sub">· ' + prEsc((prEsp(r.ubicacion) || {}).casa || '') + '</small>' : '') + '</h3>'
           + (r.hecho ? '<p class="n-sub">Hecho el ' + prFecha(r.hecho) + '</p>' : '') + '</article>';
       }).join('')
       : '<div class="n-empty">Nada vence en los próximos tres días' + (refri.length ? '.' : '. La refri está vacía en la app.') + '</div>');
@@ -2741,7 +2786,7 @@ async function homeRender() {
           + prBarra(x.tot, x.min).replace('n-seg', 'n-seg n-seg-w')
           + '<div class="n-row-foot"><span class="n-sub">Mínimo ' + x.min + ' sumando las dos congeladoras</span><a class="n-link" onclick="prAPlan()">Armar la lista →</a></div></article>';
       }).join('')
-      : '<div class="n-empty">' + (hayMin ? 'Todas las secciones están sobre su mínimo.' : 'Define cuántos envases quieres tener de cada sección y aquí verás qué falta cocinar.') + ' <a class="n-link" onclick="showSection(\'stock\')">Ir a refri y congeladoras →</a></div>');
+      : '<div class="n-empty">' + (hayMin ? 'Todas las secciones están sobre su mínimo.' : 'Define cuántos envases quieres tener de cada sección y aquí verás qué falta cocinar.') + ' <a class="n-link" onclick="showSection(\'stock\')">Ir a En la refri →</a></div>');
 }
 async function homeComio(id, campo) { await prMoverA(id, campo, 'comio'); homeRender(); }
 
@@ -2768,7 +2813,7 @@ function prColumna(ap) {
   var tot = rows.reduce(function(a, r) { return a + prTotal(r); }, 0);
   var body = '';
   if (!rows.length) body = '<div class="pr-vacia">Vacía · arrastra aquí</div>';
-  else if (u === 'refri') {
+  else if (!prFrio(u)) {
     var porDia = {};
     rows.forEach(function(r) { var k = r.vence || 'sin'; (porDia[k] = porDia[k] || []).push(r); });
     body = Object.keys(porDia).sort().map(function(k) {
@@ -2790,7 +2835,8 @@ function prColumna(ap) {
 
 function prRender() {
   if (!currentUser) return;
-  var frio = PR.rows.filter(function(r) { return prFrio(r.ubicacion); });
+  var aquiF = PR_APAR.map(function(a) { return a[0]; });
+  var frio = PR.rows.filter(function(r) { return aquiF.indexOf(r.ubicacion) >= 0 && prFrio(r.ubicacion); });
   var falta = [];
   PR_CATS.forEach(function(c) {
     var min = PR.mins[c[0]] || 0;
@@ -2805,10 +2851,12 @@ function prRender() {
     + PR_CATS.map(function(c) { return '<div>' + c[1] + ' <input type="number" min="0" value="' + (PR.mins[c[0]] || '') + '" placeholder="–" onchange="prMin(\'' + c[0] + '\', this.value)"/></div>'; }).join('')
     + '</details></div>';
   if (PR.foco) PR.vista = PR.foco;
-  document.getElementById('pr-board').innerHTML = '<div class="pr-seg">' + PR_APAR.map(function(a) {
+  var casas = prCasas();
+  document.getElementById('pr-casas').innerHTML = (casas.length > 1 ? '<div class="pr-casas">' + casas.map(function(c) { return '<button class="' + (c === PR.casa ? 'on' : '') + '" onclick="prElegirCasa(\'' + prEsc(c).replace(/'/g, "\\'") + '\')">' + prEsc(c) + '</button>'; }).join('') + '<a class="n-link" onclick="showSection(\'ajustes\')">Ajustes</a></div>' : '');
+  document.getElementById('pr-board').innerHTML = '<div class="pr-seg" style="grid-template-columns:repeat(' + Math.max(1, PR_APAR.length) + ',1fr)">' + PR_APAR.map(function(a) {
       var n = PR.rows.filter(function(r) { return r.ubicacion === a[0]; }).reduce(function(x, r) { return x + prTotal(r); }, 0);
       return '<button class="' + (a[0] === (PR.vista || 'refri') ? 'on' : '') + '" onclick="prVer(\'' + a[0] + '\')">' + a[1].replace('Congeladora ', 'Cong. ') + ' <b>' + n + '</b></button>';
-    }).join('') + '</div><div class="pr-board">' + PR_APAR.map(prColumna).join('') + '</div>';
+    }).join('') + '</div><div class="pr-board" style="grid-template-columns:repeat(' + Math.min(Math.max(1, PR_APAR.length), 4) + ',minmax(0,1fr))">' + PR_APAR.map(prColumna).join('') + '</div>';
   if (PR.foco) {
     var col = document.querySelector('.pr-col[data-drop="' + PR.foco + '"]');
     PR.foco = null;
@@ -2845,7 +2893,7 @@ async function prMoverA(id, campo, destino) {
       return;
     }
     // Al pasar a la refri: descongelado dura 3 días. De la refri a una congeladora: 2 meses. Entre congeladoras: igual.
-    var vence = destino === 'refri' ? prMas(null, 3) : r.ubicacion === 'refri' ? prMas(null, 60) : r.vence;
+    var vence = !prFrio(destino) ? (prFrio(r.ubicacion) ? prMas(null, 3) : r.vence) : !prFrio(r.ubicacion) ? prMas(null, 60) : r.vence;
     var mov = { n250: 0, n500: 0, n1000: 0 };
     if (campo) mov[campo] = 1; else { mov.n250 = r.n250 || 0; mov.n500 = r.n500 || 0; mov.n1000 = r.n1000 || 0; }
     // Si en el destino ya hay la misma tanda con el mismo vencimiento, se suma ahí
@@ -2864,7 +2912,7 @@ async function prMoverA(id, campo, destino) {
       }
     }
     prRender();
-    showToast('✓ ' + (campo ? 'Un envase de ' : '') + r.nombre + ' → ' + prNombreAp(destino) + (destino === 'refri' ? ' (hasta el ' + PR_DAYS[new Date(vence + 'T12:00:00').getDay()][0].toLowerCase() + ')' : ''));
+    showToast('✓ ' + (campo ? 'Un envase de ' : '') + r.nombre + ' → ' + prNombreAp(destino) + (!prFrio(destino) ? ' (hasta el ' + PR_DAYS[new Date(vence + 'T12:00:00').getDay()][0].toLowerCase() + ')' : ''));
   } catch (e) {
     console.error(e);
     showToast('No se pudo mover', true);
@@ -2890,8 +2938,7 @@ async function prBorrarFila(r) {
 // ── Arrastrar y soltar con pointer events (mouse y táctil) ───────────────────
 var PRD = null;
 function prDockHTML() {
-  var ic = { refri: 'kitchen', congeladora: 'ac_unit', congeladora2: 'ac_unit' };
-  return '<p class="pr-dock-cap">Suelta el envase aquí</p><div class="pr-dock-in">' + PR_APAR.map(function(a) { return '<div data-drop="' + a[0] + '"><span class="ms">' + ic[a[0]] + '</span>' + a[1].replace('Congeladora ', 'Cong. ') + '</div>'; }).join('')
+  return '<p class="pr-dock-cap">Suelta el envase aquí</p><div class="pr-dock-in" style="grid-template-columns:repeat(' + (PR_APAR.length + 1) + ',1fr)">' + PR_APAR.map(function(a) { return '<div data-drop="' + a[0] + '"><span class="ms">' + (prFrio(a[0]) ? 'ac_unit' : 'kitchen') + '</span>' + a[1].replace('Congeladora ', 'Cong. ') + '</div>'; }).join('')
     + '<div class="comio" data-drop="comio"><span class="ms">restaurant</span>Se comió</div></div>';
 }
 function prDestinoEn(x, y) {
@@ -2965,7 +3012,7 @@ function prEditar(id) {
   bg.className = 'pr-modal-bg';
   bg.innerHTML = '<div class="pr-modal" style="max-width:480px"><h3>' + prEsc(r.nombre) + '</h3><p class="sub">' + prNombreAp(r.ubicacion) + '</p><div class="grid">'
     + '<label class="full">Qué es<input data-k="nombre" value="' + prEsc(r.nombre) + '"/></label>'
-    + '<label>Dónde está<select data-k="ubicacion">' + prOpts(PR_APAR, r.ubicacion) + '</select></label>'
+    + '<label>Dónde está<select data-k="ubicacion">' + prOpts(PR_APAR_TODOS, r.ubicacion) + '</select></label>'
     + '<label>Sección<select data-k="categoria">' + prOpts(PR_CATS, r.categoria) + '</select></label>'
     + '<label>Hecho<input data-k="hecho" type="date" value="' + (r.hecho || '') + '"/></label>'
     + '<label>Vence<input data-k="vence" type="date" value="' + (r.vence || '') + '"/></label>'
@@ -3014,14 +3061,14 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
   bg.innerHTML = '<div class="pr-modal"><h3>' + (desdeFoto ? 'Esto leí en la hoja' : 'Agregar tandas') + '</h3>'
     + '<p class="sub">' + (desdeFoto ? 'Revisa y corrige antes de guardar. Al confirmar, esto <b>reemplaza</b> lo que había en ese equipo.' : 'Una fila por tanda. Las cantidades son envases llenos.') + '</p>'
     + (nota ? '<p class="pr-note">' + prEsc(nota) + '</p>' : '')
-    + '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:14px;align-items:center">Equipo: <select id="pr-ubic" style="width:auto">' + prOpts(PR_APAR, ubic) + '</select></div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:14px;align-items:center">Equipo: <select id="pr-ubic" style="width:auto">' + prOpts(PR_APAR_TODOS, ubic) + '</select></div>'
     + '<div style="overflow-x:auto"><table><thead><tr><th>Qué es</th><th class="hide-m">Sección</th><th class="hide-m">Hecho</th><th>Vence</th><th>250</th><th>500</th><th>1 L</th><th></th></tr></thead><tbody>'
     + filas.map(fila).join('') + '</tbody></table></div>'
     + '<div class="foot"><button class="pr-btn" id="pr-mas-fila">+ Otra fila</button><div style="display:flex;gap:8px"><button class="pr-btn" id="pr-cancel">Cancelar</button><button class="pr-btn pr-btn-main" id="pr-ok">' + (desdeFoto ? 'Confirmar y reemplazar' : 'Guardar') + '</button></div></div></div>';
   document.body.appendChild(bg);
   bg.querySelector('#pr-mas-fila').onclick = function() {
     var hoy = prHoy();
-    bg.querySelector('tbody').insertAdjacentHTML('beforeend', fila({ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, bg.querySelector('#pr-ubic').value === 'refri' ? 4 : 60) }));
+    bg.querySelector('tbody').insertAdjacentHTML('beforeend', fila({ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, !prFrio(bg.querySelector('#pr-ubic').value) ? 4 : 60) }));
   };
   bg.querySelector('#pr-cancel').onclick = function() { bg.remove(); };
   bg.querySelector('#pr-ok').onclick = async function() {
@@ -3097,7 +3144,7 @@ async function prFoto(input) {
     var p = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
     var filas = (p.filas || []).filter(function(f) { return f && f.nombre; });
     if (!filas.length) { showToast('No encontré filas con envases en la foto', true); return; }
-    var hoja = PR_APAR.some(function(a) { return a[0] === p.hoja; }) ? p.hoja : 'congeladora';
+    var hoja = PR_APAR_TODOS.some(function(a) { return a[0] === p.hoja; }) ? p.hoja : (PR_APAR.find(function(a) { return prFrio(a[0]); }) || PR_APAR[0] || ['congeladora'])[0];
     prRevisar(hoja, filas, true, p.dudas);
   } catch (e) {
     console.error('Foto:', e);
@@ -3197,6 +3244,90 @@ function hgCopiar() {
   navigator.clipboard.writeText(hgMensaje(h)).then(function() { showToast('Invitación copiada'); }, function() { showToast(hgLink(h)); });
 }
 
+// ── AJUSTES: casas y equipos de frío ─────────────────────────────────────────
+function closeUserDD() { var d = document.getElementById('user-dropdown'); if (d) d.classList.remove('open'); }
+function ajEnvases(clave) { return PR.rows.filter(function(r) { return r.ubicacion === clave; }).reduce(function(a, r) { return a + prTotal(r); }, 0); }
+function ajQ(v) { return prEsc(v).replace(/'/g, "\\'"); }
+
+async function ajRender() {
+  var box = document.getElementById('aj-content');
+  if (!currentUser) { box.innerHTML = '<div class="n-empty">Entra con tu cuenta para configurar tus casas y equipos.<button class="n-bt n-bt-p n-bt-sm" onclick="prEntrar()">Entrar con Google</button></div>'; return; }
+  if (!(await prCargar())) return;
+  var casas = prCasas();
+  box.innerHTML = casas.map(function(c) {
+    var eqs = PR.espacios.filter(function(e) { return e.casa === c; });
+    return '<section class="aj-casa"><div class="n-h"><input class="aj-casa-n" value="' + prEsc(c) + '" aria-label="Nombre de la casa" onchange="ajRenombrarCasa(\'' + ajQ(c) + '\', this.value)"/>'
+      + '<span>' + eqs.length + ' equipo' + (eqs.length === 1 ? '' : 's') + '</span></div>'
+      + eqs.map(function(e) {
+          var n = ajEnvases(e.clave);
+          return '<div class="aj-eq"><span class="ms">' + (e.tipo === 'refri' ? 'kitchen' : 'ac_unit') + '</span>'
+            + '<div class="aj-eq-b"><input value="' + prEsc(e.nombre) + '" aria-label="Nombre del equipo" onchange="ajCampo(\'' + e.id + '\', \'nombre\', this.value)"/>'
+            + '<span class="n-sub">' + n + ' envase' + (n === 1 ? '' : 's') + ' · NFC: despensa.casa/#' + prEsc(e.clave) + '</span></div>'
+            + '<select aria-label="Tipo" onchange="ajCampo(\'' + e.id + '\', \'tipo\', this.value)"><option value="refri"' + (e.tipo === 'refri' ? ' selected' : '') + '>Refri</option><option value="congeladora"' + (e.tipo !== 'refri' ? ' selected' : '') + '>Congeladora</option></select>'
+            + '<button class="aj-x" title="Quitar" onclick="ajQuitar(\'' + e.id + '\')"><span class="ms">delete</span></button></div>';
+        }).join('')
+      + '<div class="aj-acts"><button class="n-mini n-mini-l" onclick="ajAgregar(\'' + ajQ(c) + '\', \'refri\')"><span class="ms">add</span>Refri</button>'
+      + '<button class="n-mini n-mini-l" onclick="ajAgregar(\'' + ajQ(c) + '\', \'congeladora\')"><span class="ms">add</span>Congeladora</button>'
+      + (casas.length > 1 ? '<button class="n-mini n-mini-l aj-del" onclick="ajQuitarCasa(\'' + ajQ(c) + '\')">Quitar casa</button>' : '') + '</div></section>';
+  }).join('')
+    + '<section class="aj-nueva"><div class="n-h"><h2>Agregar otra casa</h2><span>playa, campo…</span></div>'
+    + '<div class="aj-row"><input id="aj-casa-nueva" placeholder="Ej: Playa" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="ajNuevaCasa()">Agregar casa</button></div>'
+    + '<p class="n-sub">Empieza con una refri y una congeladora; luego agregas o quitas lo que tengas.</p></section>'
+    + '<section><div class="n-h"><h2>Familia</h2></div><div class="n-row-foot" style="padding:12px 0"><span class="n-sub">' + (PR.hogar ? 'Compartes todo con "' + prEsc(PR.hogar.nombre) + '".' : 'Todavía no compartes tu casa con nadie.') + '</span><a class="n-link" onclick="showSection(\'hogar\')">Mi hogar →</a></div></section>';
+}
+
+function ajClave(tipo) { return (tipo === 'refri' ? 'r-' : 'c-') + Math.random().toString(36).slice(2, 7); }
+function ajOrden() { return (PR.espacios || []).reduce(function(m, e) { return Math.max(m, e.orden || 0); }, 0) + 1; }
+function ajNombre(casa, tipo) {
+  var n = PR.espacios.filter(function(e) { return e.casa === casa && e.tipo === tipo; }).length + 1;
+  return tipo === 'refri' ? (n > 1 ? 'Refri ' + n : 'Refri') : 'Congeladora ' + n;
+}
+async function ajGuardar(q, ok) {
+  var r = await q;
+  if (r.error) { showToast('No se pudo guardar: ' + r.error.message, true); return false; }
+  if (ok) showToast(ok);
+  ajRender();
+  return true;
+}
+function ajAgregar(casa, tipo) {
+  return ajGuardar(supa.from('cs_espacios').insert({ ambito: String(prAmbito()), clave: ajClave(tipo), casa: casa, tipo: tipo, nombre: ajNombre(casa, tipo), orden: ajOrden() }), (tipo === 'refri' ? 'Refri' : 'Congeladora') + ' agregada en ' + casa);
+}
+function ajCampo(id, k, v) {
+  v = String(v || '').trim(); if (!v) { ajRender(); return; }
+  var c = {}; c[k] = v;
+  return ajGuardar(supa.from('cs_espacios').update(c).eq('id', id), 'Guardado');
+}
+function ajQuitar(id) {
+  var e = PR.espacios.find(function(x) { return x.id === id; });
+  if (!e) return;
+  if (PR.espacios.length <= 1) { showToast('Necesitas al menos un equipo', true); return; }
+  if (ajEnvases(e.clave) > 0) { showToast('Primero mueve o marca como comido lo que hay en ' + e.nombre, true); return; }
+  return ajGuardar(supa.from('cs_espacios').delete().eq('id', id), e.nombre + ' quitada');
+}
+function ajRenombrarCasa(vieja, nueva) {
+  nueva = String(nueva || '').trim();
+  if (!nueva || nueva === vieja) { ajRender(); return; }
+  if (prCasas().indexOf(nueva) >= 0) { showToast('Ya tienes una casa con ese nombre', true); ajRender(); return; }
+  if (PR.casa === vieja) { PR.casa = nueva; try { localStorage.setItem('cs_casa', nueva); } catch (e) {} }
+  return ajGuardar(supa.from('cs_espacios').update({ casa: nueva }).eq('ambito', String(prAmbito())).eq('casa', vieja), 'Casa renombrada');
+}
+function ajNuevaCasa() {
+  var el = document.getElementById('aj-casa-nueva'), c = String(el && el.value || '').trim();
+  if (!c) { showToast('Escribe el nombre de la casa', true); return; }
+  if (prCasas().indexOf(c) >= 0) { showToast('Ya tienes una casa con ese nombre', true); return; }
+  var o = ajOrden(), amb = String(prAmbito());
+  return ajGuardar(supa.from('cs_espacios').insert([
+    { ambito: amb, clave: ajClave('refri'), casa: c, tipo: 'refri', nombre: 'Refri', orden: o },
+    { ambito: amb, clave: ajClave('congeladora'), casa: c, tipo: 'congeladora', nombre: 'Congeladora 1', orden: o + 1 }
+  ]), 'Casa "' + c + '" agregada');
+}
+function ajQuitarCasa(casa) {
+  var eqs = PR.espacios.filter(function(e) { return e.casa === casa; });
+  if (eqs.some(function(e) { return ajEnvases(e.clave) > 0; })) { showToast('Esa casa todavía tiene comida guardada', true); return; }
+  if (PR.casa === casa) PR.casa = null;
+  return ajGuardar(supa.from('cs_espacios').delete().eq('ambito', String(prAmbito())).eq('casa', casa), 'Casa quitada');
+}
+
 // ── Links directos (etiquetas NFC y QR de las hojas) ─────────────────────────
 // #refri  #congeladora1  #congeladora2  → abre ese equipo en el tablero
 // #unirse=CODIGO                         → une al hogar después de entrar
@@ -3221,7 +3352,7 @@ function prRuta(h) {
     showSection('hogar');
     return true;
   }
-  var u = PR_RUTAS[h.toLowerCase()];
+  var u = PR_RUTAS[h.toLowerCase()] || (prEsp(h) ? h : null) || (/^[rc]-[a-z0-9]{4,}$/.test(h) ? h : null);
   if (u) {
     PR.foco = u;
     showSection('stock');
@@ -3421,6 +3552,30 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Ajustes */
+.aj-wrap{padding:0 24px 64px}
+.aj-casa,.aj-nueva{margin-bottom:28px}
+.aj-casa-n{flex:1;min-width:0;border:0;background:transparent;font:600 13px var(--lx);letter-spacing:.16em;text-transform:uppercase;color:var(--g);padding:4px 0}
+.aj-casa-n:focus{outline:0;box-shadow:inset 0 -1px 0 var(--g)}
+.aj-eq{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bo)}
+.aj-eq>.ms{color:var(--mu)}
+.aj-eq-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.aj-eq-b input{border:0;background:transparent;font:600 15px var(--lx);color:var(--ink);padding:2px 0;min-width:0}
+.aj-eq-b input:focus{outline:0;box-shadow:inset 0 -1px 0 var(--g)}
+.aj-eq select{border:1px solid var(--bo);border-radius:2px;background:#fff;font:500 12px var(--body,inherit);padding:8px;min-height:36px}
+.aj-x{border:0;background:transparent;color:var(--mu);cursor:pointer;padding:6px;min-width:36px;min-height:36px}
+.aj-x:hover{color:var(--err)}
+.aj-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:12px}
+.aj-del{margin-left:auto;color:var(--err)!important}
+.aj-row{display:flex;gap:8px;align-items:center;padding:12px 0 8px}
+.aj-row input{flex:1;min-width:0;border:1px solid var(--bo);border-radius:2px;padding:10px 12px;font:inherit;min-height:42px;background:#fff}
+.pr-casas{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.pr-casas button{border:1px solid var(--g);background:#fff;color:var(--g);font:600 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;padding:9px 14px;border-radius:2px;cursor:pointer;min-height:40px}
+.pr-casas button.on{background:var(--g);color:#fff}
+.pr-casas .n-link{margin-left:auto}
+.user-dropdown a{display:flex!important;align-items:center;gap:10px}
+.user-dropdown a .ms{font-size:18px;color:var(--mu)}
+@media(max-width:860px){.aj-wrap{padding:0 16px 48px}.aj-eq{flex-wrap:wrap}.aj-eq select{margin-left:32px}}
 /* Refri y congeladoras */
 .pr-wrap{max-width:1200px;padding:28px 24px 140px}
 .pr-head h2{font:300 clamp(26px,5vw,34px)/1.2 var(--lx);letter-spacing:.12em;text-transform:uppercase}
@@ -3484,6 +3639,7 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
   .pr-seg button b{font-weight:700;background:#F0EEE9;color:var(--g);padding:2px 5px;margin-left:4px;border-radius:2px}
   .pr-seg button.on{background:var(--g);color:#fff}
   .pr-seg button.on b{background:#1C1B1B;color:var(--lemon)}
+  .pr-board{grid-template-columns:1fr!important}
   .pr-col{display:none}
   .pr-col.act{display:block}
   .pr-col-h{display:none}
