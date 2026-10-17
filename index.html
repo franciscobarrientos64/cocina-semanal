@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Cocina Semanal</title>
+<title>Despensa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -179,7 +179,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 <body>
 <header class="hdr">
   <div class="hdr-in">
-    <div class="logo" onclick="showHome()">Cocina<span>Semanal</span></div>
+    <div class="logo" onclick="showHome()">Despensa<span>.casa</span></div>
     <nav class="hnav">
       <a id="nav-inicio" class="on" onclick="showSection('home')">Inicio</a>
       <a id="nav-planificar" onclick="showSection('plan')">Planificar</a>
@@ -1411,7 +1411,7 @@ function updProg() {
 
 function waShare() {
   var lines = lista.map(function(it) { return '• ' + it.nombre + ' — ' + it.cantidad; }).join('\n');
-  window.open('https://wa.me/?text=' + encodeURIComponent('Cocina Semanal (' + pers + ' personas)\n\n' + lines + '\n\nGenerado en cocinasemanal.pe'), '_blank');
+  window.open('https://wa.me/?text=' + encodeURIComponent('Despensa (' + pers + ' personas)\n\n' + lines + '\n\nHecho en despensa.casa'), '_blank');
 }
 
 async function cmpSupers() {
@@ -2317,7 +2317,7 @@ async function signInWithGoogle() {
     var result = await supa.auth.signInWithOAuth({
       provider: 'google',
       options: { 
-        redirectTo: 'https://cocina-semanal.vercel.app',
+        redirectTo: location.origin.indexOf('http') === 0 ? location.origin : 'https://cocina-semanal.vercel.app',
         skipBrowserRedirect: false
       }
     });
@@ -3121,8 +3121,8 @@ async function hgUnirse(codigo) {
 
 function hgCompartir() {
   var h = PR.hogar; if (!h) return;
-  var txt = 'Únete a "' + h.nombre + '" en Cocina Semanal para ver lo que hay en las congeladoras y la refri: ' + hgLink(h);
-  if (navigator.share) navigator.share({ title: 'Cocina Semanal', text: txt }).catch(function() {});
+  var txt = 'Únete a "' + h.nombre + '" en Despensa para ver lo que hay en las congeladoras y la refri: ' + hgLink(h);
+  if (navigator.share) navigator.share({ title: 'Despensa', text: txt }).catch(function() {});
   else hgCopiar();
 }
 function hgCopiar() {
