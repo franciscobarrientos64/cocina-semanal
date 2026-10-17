@@ -186,7 +186,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <div class="logo" onclick="showHome()">DESPENSA<span>.casa</span></div>
     <nav class="hnav">
       <a id="nav-inicio" class="on" onclick="showSection('home')">Inicio</a>
-      <a id="nav-planificar" onclick="showSection('plan')">Planificar</a>
+      <a id="nav-planificar" onclick="showSection('semana')">Mi semana</a>
       <a id="nav-comparar" onclick="showSection('comparar')">Precios</a>
       <a id="nav-stock" onclick="showSection('stock')">En la refri</a>
       <a id="nav-hogar" onclick="showSection('hogar')">Hogar</a>
@@ -216,7 +216,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
 </header>
 <nav class="tabbar" aria-label="Secciones">
   <a data-s="home" class="on" onclick="showSection('home')"><span class="ms">grid_view</span>Inicio</a>
-  <a data-s="plan" onclick="showSection('plan')"><span class="ms">calendar_today</span>Planificar</a>
+  <a data-s="semana" onclick="showSection('semana')"><span class="ms">calendar_today</span>Semana</a>
   <a data-s="comparar" onclick="showSection('comparar')"><span class="ms">analytics</span>Precios</a>
   <a data-s="stock" onclick="showSection('stock')"><span class="ms">ac_unit</span>En la refri</a>
   <a data-s="hogar" onclick="showSection('hogar')"><span class="ms">inventory_2</span>Hogar</a>
@@ -405,11 +405,16 @@ h1,h2,h3{font-family:Lexend,sans-serif}
   </div>
 </div>
 
+<div id="ssemana" class="hidden">
+  <div class="nwrap sem-wrap" id="sem-content"></div>
+</div>
+
 <div id="sajustes" class="hidden">
   <div class="nwrap aj-wrap">
     <section class="n-hero" style="padding-left:0;padding-right:0"><h1><span>Ajustes</span> <b>de la casa</b></h1>
       <p>Tus casas y los equipos de frío de cada una. Cada refri o congeladora tiene su propia etiqueta NFC.</p></section>
     <div id="aj-content"></div>
+    <section id="aj-perfiles" class="aj-casa"></section>
   </div>
 </div>
 
@@ -992,18 +997,25 @@ function openRecetaModal(nombre) {
   r.utensilios.forEach(function(u) {
     html += '<span style="background:#fff;border:1px solid #E4E2DD;border-radius:2px;padding:3px 11px;font-size:12px;color:#141414">🔪 ' + u + '</span>';
   });
-  html += '</div></div>';
+  html += '</div>';
+  var porc = parseInt(r.porciones, 10) || 4;
+  html += '<div class="esc" data-base="' + porc + '" data-n="' + porc + '"><span>Porciones</span><button onclick="coEscalar(this,-1)" aria-label="Menos">−</button><b>' + porc + '</b><button onclick="coEscalar(this,1)" aria-label="Más">+</button><span class="esc-t">≈ ' + Math.ceil(porc * 300 / 500) + ' tapers de 500 ml</span></div>';
+  var avisosF = typeof dsAvisoFamilia === 'function' ? dsAvisoFamilia(nombre, (r.pasos || []).map(function(x) { return x.ingredientes; }).join(' ')) : [];
+  if (avisosF.length) html += '<p class="pr-note" style="margin:10px 0 0">Ojo: ' + avisosF.map(prEsc).join(' · ') + '</p>';
+  html += '</div>';
   html += '<div style="padding:22px 24px">';
   r.pasos.forEach(function(paso, i) {
     var isLast = i === r.pasos.length - 1;
     html += '<div style="display:flex;gap:14px;margin-bottom:' + (isLast?'0':'20px') + ';padding-bottom:' + (isLast?'0':'20px') + ';border-bottom:' + (isLast?'none':'1px solid #E4E2DD') + '">';
     html += '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#141414;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">' + (i+1) + '</div>';
     html += '<div style="flex:1"><div style="font-weight:600;font-size:15px;margin-bottom:6px;font-family:Lexend,sans-serif">' + paso.titulo + '</div>';
-    html += '<div style="font-size:12px;color:#141414;background:#F0EEE9;border-radius:2px;padding:5px 10px;margin-bottom:8px">🛒 ' + paso.ingredientes + '</div>';
+    html += '<div style="font-size:12px;color:#141414;background:#F0EEE9;border-radius:2px;padding:5px 10px;margin-bottom:8px"><span class="ing" data-raw="' + prEsc(paso.ingredientes) + '">' + prEsc(paso.ingredientes) + '</span></div>';
     html += '<div style="font-size:13px;color:#444748;line-height:1.6">' + paso.metodo + '</div></div></div>';
   });
   html += '</div>';
   html += '<div style="padding:16px 24px;border-top:1px solid #E4E2DD;display:flex;gap:8px">';
+  CO.desdeModal = nombre;
+  html += '<button class="n-bt" style="flex:1;width:auto" onclick="closeModal(this);openCocina([CO.desdeModal])"><span class="ms">skillet</span>Modo cocina</button>';
   html += '<button id="modal-add-btn" style="flex:1;padding:12px;background:#141414;color:#fff;border:none;border-radius:2px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">+ Agregar al planificador</button>';
   html += '<button onclick="closeModal(this)" style="padding:12px 20px;background:#F5F3EE;color:#444748;border:none;border-radius:2px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif">Cerrar</button>';
   html += '</div>';
@@ -1030,6 +1042,7 @@ function showSection(s) {
   document.getElementById('shogar').classList.add('hidden');
   document.getElementById('sstock').classList.add('hidden');
   document.getElementById('sajustes').classList.add('hidden');
+  document.getElementById('ssemana').classList.add('hidden');
   document.querySelectorAll('.hnav a').forEach(function(a) { a.classList.remove('on'); });
   document.querySelectorAll('.tabbar a').forEach(function(a) { a.classList.toggle('on', a.getAttribute('data-s') === s); });
   window.scrollTo(0, 0);
@@ -1048,6 +1061,10 @@ function showSection(s) {
     document.getElementById('shogar').classList.remove('hidden');
     document.getElementById('nav-hogar').classList.add('on');
     loadHogar();
+  } else if (s === 'semana') {
+    document.getElementById('ssemana').classList.remove('hidden');
+    document.getElementById('nav-planificar').classList.add('on');
+    semRender();
   } else if (s === 'ajustes') {
     document.getElementById('sajustes').classList.remove('hidden');
     ajRender();
@@ -1058,6 +1075,7 @@ function showSection(s) {
   } else if (s === 'plan') {
     document.getElementById('splan').classList.remove('hidden');
     document.getElementById('nav-planificar').classList.add('on');
+    document.querySelectorAll('.tabbar a').forEach(function(a) { a.classList.toggle('on', a.getAttribute('data-s') === 'semana'); });
     goS(1);
   }
 }
@@ -3350,6 +3368,7 @@ function ajQ(v) { return prEsc(v).replace(/'/g, "\\'"); }
 
 async function ajRender() {
   var box = document.getElementById('aj-content');
+  if (typeof perfilesRender === 'function') perfilesRender();
   if (!currentUser) { box.innerHTML = '<div class="n-empty">Entra con tu cuenta para configurar tus casas y equipos.<button class="n-bt n-bt-p n-bt-sm" onclick="prEntrar()">Entrar con Google</button></div>'; return; }
   if (!(await prCargar())) return;
   var casas = prCasas();
@@ -3372,7 +3391,7 @@ async function ajRender() {
     + '<section class="aj-nueva"><div class="n-h"><h2>Agregar otra casa</h2><span>playa, campo…</span></div>'
     + '<div class="aj-row"><input id="aj-casa-nueva" placeholder="Ej: Playa" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="ajNuevaCasa()">Agregar casa</button></div>'
     + '<p class="n-sub">Empieza con una refri y una congeladora; luego agregas o quitas lo que tengas.</p></section>'
-    + '<section><div class="n-h"><h2>Familia</h2></div><div class="n-row-foot" style="padding:12px 0"><span class="n-sub">' + (PR.hogar ? 'Compartes todo con "' + prEsc(PR.hogar.nombre) + '".' : 'Todavía no compartes tu casa con nadie.') + '</span><a class="n-link" onclick="showSection(\'hogar\')">Mi hogar →</a></div></section>';
+    + '<section><div class="n-h"><h2>Hogar compartido</h2></div><div class="n-row-foot" style="padding:12px 0"><span class="n-sub">' + (PR.hogar ? 'Compartes todo con "' + prEsc(PR.hogar.nombre) + '".' : 'Todavía no compartes tu casa con nadie.') + '</span><a class="n-link" onclick="showSection(\'hogar\')">Mi hogar →</a></div></section>';
 }
 
 function ajClave(tipo) { return (tipo === 'refri' ? 'r-' : 'c-') + Math.random().toString(36).slice(2, 7); }
@@ -3493,6 +3512,9 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
   }, 300);
 });
 </script>
+<script src="/js/nucleo.js"></script>
+<script src="/js/semana.js"></script>
+<script src="/js/cocina.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
 body{background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
@@ -3668,6 +3690,62 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Fase 2: semana, modo cocina, porciones y familia */
+.sem-wrap{padding:0 24px 64px}
+.sem-nav{display:flex;align-items:center;gap:10px;font:600 12px var(--lx);letter-spacing:.12em;text-transform:uppercase}
+.sem-acts{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 20px}
+.sem-bal{margin-bottom:18px}.sem-bal-c{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0 4px}
+.sem-dia{border-top:1px solid var(--g);padding:10px 0 6px}
+.sem-dia.pasado{opacity:.55}
+.sem-dia.hoy{background:#fff;box-shadow:0 0 0 12px #fff;margin:12px 0}
+.sem-dh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.n-h-k{font:600 10px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.sem-slot{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:start;padding:6px 0;border-bottom:1px solid var(--bo)}
+.sem-k{font:600 10px var(--lx);letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding-top:7px}
+.sem-its{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sem-it{display:inline-flex;align-items:center;gap:4px;background:#F0EEE9;border-radius:2px;padding:4px 4px 4px 8px;font-size:14px;max-width:100%}
+.sem-it.tanda{background:#fff;box-shadow:inset 0 0 0 1px var(--g)}
+.sem-it .ms{font-size:15px;color:var(--mu)}
+.sem-n{cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sem-it button{border:0;background:none;color:var(--mu);font-size:16px;cursor:pointer;padding:2px 6px;min-width:28px;min-height:28px}
+.sem-add{border:1px dashed #C4C7C7;background:transparent;width:34px;height:30px;border-radius:2px;cursor:pointer;color:var(--mu);font-size:18px}
+.sem-q{width:100%;border:1px solid var(--bo);border-radius:2px;padding:12px;font:inherit;margin:8px 0 10px;min-height:44px}
+.sem-lista{max-height:52vh;overflow:auto;display:flex;flex-direction:column}
+.sem-gr{font:600 10px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin:12px 0 4px}
+.sem-op{display:flex;align-items:center;gap:10px;text-align:left;border:0;border-bottom:1px solid var(--bo);background:#fff;padding:11px 6px;cursor:pointer;font:inherit;min-height:44px}
+.sem-op:hover{background:#F5F3EE}
+.sem-op small{display:block;color:var(--mu);font-size:12px}
+.sem-op .ms{color:var(--mu)}
+.sem-ord{margin:0 0 0 0;padding:0;list-style:none;display:flex;flex-direction:column}
+.sem-ord li{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--bo);font-size:14px}
+.sem-ord b{font:600 11px var(--lx);letter-spacing:.08em;color:var(--mu)}
+.sem-ord small{color:var(--mu)}
+.esc{display:flex;align-items:center;gap:10px;margin-top:12px;font:600 11px var(--lx);letter-spacing:.12em;text-transform:uppercase;flex-wrap:wrap}
+.esc button{width:34px;height:34px;border:1px solid var(--g);background:#fff;border-radius:2px;cursor:pointer;font-size:18px}
+.esc b{font-size:18px;min-width:24px;text-align:center}
+.esc-t{color:var(--mu);font-weight:500;letter-spacing:.06em}
+.co-ov{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;flex-direction:column}
+.co-ov[hidden]{display:none}
+.co-top{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--bo)}
+.co-tabs{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0}
+.co-tabs button{border:1px solid var(--g);background:#fff;font:600 11px var(--lx);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border-radius:2px;white-space:nowrap;cursor:pointer}
+.co-tabs button.on{background:var(--g);color:#fff}
+.co-mas,.co-x{border:0;background:transparent;cursor:pointer;padding:8px}
+.co-timers{display:flex;gap:6px}
+.co-t{font:700 14px var(--lx);background:var(--lemon);padding:6px 8px;border-radius:2px;font-variant-numeric:tabular-nums}
+.co-t.fin{background:var(--err);color:#fff}
+.co-body{flex:1;overflow:auto;padding:28px 24px;max-width:760px;width:100%;margin:0 auto}
+.co-k{font:600 11px var(--lx);letter-spacing:.16em;text-transform:uppercase;color:var(--mu)}
+.co-body h2{font:600 clamp(24px,5vw,34px)/1.2 var(--lx);letter-spacing:.02em;margin:8px 0 14px}
+.co-ing{background:#F0EEE9;padding:10px 12px;font-size:16px;margin-bottom:16px}
+.co-met{font-size:clamp(20px,4vw,26px);line-height:1.5}
+.co-tm{margin-top:20px;width:auto}
+.co-foot{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bo)}
+.co-foot .n-bt{min-height:56px}
+.pf-row{display:grid;grid-template-columns:1.2fr .5fr 1.3fr 1.3fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bo)}
+.pf-row input:not([type=checkbox]){border:1px solid var(--bo);border-radius:2px;padding:8px;font:inherit;min-width:0;min-height:38px;background:#fff}
+.pf-l{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mu);white-space:nowrap}
+@media(max-width:860px){.sem-wrap{padding:0 16px 48px}.pf-row{grid-template-columns:1fr 70px;}.pf-row input:nth-child(3),.pf-row input:nth-child(4){grid-column:1/-1}}
 /* Fase 1: historial y avisos */
 .n-acc{display:flex;gap:6px}
 .n-sec-opt:empty{display:none}
