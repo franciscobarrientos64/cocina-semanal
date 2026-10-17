@@ -7,6 +7,9 @@
 <title>Despensa</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Despensa"/>
 <meta name="theme-color" content="#141414"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -193,6 +196,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
       <a id="nav-recetas" onclick="showSection('recetas')">Recetas</a>
     </nav>
     <div class="hdr-r">
+      <button class="hdr-asis" onclick="appAsistente()" aria-label="Asistente" title="Asistente"><span class="ms">graphic_eq</span></button>
       <div class="user-menu" id="user-menu">
         <button class="auth-btn" id="auth-btn" onclick="handleAuthClick()">
           <span class="ms">person</span><span id="auth-label">Iniciar sesión</span>
@@ -203,6 +207,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
           <hr/>
           <a onclick="closeUserDD();showSection('ajustes')"><span class="ms">settings</span>Ajustes</a>
           <a onclick="closeUserDD();showSection('hogar')"><span class="ms">group</span>Mi hogar</a>
+          <a onclick="closeUserDD();showSection('planes')"><span class="ms">workspace_premium</span>Planes</a>
           <hr/>
           <a onclick="loadUserData()"><span class="ms">list_alt</span>Mis listas guardadas</a>
           <a onclick="saveCurrentList()"><span class="ms">save</span>Guardar lista actual</a>
@@ -412,6 +417,10 @@ h1,h2,h3{font-family:Lexend,sans-serif}
 
 <div id="ssemana" class="hidden">
   <div class="nwrap sem-wrap" id="sem-content"></div>
+</div>
+
+<div id="splanes" class="hidden">
+  <div class="nwrap aj-wrap" id="planes-content"></div>
 </div>
 
 <div id="sajustes" class="hidden">
@@ -1050,6 +1059,7 @@ function showSection(s) {
   document.getElementById('sstock').classList.add('hidden');
   document.getElementById('sajustes').classList.add('hidden');
   document.getElementById('ssemana').classList.add('hidden');
+  document.getElementById('splanes').classList.add('hidden');
   document.querySelectorAll('.hnav a').forEach(function(a) { a.classList.remove('on'); });
   document.querySelectorAll('.tabbar a').forEach(function(a) { a.classList.toggle('on', a.getAttribute('data-s') === s); });
   window.scrollTo(0, 0);
@@ -1069,6 +1079,9 @@ function showSection(s) {
     document.getElementById('shogar').classList.remove('hidden');
     document.getElementById('nav-hogar').classList.add('on');
     loadHogar();
+  } else if (s === 'planes') {
+    document.getElementById('splanes').classList.remove('hidden');
+    appPlanes();
   } else if (s === 'semana') {
     document.getElementById('ssemana').classList.remove('hidden');
     document.getElementById('nav-planificar').classList.add('on');
@@ -3442,6 +3455,13 @@ async function ajRender() {
     + '<section class="aj-nueva"><div class="n-h"><h2>Agregar otra casa</h2><span>playa, campo…</span></div>'
     + '<div class="aj-row"><input id="aj-casa-nueva" placeholder="Ej: Playa" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="ajNuevaCasa()">Agregar casa</button></div>'
     + '<p class="n-sub">Empieza con una refri y una congeladora; luego agregas o quitas lo que tengas.</p></section>'
+    + '<section><div class="n-h"><h2>Tus datos</h2><span>CSV para Excel o Sheets</span></div><div class="aj-acts">'
+    + '<button class="n-mini n-mini-l" onclick="appExportar(\'inventario\')"><span class="ms">download</span>Inventario</button><button class="n-mini n-mini-l" onclick="appExportar(\'alacena\')"><span class="ms">download</span>Alacena</button>'
+    + '<button class="n-mini n-mini-l" onclick="appExportar(\'gastos\')"><span class="ms">download</span>Gastos</button><button class="n-mini n-mini-l" onclick="appExportar(\'historial\')"><span class="ms">download</span>Historial</button>'
+    + '<button class="n-mini n-mini-l" onclick="appImportar()"><span class="ms">upload</span>Importar inventario</button></div></section>'
+    + '<section><div class="n-h"><h2>Despensa en el celular y en la cocina</h2></div><div class="n-row">'
+    + '<p><b>Instálala como app:</b> en el iPhone, Safari → Compartir → <i>Agregar a inicio</i>. En Android, menú de Chrome → <i>Instalar app</i>. Abre sin internet y aparece en "Compartir" para guardar recetas y listas.</p>'
+    + '<p><b>Tablet en la cocina:</b> deja una tablet pegada a la refri con el tablero siempre al día. <a class="n-link" onclick="appTablet(true)">Activar modo tablet</a></p></div></section>'
     + '<section><div class="n-h"><h2>Idioma en este celular</h2><span>modo ayuda</span></div><div class="aj-row"><select id="aj-lang" onchange="try{localStorage.setItem(\'cs_lang\',this.value)}catch(e){};FAM.lang=this.value;showToast(\'Listo\')"><option value="es">Español</option><option value="en"' + (typeof FAM !== 'undefined' && FAM.lang === 'en' ? ' selected' : '') + '>English (para quien ayuda en casa)</option></select></div></section>'
     + '<section><div class="n-h"><h2>Etiquetas para tapers</h2><span>opcional</span></div><div class="n-row"><p class="n-sub">Desde cada tanda (tócala → Etiquetas) imprimes una etiqueta de 50 × 30 mm por envase, con nombre, fechas, el color del día y un QR que abre la tanda.</p>'
     + '<p><b>Impresora sugerida:</b> una térmica de etiquetas por Bluetooth, que imprime desde el celular sin tinta. La más práctica y económica es la <b>Niimbot B21</b> (o la D110, más chica); si prefieres algo más robusto, la <b>Brother QL-800</b>. Usa rollos de <b>50 × 30 mm resistentes al frío</b> (papel sintético o "freezer"). Se consiguen en Mercado Libre y Falabella.</p>'
@@ -3580,6 +3600,7 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
 <script src="/js/alacena.js"></script>
 <script src="/js/recetas.js"></script>
 <script src="/js/familia.js"></script>
+<script src="/js/app.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
 body{background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
@@ -3755,6 +3776,28 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Fase 6: app, asistente, planes, tablet */
+.hdr-asis{border:0;background:transparent;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.hdr-asis:hover{background:#F0EEE9}
+.as-log{max-height:46vh;min-height:120px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0}
+.as-m{max-width:88%;padding:10px 12px;border-radius:2px;font-size:15px;line-height:1.5}
+.as-m.yo{align-self:flex-end;background:var(--g);color:#fff}
+.as-m.el{align-self:flex-start;background:#F5F3EE}
+.as-acc{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.as-in{display:flex;gap:8px;align-items:center;border-top:1px solid var(--bo);padding-top:12px}
+.as-in input{flex:1;min-width:0;border:1px solid var(--bo);border-radius:2px;padding:10px;font:inherit;min-height:42px}
+#as-mic.on{background:var(--err);color:#fff}
+.aj-acts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0}
+.pl-tabla{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:0;border-top:1px solid var(--g)}
+.pl{padding:20px 18px 22px;border-bottom:1px solid var(--bo);display:flex;flex-direction:column;gap:10px}
+.pl.dest{background:#fff;box-shadow:inset 0 3px 0 var(--lemon)}
+.pl h3{font:600 13px var(--lx);letter-spacing:.16em;text-transform:uppercase}
+.pl-p b{font:600 30px var(--lx);font-variant-numeric:tabular-nums}
+.pl ul{margin:0 0 6px 16px;display:flex;flex-direction:column;gap:6px;font-size:14px;flex:1}
+body.tablet .hdr,body.tablet .tabbar,body.tablet .pr-head,body.tablet #pr-todo,body.tablet .pr-help,body.tablet .al-box,body.tablet .pr-mes{display:none!important}
+body.tablet{padding-bottom:0}body.tablet .pr-wrap{max-width:none;padding:20px}
+body.tablet .pr-board{grid-template-columns:repeat(3,minmax(0,1fr))!important}body.tablet .pr-col{display:block!important}body.tablet .pr-seg{display:none}
+body.tablet .pr-cn{font-size:19px}body.tablet .pr-chip{font-size:13px;padding:10px}
 /* Fase 5: familia y comunidad */
 .fam-t{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bo)}
 .fam-t>div{display:flex;flex-direction:column}
