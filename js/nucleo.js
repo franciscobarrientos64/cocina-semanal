@@ -82,3 +82,27 @@ function dsAvisoFamilia(nombre, texto) {
   });
   return avisos;
 }
+
+// Igual que iaJSON pero con una foto (base64 JPEG)
+async function iaVision(b64, prompt, maxTokens) {
+  var r = await fetch('/api/claude', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ max_tokens: maxTokens || 2500, messages: [{ role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } }, { type: 'text', text: prompt }] }] })
+  });
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error && d.error.message ? d.error.message : 'HTTP ' + r.status);
+  var raw = (d.content || []).map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim();
+  return JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
+}
+// Abre la cámara o la galería y devuelve el archivo elegido
+function dsElegirFoto() {
+  return new Promise(function(ok) {
+    var i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.capture = 'environment';
+    i.onchange = function() { ok(i.files && i.files[0]); }; i.click();
+  });
+}
+// Carga un script de cdnjs/unpkg una sola vez
+function dsScript(src) {
+  return new Promise(function(ok, ko) { if (document.querySelector('script[src="' + src + '"]')) return ok(); var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); });
+}
