@@ -228,8 +228,10 @@ h1,h2,h3{font-family:Lexend,sans-serif}
       <h1><span>Comer bien</span> <b>en casa</b></h1>
       <p>Planifica la semana, compara precios en cinco supermercados y mira qué hay en la refri y las congeladoras.</p>
     </section>
+    <div class="n-sec n-sec-opt" id="home-hoy"></div>
     <div class="n-sec" id="home-vence"></div>
     <div class="n-sec n-sec-opt" id="home-desc"></div>
+    <div class="n-sec n-sec-opt" id="home-tareas"></div>
     <div class="n-sec n-sec-opt" id="home-plata"></div>
     <div class="n-sec" id="home-todo"></div>
     <section class="n-btns">
@@ -2816,10 +2818,12 @@ async function prCargar() {
   PR.espacios = es.error ? PR_DEF.map(function(d, i) { return { clave: d[0], casa: 'Casa', tipo: d[1], nombre: d[2], orden: i }; }) : es.data;
   if (PR.foco) { var ef = prEsp(PR.foco); if (ef) PR.casa = ef.casa; }
   prArmarEquipos();
+  if (typeof famCargarRol === 'function') famCargarRol();
   return true;
 }
 
 // ── Piezas visuales compartidas (cintas de día y barras de stock) ───────────
+function T(x) { return typeof t === 'function' ? t(x) : x; }
 function prCinta(iso) {
   if (!iso) return '<span class="n-tape" style="background:#C4C7C7;color:#1B1C19">Sin fecha</span>';
   var d = new Date(iso + 'T12:00:00'), day = PR_DAYS[d.getDay()], dd = prDias(iso);
@@ -2853,11 +2857,11 @@ async function homeRender() {
   if (!(await prCargar())) return;
   var refri = PR.rows.filter(function(r) { return !prFrio(r.ubicacion); }).sort(function(a, b) { return (a.vence || '9') < (b.vence || '9') ? -1 : 1; });
   var pronto = refri.filter(function(r) { var d = prDias(r.vence); return d != null && d <= 3; });
-  bv.innerHTML = '<div class="n-h"><h2>Vence pronto <small>(' + pronto.length + ')</small></h2><span>refri</span></div>'
+  bv.innerHTML = '<div class="n-h"><h2>' + T('Vence pronto') + ' <small>(' + pronto.length + ')</small></h2><span>refri</span></div>'
     + (pronto.length ? pronto.map(function(r) {
         var f = PR_SIZES.find(function(s) { return r[s[0]] > 0; });
         return '<article class="n-row"><div class="n-row-top"><div class="n-tags">' + prCinta(r.vence) + prTamanos(r) + '</div>'
-          + (f ? '<span class="n-acc"><button class="n-mini n-mini-l" title="Se botó" aria-label="Se botó" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'boto\')"><span class="ms">delete</span></button><button class="n-mini" onclick="homeComio(\'' + r.id + '\',\'' + f[0] + '\')">Se comió</button></span>' : '') + '</div>'
+          + (f ? '<span class="n-acc"><button class="n-mini n-mini-l" title="Se botó" aria-label="Se botó" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'boto\')"><span class="ms">delete</span></button><button class="n-mini" onclick="homeComio(\'' + r.id + '\',\'' + f[0] + '\')">' + T('Se comió') + '</button></span>' : '') + '</div>'
           + '<h3>' + prEsc(r.nombre) + (prCasas().length > 1 ? ' <small class="n-sub">· ' + prEsc((prEsp(r.ubicacion) || {}).casa || '') + '</small>' : '') + '</h3>'
           + (r.hecho ? '<p class="n-sub">Hecho el ' + prFecha(r.hecho) + '</p>' : '') + '</article>';
       }).join('')
@@ -2866,14 +2870,18 @@ async function homeRender() {
   var hayMin = PR_CATS.some(function(c) { return PR.mins[c[0]] > 0; });
  var porDesc = PR.rows.filter(function(r) { var d = prDias(r.descongelar_para); return r.descongelar_para && prFrio(r.ubicacion) && d != null && d <= 1; });
   var bd = document.getElementById('home-desc');
-  if (bd) bd.innerHTML = porDesc.length ? '<div class="n-h"><h2>Descongela hoy <small>(' + porDesc.length + ')</small></h2><span>pásalo a la refri</span></div>'
+  if (bd) bd.innerHTML = porDesc.length ? '<div class="n-h"><h2>' + T('Descongela hoy') + ' <small>(' + porDesc.length + ')</small></h2><span>pásalo a la refri</span></div>'
     + porDesc.map(function(r) {
         var f = PR_SIZES.find(function(s) { return r[s[0]] > 0; });
         return '<article class="n-row"><div class="n-row-top"><div class="n-tags">' + prCinta(r.descongelar_para) + prTamanos(r) + '</div>'
-          + (f ? '<button class="n-mini" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'' + prRefriDe(r.ubicacion) + '\')">Ya lo pasé</button>' : '') + '</div>'
+          + (f ? '<button class="n-mini" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'' + prRefriDe(r.ubicacion) + '\')">' + T('Ya lo pasé') + '</button>' : '') + '</div>'
           + '<h3>' + prEsc(r.nombre) + '</h3><p class="n-sub">Está en ' + prEsc(prNombreAp(r.ubicacion)) + '. Para comerlo el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '.</p></article>';
       }).join('') : '';
  prBadge();
+  if (typeof famHoyHTML === 'function') {
+    famHoyHTML().then(function(h) { var e = document.getElementById('home-hoy'); if (e) e.innerHTML = h; });
+    famTareas().then(function() { var e = document.getElementById('home-tareas'); if (e) e.innerHTML = famTareasHTML(true); });
+  }
   if (typeof cmpCargarPlata === 'function') cmpCargarPlata().then(function() {
     var hp = document.getElementById('home-plata'); if (!hp) return;
     var of = null; try { of = JSON.parse(localStorage.getItem('cs_ofertas') || 'null'); } catch (e) {}
@@ -2912,6 +2920,7 @@ async function prResumenMes() {
   var peor = Object.keys(bot).sort(function(a, b) { return bot[b] - bot[a]; })[0];
   box.innerHTML = '<div class="n-h"><h2>Este mes</h2><span>historial</span></div><div class="pr-mes-n"><div><b>' + t.comio + '</b><span>envases comidos</span></div><div class="' + (t.boto ? 'mal' : '') + '"><b>' + t.boto + '</b><span>envases botados</span></div>' + (soles ? '<div class="mal"><b>S/ ' + soles.toFixed(2) + '</b><span>en comida botada</span></div>' : '') + '</div>'
     + (peor ? '<p class="n-sub">Lo que más se bota: ' + prEsc(peor) + '.</p>' : '');
+  if (typeof famReto === 'function') famReto().then(function(h) { box.insertAdjacentHTML('beforeend', h); });
 }
 
 function prVence(r) {
@@ -2919,6 +2928,7 @@ function prVence(r) {
   var cls = d == null ? '' : d < 0 ? 'bad' : (prFrio(r.ubicacion) ? d <= 14 : d <= 1) ? 'warn' : '';
   var txt = d == null ? 'sin fecha' : d < 0 ? 'vencido ' + prFecha(r.vence) : d === 0 ? 'vence hoy' : d === 1 ? 'vence mañana' : 'vence ' + prFecha(r.vence);
   return '<div class="pr-cv ' + cls + '">' + txt + (prFrio(r.ubicacion) && r.hecho ? ' · hecho ' + prFecha(r.hecho) : '') + (r.hecho_por ? ' · por ' + prEsc(r.hecho_por) : '')
+    + (r.nota ? ' · <i>' + prEsc(r.nota) + '</i>' : '')
     + (r.costo_ml ? ' · S/ ' + (r.costo_ml * 500).toFixed(2) + ' por 500 ml' : '')
     + (r.descongelar_para ? ' · <b class="pr-desc">descongelar para el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '</b>' : '') + '</div>';
 }
@@ -2979,7 +2989,8 @@ function prRender() {
     + '</details></div>';
   if (PR.foco) PR.vista = PR.foco;
   var casas = prCasas();
-  document.getElementById('pr-casas').innerHTML = (casas.length > 1 ? '<div class="pr-casas">' + casas.map(function(c) { return '<button class="' + (c === PR.casa ? 'on' : '') + '" onclick="prElegirCasa(\'' + prEsc(c).replace(/'/g, "\\'") + '\')">' + prEsc(c) + '</button>'; }).join('') + '<a class="n-link" onclick="showSection(\'ajustes\')">Ajustes</a></div>' : '');
+  document.getElementById('pr-casas').innerHTML = (casas.length > 1 ? '<div class="pr-casas">' + casas.map(function(c) { return '<button class="' + (c === PR.casa ? 'on' : '') + '" onclick="prElegirCasa(\'' + prEsc(c).replace(/'/g, "\\'") + '\')">' + prEsc(c) + '</button>'; }).join('') + '<a class="n-link" onclick="showSection(\'ajustes\')">Ajustes</a></div>'
+    + '<div class="pr-viajes">' + casas.filter(function(c) { return c !== PR.casa; }).map(function(c) { return '<button class="n-mini n-mini-l" onclick="famViaje(\'' + prEsc(c).replace(/'/g, "\\'") + '\')"><span class="ms">luggage</span>Preparar viaje a ' + prEsc(c) + '</button>'; }).join('') + '</div>' : '');
   document.getElementById('pr-board').innerHTML = '<div class="pr-seg" style="grid-template-columns:repeat(' + Math.max(1, PR_APAR.length) + ',1fr)">' + PR_APAR.map(function(a) {
       var n = PR.rows.filter(function(r) { return r.ubicacion === a[0]; }).reduce(function(x, r) { return x + prTotal(r); }, 0);
       return '<button class="' + (a[0] === (PR.vista || 'refri') ? 'on' : '') + '" onclick="prVer(\'' + a[0] + '\')">' + a[1].replace('Congeladora ', 'Cong. ') + ' <b>' + n + '</b></button>';
@@ -3148,15 +3159,18 @@ function prEditar(id) {
     + '<label>Hecho<input data-k="hecho" type="date" value="' + (r.hecho || '') + '"/></label>'
     + '<label>Vence<input data-k="vence" type="date" value="' + (r.vence || '') + '"/></label>'
     + '<label>Costo de la tanda (S/)<input data-c="costo" inputmode="decimal" placeholder="opcional" value="' + (r.costo_ml ? (r.costo_ml * prMl(r)).toFixed(2) : '') + '"/></label>'
+    + '<label class="full">Nota<input data-k="nota" value="' + prEsc(r.nota || '') + '" placeholder="Picante, para los chicos sin ají…"/></label>'
     + '<label>Quién la hizo<input data-k="hecho_por" value="' + prEsc(r.hecho_por || '') + '" placeholder="' + prEsc(prQuien()) + '"/></label>'
     + (prFrio(r.ubicacion) ? '<label>Descongelar para comer el<input data-k="descongelar_para" type="date" min="' + prHoy() + '" value="' + (r.descongelar_para || '') + '"/></label>' : '')
     + '<div class="full sizes">' + PR_SIZES.map(function(s) { return '<label>' + s[1] + '<input data-k="' + s[0] + '" type="number" min="0" value="' + (r[s[0]] || 0) + '"/></label>'; }).join('') + '</div>'
-    + '</div><div class="foot"><div style="display:flex;gap:8px"><button class="pr-btn pr-btn-red" data-a="borrar">Borrar</button><button class="pr-btn" data-a="etq"><span class="ms">label</span>Etiquetas</button></div><div style="display:flex;gap:8px"><button class="pr-btn" data-a="x">Cancelar</button><button class="pr-btn pr-btn-main" data-a="ok">Guardar</button></div></div></div>';
+    + '</div><div class="foot"><div style="display:flex;gap:8px"><button class="pr-btn pr-btn-red" data-a="borrar">Borrar</button><button class="pr-btn" data-a="etq"><span class="ms">label</span>Etiquetas</button><button class="pr-btn" data-a="foto"><span class="ms">photo_camera</span>Foto</button><button class="pr-btn" data-a="regalo"><span class="ms">volunteer_activism</span>Regalar</button></div><div style="display:flex;gap:8px"><button class="pr-btn" data-a="x">Cancelar</button><button class="pr-btn pr-btn-main" data-a="ok">Guardar</button></div></div></div>';
   bg.addEventListener('click', async function(e) {
     var a = e.target.getAttribute && e.target.getAttribute('data-a');
     if (e.target === bg || a === 'x') { bg.remove(); return; }
     try {
       if (a === 'etq') { alEtiquetas(r.id); return; }
+      if (a === 'foto') { famFoto(r.id); return; }
+      if (a === 'regalo') { bg.remove(); famRegalar(r.id); return; }
       if (a === 'borrar') {
         if (!window.confirm('¿Borrar "' + r.nombre + '"? Si se comió o se botó, mejor arrástralo a "Se comió" o "Se botó" para que quede en el historial.')) return;
         bg.remove(); prLog(r, 'edita', r.ubicacion, null, {}); await prBorrarFila(r);
@@ -3177,6 +3191,7 @@ function prEditar(id) {
     } catch (err) { console.error(err); showToast('No se pudo guardar', true); loadStock(); }
   });
   document.body.appendChild(bg);
+  if (r.foto && typeof famVerFoto === 'function') { var fbox = document.createElement('div'); bg.querySelector('.grid').after(fbox); famVerFoto(r.foto, fbox); }
 }
 
 // ── Alta manual y revisión de la foto (misma tabla) ──────────────────────────
@@ -3353,8 +3368,11 @@ async function loadHogar() {
     + '<section><div class="n-h"><h2>Miembros <small>(' + mem.length + ')</small></h2></div>'
     + mem.map(function(m) {
         return '<div class="hg-mem">' + (m.avatar_url ? '<img src="' + prEsc(m.avatar_url) + '" alt=""/>' : '<span class="av">' + prEsc((m.nombre || '?').charAt(0).toUpperCase()) + '</span>')
-          + '<div><b>' + prEsc(m.nombre || 'Miembro') + '</b><span class="n-size">' + (m.user_id === h.owner_id ? 'Creó el hogar' : 'Miembro') + '</span></div></div>';
+          + '<div><b>' + prEsc(m.nombre || 'Miembro') + '</b>' + (m.user_id === h.owner_id ? '<span class="n-size">Creó el hogar</span>'
+            : currentUser && currentUser.id === h.owner_id && typeof FAM_ROLES !== 'undefined' ? '<select class="hg-rol" aria-label="Qué puede hacer" onchange="famRol(\'' + m.id + '\', this.value)">' + FAM_ROLES.map(function(r) { return '<option value="' + r[0] + '"' + ((m.rol || 'miembro') === r[0] ? ' selected' : '') + '>' + r[1] + '</option>'; }).join('') + '</select>'
+            : '<span class="n-size">' + (typeof FAM_ROLES !== 'undefined' ? (FAM_ROLES.find(function(r) { return r[0] === (m.rol || 'miembro'); }) || ['', 'Miembro'])[1] : 'Miembro') + '</span>') + '</div></div>';
       }).join('') + '</section>'
+    + (currentUser && currentUser.id === h.owner_id ? '<p class="n-sub" style="margin:-12px 0 24px">"Ayuda en casa" ve solo lo de hoy y marca lo que se comió. "Solo mirar" no puede cambiar nada.</p>' : '')
     + '<section><div class="n-h"><h2>Hojas y etiquetas</h2></div>'
     + '<div class="hg-mem"><span class="av sq"><span class="ms">print</span></span><div><b>Hojas para la refri y las congeladoras</b><span class="n-sub">Tres hojas A4 con QR. Se actualizan con una foto.</span></div><a class="n-mini" href="/formatos/congeladora-refri.html" target="_blank">Abrir</a></div>'
     + '<div class="hg-mem"><span class="av sq"><span class="ms">nfc</span></span><div><b>Etiquetas NFC</b><span class="n-sub">Graba en cada puerta: ' + location.host + '/#refri, /#congeladora1 y /#congeladora2</span></div></div></section>';
@@ -3424,6 +3442,7 @@ async function ajRender() {
     + '<section class="aj-nueva"><div class="n-h"><h2>Agregar otra casa</h2><span>playa, campo…</span></div>'
     + '<div class="aj-row"><input id="aj-casa-nueva" placeholder="Ej: Playa" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="ajNuevaCasa()">Agregar casa</button></div>'
     + '<p class="n-sub">Empieza con una refri y una congeladora; luego agregas o quitas lo que tengas.</p></section>'
+    + '<section><div class="n-h"><h2>Idioma en este celular</h2><span>modo ayuda</span></div><div class="aj-row"><select id="aj-lang" onchange="try{localStorage.setItem(\'cs_lang\',this.value)}catch(e){};FAM.lang=this.value;showToast(\'Listo\')"><option value="es">Español</option><option value="en"' + (typeof FAM !== 'undefined' && FAM.lang === 'en' ? ' selected' : '') + '>English (para quien ayuda en casa)</option></select></div></section>'
     + '<section><div class="n-h"><h2>Etiquetas para tapers</h2><span>opcional</span></div><div class="n-row"><p class="n-sub">Desde cada tanda (tócala → Etiquetas) imprimes una etiqueta de 50 × 30 mm por envase, con nombre, fechas, el color del día y un QR que abre la tanda.</p>'
     + '<p><b>Impresora sugerida:</b> una térmica de etiquetas por Bluetooth, que imprime desde el celular sin tinta. La más práctica y económica es la <b>Niimbot B21</b> (o la D110, más chica); si prefieres algo más robusto, la <b>Brother QL-800</b>. Usa rollos de <b>50 × 30 mm resistentes al frío</b> (papel sintético o "freezer"). Se consiguen en Mercado Libre y Falabella.</p>'
     + '<p class="n-sub">Sin impresora: imprímelas en hoja A4 de stickers en tu impresora de casa.</p></div></section>'
@@ -3501,6 +3520,8 @@ function prRuta(h) {
   h = (h || '').replace(/^#/, '');
   if (!h || /access_token|error=/.test(h)) return false;
   if (typeof mrDesdeRuta === 'function' && /^receta=/.test(h)) return mrDesdeRuta(h);
+  var rq = h.match(/^r-([0-9a-f-]{36})$/);
+  if (rq && typeof famAbrirCompartida === 'function') { setTimeout(function() { famAbrirCompartida(rq[1]); }, 600); return true; }
   var tq = h.match(/^t-([0-9a-f-]{36})$/);
   if (tq) { showSection('stock'); setTimeout(function() { if (prRow(tq[1])) prEditar(tq[1]); }, 1500); return true; }
   var ck = h.match(/^cookidoo=([\s\S]+)/);
@@ -3558,6 +3579,7 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
 <script src="/js/compras.js"></script>
 <script src="/js/alacena.js"></script>
 <script src="/js/recetas.js"></script>
+<script src="/js/familia.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
 body{background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
@@ -3733,6 +3755,17 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Fase 5: familia y comunidad */
+.fam-t{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bo)}
+.fam-t>div{display:flex;flex-direction:column}
+.fam-reto{display:flex;gap:12px;align-items:center;background:#F5F3EE;padding:12px 14px;margin-top:12px}
+.fam-reto .ms{color:#3B9A4A}.fam-reto div{display:flex;flex-direction:column}
+.hg-rol{border:1px solid var(--bo);border-radius:2px;padding:6px;font:inherit;font-size:12px;background:#fff}
+.pr-viajes{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 14px}.pr-viajes:empty{display:none}
+#aj-lang{border:1px solid var(--bo);border-radius:2px;padding:10px;font:inherit;min-height:42px;flex:1}
+body.modo-ayuda .hnav a:not(#nav-inicio):not(#nav-stock),body.modo-ayuda .tabbar a:not([data-s="home"]):not([data-s="stock"]),body.modo-ayuda #home-todo,body.modo-ayuda #home-plata,body.modo-ayuda .n-btns,body.modo-ayuda .feat,body.modo-ayuda .pr-actions,body.modo-ayuda #pr-todo,body.modo-ayuda .pr-mins,body.modo-ayuda .al-box,body.modo-ayuda .pr-mes{display:none!important}
+body.modo-ayuda .n-hero p{display:none}
+body.solo-mirar .pr-actions,body.solo-mirar .pr-dock,body.solo-mirar .pr-grip,body.solo-mirar .n-acc,body.solo-mirar .sem-add,body.solo-mirar .sem-it button{display:none!important}
 /* Fase 4: alacena, boleta, código de barras, etiquetas, mis recetas */
 .al-box{margin-top:36px}.al-box:empty{display:none}
 .al-acts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0}
