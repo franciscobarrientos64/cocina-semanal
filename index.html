@@ -5,6 +5,9 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Despensa</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<meta name="theme-color" content="#141414"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
@@ -315,12 +318,16 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <p style="color:#888;font-size:15px;margin-bottom:28px">Pega tu lista de productos y te decimos dónde comprar más barato</p>
 
     <div style="background:#fff;border:1px solid #E4E2DD;border-radius:2px;padding:22px 24px;margin-bottom:20px">
-      <details class="ck-box">
-        <summary><span class="ms">blender</span>Traer mi lista de Cookidoo</summary>
-        <p>Arma en Cookidoo tu semana de platos: la lista de ingredientes que te genera la puedes comparar aquí.</p>
-        <p><b>En la computadora:</b> arrastra este botón a tu barra de favoritos <a class="n-mini" id="ck-bookmarklet" onclick="event.preventDefault();showToast('Arrástralo a tu barra de favoritos')">→ Despensa</a> Luego, en Cookidoo, abre tu lista de compras y tócalo: la lista llega aquí y se compara sola.</p>
-        <p><b>En el celular:</b> en la lista de compras de Cookidoo selecciona y copia los ingredientes, y pégalos abajo.</p>
-      </details>
+      <div class="ck-box">
+        <div class="ck-t"><span class="ms">blender</span>Cómo traer tu lista de Cookidoo</div>
+        <p>Arma tu semana de platos en Cookidoo y compara aquí la lista de ingredientes que te genera.</p>
+        <ol>
+          <li><b>En Cookidoo</b>, agrega tus recetas de la semana a la lista de compras (en cada receta: "Agregar a la lista de compras").</li>
+          <li><b>En la computadora:</b> arrastra este botón a tu barra de favoritos <a class="n-mini" id="ck-bookmarklet" onclick="event.preventDefault();showToast('Arrástralo a tu barra de favoritos')">→ Despensa</a> (solo la primera vez). Abre tu lista de compras en cookidoo.international y toca el favorito: la lista llega aquí y se compara sola.</li>
+          <li><b>En el celular:</b> abre la lista de compras en la app de Cookidoo, mantén presionado para seleccionar los ingredientes, cópialos y pégalos en el cuadro de abajo. Luego toca "Comparar precios".</li>
+        </ol>
+        <p class="ck-n">Si seleccionas solo una parte de la lista antes de tocar el favorito, se manda solo esa parte.</p>
+      </div>
       <div style="font-weight:600;font-size:15px;margin-bottom:6px">Tu lista de productos</div>
       <div style="font-size:13px;color:#888;margin-bottom:12px">Escribe uno por línea o separados por coma. Puedes incluir cantidades.</div>
       <textarea id="cmp-input" placeholder="Ej:&#10;2 kg pollo&#10;1 kg papa amarilla&#10;6 limones&#10;500g queso fresco&#10;Aceite vegetal 1 litro" style="width:100%;height:180px;border:1.5px solid #E4E2DD;border-radius:2px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6"></textarea>
@@ -3600,7 +3607,10 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .tm-box{padding:16px 24px 22px;border-top:1px solid var(--bo);display:flex;flex-direction:column;gap:8px}
 .tm-off{opacity:.45;cursor:not-allowed;border-style:dashed}
 .ck-box{background:#F5F3EE;padding:12px 14px;margin-bottom:16px;border-radius:2px;font-size:14px;color:var(--mu)}
-.ck-box summary{cursor:pointer;display:flex;align-items:center;gap:8px;font:600 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--g)}
+.ck-t{display:flex;align-items:center;gap:8px;font:600 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--g)}
+.ck-box ol{margin:10px 0 0 18px;display:flex;flex-direction:column;gap:8px;line-height:1.6}
+.ck-box{border-left:3px solid var(--lemon)}
+.ck-n{font-size:12px}
 .ck-box p{margin-top:10px;line-height:1.6}
 .ck-box b{color:var(--ink)}
 #ck-bookmarklet{cursor:grab;margin:0 4px}
