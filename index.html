@@ -315,6 +315,12 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <p style="color:#888;font-size:15px;margin-bottom:28px">Pega tu lista de productos y te decimos dónde comprar más barato</p>
 
     <div style="background:#fff;border:1px solid #E4E2DD;border-radius:2px;padding:22px 24px;margin-bottom:20px">
+      <details class="ck-box">
+        <summary><span class="ms">blender</span>Traer mi lista de Cookidoo</summary>
+        <p>Arma en Cookidoo tu semana de platos: la lista de ingredientes que te genera la puedes comparar aquí.</p>
+        <p><b>En la computadora:</b> arrastra este botón a tu barra de favoritos <a class="n-mini" id="ck-bookmarklet" onclick="event.preventDefault();showToast('Arrástralo a tu barra de favoritos')">→ Despensa</a> Luego, en Cookidoo, abre tu lista de compras y tócalo: la lista llega aquí y se compara sola.</p>
+        <p><b>En el celular:</b> en la lista de compras de Cookidoo selecciona y copia los ingredientes, y pégalos abajo.</p>
+      </details>
       <div style="font-weight:600;font-size:15px;margin-bottom:6px">Tu lista de productos</div>
       <div style="font-size:13px;color:#888;margin-bottom:12px">Escribe uno por línea o separados por coma. Puedes incluir cantidades.</div>
       <textarea id="cmp-input" placeholder="Ej:&#10;2 kg pollo&#10;1 kg papa amarilla&#10;6 limones&#10;500g queso fresco&#10;Aceite vegetal 1 litro" style="width:100%;height:180px;border:1.5px solid #E4E2DD;border-radius:2px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6"></textarea>
@@ -939,6 +945,21 @@ function startCmpVoice() {
 }
 
 function closeModal(btn) { var ov = btn.closest("[style*='position:fixed']") || btn.closest("[style*='fixed']"); if(ov) ov.remove(); }
+// Receta → Cookidoo (no hay API pública: copiamos el texto y abrimos "Recetas creadas")
+var TM_URL = 'https://cookidoo.international/created-recipes/es-ES';
+function tmTexto(nombre, r) {
+  var ings = [];
+  (r.pasos || []).forEach(function(p) { String(p.ingredientes || '').split(/,|;/).forEach(function(i) { i = i.trim(); if (i && ings.indexOf(i) < 0) ings.push(i); }); });
+  return nombre + '\n\nPorciones: ' + (r.porciones || '') + '\nTiempo: ' + (r.tiempo || '') + '\n\nINGREDIENTES\n' + ings.map(function(i) { return '- ' + i; }).join('\n')
+    + '\n\nPREPARACIÓN\n' + (r.pasos || []).map(function(p, k) { return (k + 1) + '. ' + (p.titulo ? p.titulo + ': ' : '') + p.metodo; }).join('\n') + '\n\nDe Despensa.casa';
+}
+function tmEnviar(nombre, r) {
+  var t = tmTexto(nombre, r);
+  var abrir = function() { window.open(TM_URL, '_blank', 'noopener'); };
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(function() { showToast('Receta copiada. Pégala en Cookidoo'); abrir(); }, function() { prompt('Copia la receta:', t); abrir(); });
+  else { prompt('Copia la receta:', t); abrir(); }
+}
+
 function openRecetaModal(nombre) {
   var r = getRecipe(nombre);
   var rd = ALL_RECIPES.find(function(x) { return x.n === nombre; });
@@ -977,7 +998,13 @@ function openRecetaModal(nombre) {
   html += '<button id="modal-add-btn" style="flex:1;padding:12px;background:#141414;color:#fff;border:none;border-radius:2px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">+ Agregar al planificador</button>';
   html += '<button onclick="closeModal(this)" style="padding:12px 20px;background:#F5F3EE;color:#444748;border:none;border-radius:2px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif">Cerrar</button>';
   html += '</div>';
+  html += '<div class="tm-box">' + (currentUser
+      ? '<button class="n-bt" id="tm-btn"><span class="ms">blender</span>Enviar a Thermomix</button><p class="n-sub">Copiamos la receta con el formato de Cookidoo y abrimos tus recetas creadas: pégala ahí y queda en tu Thermomix.</p>'
+      : '<button class="n-bt tm-off" disabled><span class="ms">lock</span>Enviar a Thermomix</button><p class="n-sub"><a class="n-link" onclick="prEntrar()">Entra con Google</a> para enviar esta receta a tu Thermomix.</p>')
+    + '</div>';
   modal.innerHTML = html;
+  var tmBtn = modal.querySelector('#tm-btn');
+  if (tmBtn) tmBtn.addEventListener('click', function() { tmEnviar(nombre, r); });
   var addBtn = modal.querySelector('#modal-add-btn');
   if (addBtn) { addBtn.addEventListener('click', function() { if (sel.indexOf(nombre) < 0) sel.push(nombre); this.textContent = '✓ Agregado'; this.style.background = '#3A3A3A'; }); }
   overlay.appendChild(modal);
@@ -3346,6 +3373,17 @@ function prEntrar() {
 function prRuta(h) {
   h = (h || '').replace(/^#/, '');
   if (!h || /access_token|error=/.test(h)) return false;
+  var ck = h.match(/^cookidoo=([\s\S]+)/);
+  if (ck) {
+    var lista = ''; try { lista = decodeURIComponent(ck[1]); } catch (e) { lista = ck[1]; }
+    history.replaceState(null, '', location.pathname);
+    showSection('comparar');
+    var ta = document.getElementById('cmp-input');
+    ta.value = lista.replace(/\n{3,}/g, '\n\n').trim();
+    showToast('Lista de Cookidoo recibida');
+    setTimeout(compararLista, 300);
+    return true;
+  }
   var m = h.match(/^unirse=([A-Za-z0-9]+)/);
   if (m) {
     prGuardarPendiente('unirse', m[1]);
@@ -3362,6 +3400,12 @@ function prRuta(h) {
 }
 
 window.addEventListener('hashchange', function() { prRuta(location.hash); });
+// Marcador para Cookidoo: toma lo seleccionado o el texto de la lista y lo manda a Precios
+(function() {
+  var code = "(function(){var s=String(window.getSelection()||'').trim();var m=document.querySelector('main')||document.body;var t=(s||m.innerText||'').slice(0,6000);window.open('https://despensa.casa/#cookidoo='+encodeURIComponent(t),'_blank');})();";
+  var set = function() { var a = document.getElementById('ck-bookmarklet'); if (a) a.setAttribute('href', 'javascript:' + code); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', set); else set();
+})();
 window.addEventListener('load', function() {
   if (!prRuta(location.hash)) { var p = prPendiente('ruta'); if (p) prRuta(p); }
 });
@@ -3552,6 +3596,14 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Cookidoo / Thermomix */
+.tm-box{padding:16px 24px 22px;border-top:1px solid var(--bo);display:flex;flex-direction:column;gap:8px}
+.tm-off{opacity:.45;cursor:not-allowed;border-style:dashed}
+.ck-box{background:#F5F3EE;padding:12px 14px;margin-bottom:16px;border-radius:2px;font-size:14px;color:var(--mu)}
+.ck-box summary{cursor:pointer;display:flex;align-items:center;gap:8px;font:600 11px var(--lx);letter-spacing:.14em;text-transform:uppercase;color:var(--g)}
+.ck-box p{margin-top:10px;line-height:1.6}
+.ck-box b{color:var(--ink)}
+#ck-bookmarklet{cursor:grab;margin:0 4px}
 /* Ajustes */
 .aj-wrap{padding:0 24px 64px}
 .aj-casa,.aj-nueva{margin-bottom:28px}
