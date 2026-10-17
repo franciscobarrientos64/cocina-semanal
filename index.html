@@ -230,6 +230,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     </section>
     <div class="n-sec" id="home-vence"></div>
     <div class="n-sec n-sec-opt" id="home-desc"></div>
+    <div class="n-sec n-sec-opt" id="home-plata"></div>
     <div class="n-sec" id="home-todo"></div>
     <section class="n-btns">
       <button class="n-bt n-bt-p" onclick="startPlan()"><span class="ms">calendar_add_on</span>Planificar la semana</button>
@@ -319,6 +320,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <p style="color:#888;font-size:15px;margin-bottom:28px">Pega tu lista de productos y te decimos dónde comprar más barato</p>
 
     <div style="background:#fff;border:1px solid #E4E2DD;border-radius:2px;padding:22px 24px;margin-bottom:20px">
+      <div id="cmp-habituales" class="cmp-hab"></div>
       <div class="ck-box">
         <div class="ck-t"><span class="ms">blender</span>Cómo traer tu lista de Cookidoo</div>
         <p>Arma tu semana de platos en Cookidoo y compara aquí la lista de ingredientes que te genera.</p>
@@ -1681,6 +1683,7 @@ async function compararLista() {
     });
   }
 
+  if (typeof cmpPreciosReales === 'function') { btn.textContent = 'Buscando precios reales…'; await cmpPreciosReales(); }
   document.getElementById('cmp-loading').classList.add('hidden');
   document.getElementById('cmp-result').classList.remove('hidden');
   btn.textContent = 'Comparar precios';
@@ -2242,20 +2245,27 @@ function showToast(msg, isError) {
 // ── LISTA ACTIVA SYNC ─────────────────────────────────────────────────────────
 var syncTimeout = null;
 
-async function loadListaActiva() {
+// La lista activa es de la casa: si hay hogar, todos ven y tachan la misma lista
+async function listaAmbito() {
+  if (!PR.hogar && currentUser && !PR.hogarBuscado) { var hg = await supa.from('cs_hogares').select('*').limit(1); PR.hogar = hg.data && hg.data[0] ? hg.data[0] : null; PR.hogarBuscado = true; }
+  return String(PR.hogar ? PR.hogar.id : currentUser.id);
+}
+async function loadListaActiva(silencioso) {
   if (!currentUser) return;
   try {
+    var amb = await listaAmbito();
     var { data, error } = await supa
       .from('cs_lista_activa')
       .select('*')
-      .eq('user_id', currentUser.id)
+      .eq('user_id', amb)
       .single();
     if (data && data.items && data.items.length > 0) {
       cmpItems = data.items;
       if (data.supermercado) cmpSuperActivo = data.supermercado;
       if (data.checked_items) checkedItems = data.checked_items;
       // Show comparar section if items exist
-      showToast('✓ Lista cargada — ' + cmpItems.length + ' productos');
+      if (!silencioso) showToast('Lista cargada: ' + cmpItems.length + ' productos');
+      LISTA_VERSION = data.updated_at;
       // If user is in comparar section, re-render
       var scomp = document.getElementById('scomparar');
       if (scomp && !scomp.classList.contains('hidden')) {
@@ -2272,14 +2282,16 @@ async function loadListaActiva() {
   }
 }
 
+var LISTA_VERSION = null, LISTA_TOCADA = 0;
 async function saveListaActiva() {
   if (!currentUser || !cmpItems.length) return;
   clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async function() {
     try {
       // 1. Save to active list (cross-device sync)
+      LISTA_TOCADA = Date.now();
       await supa.from('cs_lista_activa').upsert({
-        user_id: currentUser.id,
+        user_id: await listaAmbito(),
         items: cmpItems,
         supermercado: cmpSuperActivo,
         checked_items: checkedItems,
@@ -2739,13 +2751,14 @@ function prTotal(r) { return (r.n250||0) + (r.n500||0) + (r.n1000||0); }
 // Vida útil sugerida en días por sección: [en refri, congelado]
 var PR_VIDA = { acompanamientos: [4, 60], salsas: [5, 90], proteinas: [3, 90], guisos: [3, 90], otros: [3, 60] };
 function prVida(cat, frio) { var v = PR_VIDA[cat] || [3, 60]; return v[frio ? 1 : 0]; }
+function prMl(r) { return (r.n250 || 0) * 250 + (r.n500 || 0) * 500 + (r.n1000 || 0) * 1000; }
 function prQuien() { var m = currentUser && currentUser.user_metadata || {}; return String(m.full_name || (currentUser ? currentUser.email.split('@')[0] : '')).split(' ')[0]; }
 // Historial: cada entrada, salida o movimiento queda registrado (base de los reportes de desperdicio y costo)
 function prLog(r, accion, desde, hacia, mov) {
   if (!currentUser) return;
   mov = mov || {};
   supa.from('cs_movimientos').insert({ ambito: String(prAmbito()), preparado_id: r.id || null, nombre: r.nombre, categoria: r.categoria, desde: desde || null, hacia: hacia || null, accion: accion,
-    n250: mov.n250 || 0, n500: mov.n500 || 0, n1000: mov.n1000 || 0, por: prQuien() }).then(function(x) { if (x.error) console.warn('historial', x.error); });
+    n250: mov.n250 || 0, n500: mov.n500 || 0, n1000: mov.n1000 || 0, por: prQuien(), costo: r.costo_ml ? Math.round(r.costo_ml * prMl(mov) * 100) / 100 : null }).then(function(x) { if (x.error) console.warn('historial', x.error); });
 }
 function prRefriDe(u) { var e = prEsp(u), casa = e ? e.casa : PR.casa; var rf = (PR.espacios || []).find(function(x) { return x.casa === casa && x.tipo === 'refri'; }); return rf ? rf.clave : 'refri'; }
 
@@ -2856,7 +2869,15 @@ async function homeRender() {
           + (f ? '<button class="n-mini" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'' + prRefriDe(r.ubicacion) + '\')">Ya lo pasé</button>' : '') + '</div>'
           + '<h3>' + prEsc(r.nombre) + '</h3><p class="n-sub">Está en ' + prEsc(prNombreAp(r.ubicacion)) + '. Para comerlo el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '.</p></article>';
       }).join('') : '';
-  prBadge();
+ prBadge();
+  if (typeof cmpCargarPlata === 'function') cmpCargarPlata().then(function() {
+    var hp = document.getElementById('home-plata'); if (!hp) return;
+    var of = null; try { of = JSON.parse(localStorage.getItem('cs_ofertas') || 'null'); } catch (e) {}
+    var a = CMP.ajustes, g = CMP.gastadoMes || 0;
+    hp.innerHTML = (a && a.presupuesto_mes) || g || (of && of.n) ? '<div class="n-h"><h2>Plata del mes</h2><span>comida</span></div><div class="n-row">'
+      + (a && a.presupuesto_mes ? '<div class="cl-bar"><i style="width:' + Math.min(100, g / a.presupuesto_mes * 100) + '%"' + (g > a.presupuesto_mes ? ' class="mal"' : '') + '></i></div><p class="n-sub">S/ ' + g.toFixed(2) + ' de S/ ' + (+a.presupuesto_mes).toFixed(0) + (CMP.ahorroMes ? ' · ahorrado comparando: S/ ' + CMP.ahorroMes.toFixed(2) : '') + '</p>' : '<p class="n-sub">Gastado este mes: S/ ' + g.toFixed(2) + '</p>')
+      + (of && of.n ? '<p><span class="n-lemon">' + of.n + ' oferta' + (of.n > 1 ? 's' : '') + '</span> en lo que siempre compras. <a class="n-link" onclick="showSection(\'comparar\')">Ver →</a></p>' : '') + '</div>' : '';
+  });
   bt.innerHTML = '<div class="n-h"><h2>Por hacer ' + (falta.length ? '<em class="n-crit">' + falta.length + ' bajo mínimo</em>' : '') + '</h2><span>congeladoras</span></div>'
     + (falta.length ? falta.map(function(x) {
         return '<article class="n-row"><div class="n-row-top"><h3>' + x.c[1] + '</h3><span class="n-err">' + x.tot + ' / ' + x.min + ' envases</span></div>'
@@ -2880,12 +2901,12 @@ async function prResumenMes() {
   var box = document.getElementById('pr-mes');
   if (!box || !currentUser) return;
   var ini = new Date(); ini.setDate(1); ini.setHours(0, 0, 0, 0);
-  var r = await supa.from('cs_movimientos').select('accion,n250,n500,n1000,nombre').eq('ambito', String(prAmbito())).in('accion', ['comio', 'boto']).gte('created_at', ini.toISOString());
+  var r = await supa.from('cs_movimientos').select('accion,n250,n500,n1000,nombre,costo').eq('ambito', String(prAmbito())).in('accion', ['comio', 'boto']).gte('created_at', ini.toISOString());
   if (r.error) return;
-  var t = { comio: 0, boto: 0 }, bot = {};
-  (r.data || []).forEach(function(m) { var n = (m.n250 || 0) + (m.n500 || 0) + (m.n1000 || 0); t[m.accion] += n; if (m.accion === 'boto') bot[m.nombre] = (bot[m.nombre] || 0) + n; });
+  var t = { comio: 0, boto: 0 }, bot = {}, soles = 0;
+  (r.data || []).forEach(function(m) { var n = (m.n250 || 0) + (m.n500 || 0) + (m.n1000 || 0); t[m.accion] += n; if (m.accion === 'boto') { bot[m.nombre] = (bot[m.nombre] || 0) + n; soles += +m.costo || 0; } });
   var peor = Object.keys(bot).sort(function(a, b) { return bot[b] - bot[a]; })[0];
-  box.innerHTML = '<div class="n-h"><h2>Este mes</h2><span>historial</span></div><div class="pr-mes-n"><div><b>' + t.comio + '</b><span>envases comidos</span></div><div class="' + (t.boto ? 'mal' : '') + '"><b>' + t.boto + '</b><span>envases botados</span></div></div>'
+  box.innerHTML = '<div class="n-h"><h2>Este mes</h2><span>historial</span></div><div class="pr-mes-n"><div><b>' + t.comio + '</b><span>envases comidos</span></div><div class="' + (t.boto ? 'mal' : '') + '"><b>' + t.boto + '</b><span>envases botados</span></div>' + (soles ? '<div class="mal"><b>S/ ' + soles.toFixed(2) + '</b><span>en comida botada</span></div>' : '') + '</div>'
     + (peor ? '<p class="n-sub">Lo que más se bota: ' + prEsc(peor) + '.</p>' : '');
 }
 
@@ -2894,6 +2915,7 @@ function prVence(r) {
   var cls = d == null ? '' : d < 0 ? 'bad' : (prFrio(r.ubicacion) ? d <= 14 : d <= 1) ? 'warn' : '';
   var txt = d == null ? 'sin fecha' : d < 0 ? 'vencido ' + prFecha(r.vence) : d === 0 ? 'vence hoy' : d === 1 ? 'vence mañana' : 'vence ' + prFecha(r.vence);
   return '<div class="pr-cv ' + cls + '">' + txt + (prFrio(r.ubicacion) && r.hecho ? ' · hecho ' + prFecha(r.hecho) : '') + (r.hecho_por ? ' · por ' + prEsc(r.hecho_por) : '')
+    + (r.costo_ml ? ' · S/ ' + (r.costo_ml * 500).toFixed(2) + ' por 500 ml' : '')
     + (r.descongelar_para ? ' · <b class="pr-desc">descongelar para el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '</b>' : '') + '</div>';
 }
 
@@ -3009,7 +3031,7 @@ async function prMoverA(id, campo, destino) {
       else await prBorrarFila(r);
       if (dest) await prActualizar(dest, { n250: dest.n250 + mov.n250, n500: dest.n500 + mov.n500, n1000: dest.n1000 + mov.n1000 });
       else {
-        var nueva = Object.assign({ hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, hecho_por: r.hecho_por || null, vence: vence, origen: r.ubicacion }, mov);
+        var nueva = Object.assign({ hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, hecho_por: r.hecho_por || null, costo_ml: r.costo_ml || null, vence: vence, origen: r.ubicacion }, mov);
         var ins = await supa.from('cs_preparados').insert(nueva).select().single();
         if (ins.error) throw ins.error;
         PR.rows.push(ins.data);
@@ -3120,6 +3142,7 @@ function prEditar(id) {
     + '<label>Sección<select data-k="categoria">' + prOpts(PR_CATS, r.categoria) + '</select></label>'
     + '<label>Hecho<input data-k="hecho" type="date" value="' + (r.hecho || '') + '"/></label>'
     + '<label>Vence<input data-k="vence" type="date" value="' + (r.vence || '') + '"/></label>'
+    + '<label>Costo de la tanda (S/)<input data-c="costo" inputmode="decimal" placeholder="opcional" value="' + (r.costo_ml ? (r.costo_ml * prMl(r)).toFixed(2) : '') + '"/></label>'
     + '<label>Quién la hizo<input data-k="hecho_por" value="' + prEsc(r.hecho_por || '') + '" placeholder="' + prEsc(prQuien()) + '"/></label>'
     + (prFrio(r.ubicacion) ? '<label>Descongelar para comer el<input data-k="descongelar_para" type="date" min="' + prHoy() + '" value="' + (r.descongelar_para || '') + '"/></label>' : '')
     + '<div class="full sizes">' + PR_SIZES.map(function(s) { return '<label>' + s[1] + '<input data-k="' + s[0] + '" type="number" min="0" value="' + (r[s[0]] || 0) + '"/></label>'; }).join('') + '</div>'
@@ -3138,6 +3161,9 @@ function prEditar(id) {
           c[k] = el.type === 'number' ? Math.max(0, parseInt(el.value, 10) || 0) : (el.value.trim() || null);
         });
         if (!c.nombre) { showToast('Falta el nombre', true); return; }
+        var cEl = bg.querySelector('[data-c="costo"]'), costo = cEl ? parseFloat(String(cEl.value).replace(',', '.')) : NaN;
+        var ml = (c.n250 || 0) * 250 + (c.n500 || 0) * 500 + (c.n1000 || 0) * 1000;
+        if (costo > 0 && ml > 0) c.costo_ml = costo / ml; else if (cEl && !cEl.value.trim()) c.costo_ml = null;
         bg.remove();
         if (prTotal(c) === 0) { prLog(r, 'edita', r.ubicacion, null, {}); await prBorrarFila(r); }
         else { if (c.ubicacion && c.ubicacion !== r.ubicacion) prLog(r, 'mueve', r.ubicacion, c.ubicacion, r); await prActualizar(r, c); }
@@ -3515,6 +3541,7 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
 <script src="/js/nucleo.js"></script>
 <script src="/js/semana.js"></script>
 <script src="/js/cocina.js"></script>
+<script src="/js/compras.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
 body{background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
@@ -3690,6 +3717,32 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Fase 3: compras y plata */
+.cl-row{display:grid;grid-template-columns:28px 1fr auto 36px 76px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bo)}
+.cl-row.ck{opacity:.45}.cl-row.ck b{text-decoration:line-through}
+.cl-box{width:22px;height:22px;border:1px solid var(--g);border-radius:2px;background:#fff;cursor:pointer;color:#fff;font-size:12px;padding:0}
+.cl-row.ck .cl-box{background:var(--g)}
+.cl-n{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cl-n b{font-weight:500;font-size:14px}
+.cl-n span{font-size:12px;color:var(--mu);overflow:hidden;text-overflow:ellipsis}
+.cl-n a{color:var(--mu)}
+.cl-q{color:#A15800!important}
+.cl-p{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cl-p small{font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
+.cl-star{border:0;background:none;cursor:pointer;color:#C4C7C7;min-height:36px}
+.cl-star.on{color:#141414}.cl-star.on .ms{font-variation-settings:'FILL' 1}
+.cl-merc{width:76px;border:1px solid var(--bo);border-radius:2px;padding:6px;font:inherit;font-size:12px;min-height:34px}
+.cl-fuente{margin:-14px 0 18px}
+.cl-split,.cl-pres{margin:18px 0}
+.cl-tog{display:flex;gap:8px;align-items:center;padding:12px 0;font-size:14px}
+.cl-sp{padding:8px 0;border-bottom:1px solid var(--bo)}
+.cl-bar{height:10px;background:#F0EEE9;display:flex;margin:12px 0 8px}
+.cl-bar i{display:block;height:100%;background:var(--g)}
+.cl-bar i.sig{background:#C4C7C7}.cl-bar i.mal,.cl-bar i.sig.mal{background:var(--err)}
+.cl-acts{display:flex;flex-direction:column;gap:8px;margin:18px 0 28px}
+.cmp-hab{margin-bottom:18px}.cmp-hab:empty{display:none}
+.cl-hist summary{cursor:pointer;font:600 10px var(--lx);letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+@media(max-width:600px){.cl-row{grid-template-columns:26px 1fr auto 32px}.cl-merc{grid-column:2/-1;width:120px}}
 /* Fase 2: semana, modo cocina, porciones y familia */
 .sem-wrap{padding:0 24px 64px}
 .sem-nav{display:flex;align-items:center;gap:10px;font:600 12px var(--lx);letter-spacing:.12em;text-transform:uppercase}
