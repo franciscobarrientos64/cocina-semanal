@@ -3123,7 +3123,9 @@ function hgNombre() {
   return m.full_name || (currentUser ? currentUser.email.split('@')[0] : '');
 }
 function hgAvatar() { var m = currentUser && currentUser.user_metadata || {}; return m.avatar_url || null; }
-function hgLink(h) { return location.origin.indexOf('http') === 0 ? location.origin + '/#unirse=' + h.codigo : 'https://cocina-semanal.vercel.app/#unirse=' + h.codigo; }
+function hgLink(h) { return 'https://despensa.casa/#unirse=' + h.codigo; }
+function hgMensaje(h) { return 'Únete a la casa "' + h.nombre + '" en Despensa.casa para ver la comida que tenemos: ' + hgLink(h); }
+function hgWhatsApp(h) { return 'https://wa.me/?text=' + encodeURIComponent(hgMensaje(h)); }
 
 async function loadHogar() {
   var box = document.getElementById('hogar-content');
@@ -3146,8 +3148,9 @@ async function loadHogar() {
   var mem = mm.data || [];
   box.innerHTML = '<div class="hg-top"><h1><span>Hogar</span> <b>' + prEsc(h.nombre) + '</b></h1><p class="n-sub">Todos los miembros ven y editan el mismo inventario de la refri y las congeladoras.</p></div>'
     + '<section class="hg-inv"><div class="n-h"><h2>Código para invitar</h2><span>toda la familia</span></div>'
-    + '<div class="hg-code-box"><div class="hg-code">' + prEsc(h.codigo) + '</div><button class="n-mini n-mini-l" onclick="hgCopiar()"><span class="ms">content_copy</span>Copiar link</button></div>'
-    + '<button class="n-bt n-bt-p" onclick="hgCompartir()"><span class="ms">send</span>Enviar invitación</button></section>'
+    + '<div class="hg-code-box"><div class="hg-code">' + prEsc(h.codigo) + '</div><button class="n-mini n-mini-l" onclick="hgCopiar()"><span class="ms">content_copy</span>Copiar invitación</button></div>'
+    + '<a class="n-bt n-bt-p" href="' + hgWhatsApp(h) + '" target="_blank" rel="noopener"><span class="ms">chat</span>Invitar por WhatsApp</a>'
+    + '<button class="n-bt" style="margin-top:8px" onclick="hgCompartir()"><span class="ms">ios_share</span>Otras formas de invitar</button></section>'
     + '<section><div class="n-h"><h2>Miembros <small>(' + mem.length + ')</small></h2></div>'
     + mem.map(function(m) {
         return '<div class="hg-mem">' + (m.avatar_url ? '<img src="' + prEsc(m.avatar_url) + '" alt=""/>' : '<span class="av">' + prEsc((m.nombre || '?').charAt(0).toUpperCase()) + '</span>')
@@ -3182,13 +3185,13 @@ async function hgUnirse(codigo) {
 
 function hgCompartir() {
   var h = PR.hogar; if (!h) return;
-  var txt = 'Únete a "' + h.nombre + '" en Despensa para ver lo que hay en las congeladoras y la refri: ' + hgLink(h);
-  if (navigator.share) navigator.share({ title: 'Despensa', text: txt }).catch(function() {});
+  var txt = hgMensaje(h);
+  if (navigator.share) navigator.share({ title: 'Despensa.casa', text: txt }).catch(function() {});
   else hgCopiar();
 }
 function hgCopiar() {
   var h = PR.hogar; if (!h) return;
-  navigator.clipboard.writeText(hgLink(h)).then(function() { showToast('✓ Link copiado'); }, function() { showToast(hgLink(h)); });
+  navigator.clipboard.writeText(hgMensaje(h)).then(function() { showToast('Invitación copiada'); }, function() { showToast(hgLink(h)); });
 }
 
 // ── Links directos (etiquetas NFC y QR de las hojas) ─────────────────────────
