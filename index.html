@@ -229,6 +229,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
       <p>Planifica la semana, compara precios en cinco supermercados y mira qué hay en la refri y las congeladoras.</p>
     </section>
     <div class="n-sec" id="home-vence"></div>
+    <div class="n-sec n-sec-opt" id="home-desc"></div>
     <div class="n-sec" id="home-todo"></div>
     <section class="n-btns">
       <button class="n-bt n-bt-p" onclick="startPlan()"><span class="ms">calendar_add_on</span>Planificar la semana</button>
@@ -432,6 +433,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <div id="pr-casas"></div>
     <div id="pr-todo"></div>
     <div id="pr-board"></div>
+    <div id="pr-mes" class="pr-mes"></div>
 
     <details class="pr-help">
       <summary>Cómo funciona</summary>
@@ -2716,6 +2718,19 @@ function prMas(iso, dias) { var d = iso ? new Date(iso + 'T12:00:00') : new Date
 function prDias(iso) { if (!iso) return null; return Math.round((new Date(iso + 'T12:00:00') - new Date(prHoy() + 'T12:00:00')) / 864e5); }
 function prFecha(iso) { if (!iso) return '—'; var p = iso.split('-'); return p[2] + '/' + p[1]; }
 function prTotal(r) { return (r.n250||0) + (r.n500||0) + (r.n1000||0); }
+// Vida útil sugerida en días por sección: [en refri, congelado]
+var PR_VIDA = { acompanamientos: [4, 60], salsas: [5, 90], proteinas: [3, 90], guisos: [3, 90], otros: [3, 60] };
+function prVida(cat, frio) { var v = PR_VIDA[cat] || [3, 60]; return v[frio ? 1 : 0]; }
+function prQuien() { var m = currentUser && currentUser.user_metadata || {}; return String(m.full_name || (currentUser ? currentUser.email.split('@')[0] : '')).split(' ')[0]; }
+// Historial: cada entrada, salida o movimiento queda registrado (base de los reportes de desperdicio y costo)
+function prLog(r, accion, desde, hacia, mov) {
+  if (!currentUser) return;
+  mov = mov || {};
+  supa.from('cs_movimientos').insert({ ambito: String(prAmbito()), preparado_id: r.id || null, nombre: r.nombre, categoria: r.categoria, desde: desde || null, hacia: hacia || null, accion: accion,
+    n250: mov.n250 || 0, n500: mov.n500 || 0, n1000: mov.n1000 || 0, por: prQuien() }).then(function(x) { if (x.error) console.warn('historial', x.error); });
+}
+function prRefriDe(u) { var e = prEsp(u), casa = e ? e.casa : PR.casa; var rf = (PR.espacios || []).find(function(x) { return x.casa === casa && x.tipo === 'refri'; }); return rf ? rf.clave : 'refri'; }
+
 function prEsp(u) { return (PR.espacios || []).find(function(e) { return e.clave === u; }); }
 function prFrio(u) { var e = prEsp(u); return e ? e.tipo !== 'refri' : u !== 'refri'; }
 function prNombreAp(u) { var e = prEsp(u); return e ? e.nombre : (PR_APAR_TODOS.find(function(a) { return a[0] === u; }) || [u, u])[1]; }
@@ -2740,7 +2755,7 @@ function prRow(id) { return PR.rows.find(function(x) { return x.id === id; }); }
 async function loadStock() {
   document.getElementById('pr-login').classList.toggle('hidden', !!currentUser);
   if (!currentUser) { document.getElementById('pr-board').innerHTML = ''; document.getElementById('pr-todo').innerHTML = ''; return; }
-  if (await prCargar()) prRender();
+  if (await prCargar()) { prRender(); prBadge(); prResumenMes(); }
 }
 
 // Trae inventario y mínimos del hogar (o del usuario) sin dibujar
@@ -2807,13 +2822,23 @@ async function homeRender() {
     + (pronto.length ? pronto.map(function(r) {
         var f = PR_SIZES.find(function(s) { return r[s[0]] > 0; });
         return '<article class="n-row"><div class="n-row-top"><div class="n-tags">' + prCinta(r.vence) + prTamanos(r) + '</div>'
-          + (f ? '<button class="n-mini" onclick="homeComio(\'' + r.id + '\',\'' + f[0] + '\')">Se comió</button>' : '') + '</div>'
+          + (f ? '<span class="n-acc"><button class="n-mini n-mini-l" title="Se botó" aria-label="Se botó" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'boto\')"><span class="ms">delete</span></button><button class="n-mini" onclick="homeComio(\'' + r.id + '\',\'' + f[0] + '\')">Se comió</button></span>' : '') + '</div>'
           + '<h3>' + prEsc(r.nombre) + (prCasas().length > 1 ? ' <small class="n-sub">· ' + prEsc((prEsp(r.ubicacion) || {}).casa || '') + '</small>' : '') + '</h3>'
           + (r.hecho ? '<p class="n-sub">Hecho el ' + prFecha(r.hecho) + '</p>' : '') + '</article>';
       }).join('')
       : '<div class="n-empty">Nada vence en los próximos tres días' + (refri.length ? '.' : '. La refri está vacía en la app.') + '</div>');
   var falta = PR_CATS.map(function(c) { return { c: c, tot: prStockCat(c[0]), min: PR.mins[c[0]] || 0 }; }).filter(function(x) { return x.min > 0 && x.tot <= x.min; });
   var hayMin = PR_CATS.some(function(c) { return PR.mins[c[0]] > 0; });
+ var porDesc = PR.rows.filter(function(r) { var d = prDias(r.descongelar_para); return r.descongelar_para && prFrio(r.ubicacion) && d != null && d <= 1; });
+  var bd = document.getElementById('home-desc');
+  if (bd) bd.innerHTML = porDesc.length ? '<div class="n-h"><h2>Descongela hoy <small>(' + porDesc.length + ')</small></h2><span>pásalo a la refri</span></div>'
+    + porDesc.map(function(r) {
+        var f = PR_SIZES.find(function(s) { return r[s[0]] > 0; });
+        return '<article class="n-row"><div class="n-row-top"><div class="n-tags">' + prCinta(r.descongelar_para) + prTamanos(r) + '</div>'
+          + (f ? '<button class="n-mini" onclick="homeMover(\'' + r.id + '\',\'' + f[0] + '\',\'' + prRefriDe(r.ubicacion) + '\')">Ya lo pasé</button>' : '') + '</div>'
+          + '<h3>' + prEsc(r.nombre) + '</h3><p class="n-sub">Está en ' + prEsc(prNombreAp(r.ubicacion)) + '. Para comerlo el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '.</p></article>';
+      }).join('') : '';
+  prBadge();
   bt.innerHTML = '<div class="n-h"><h2>Por hacer ' + (falta.length ? '<em class="n-crit">' + falta.length + ' bajo mínimo</em>' : '') + '</h2><span>congeladoras</span></div>'
     + (falta.length ? falta.map(function(x) {
         return '<article class="n-row"><div class="n-row-top"><h3>' + x.c[1] + '</h3><span class="n-err">' + x.tot + ' / ' + x.min + ' envases</span></div>'
@@ -2823,12 +2848,35 @@ async function homeRender() {
       : '<div class="n-empty">' + (hayMin ? 'Todas las secciones están sobre su mínimo.' : 'Define cuántos envases quieres tener de cada sección y aquí verás qué falta cocinar.') + ' <a class="n-link" onclick="showSection(\'stock\')">Ir a En la refri →</a></div>');
 }
 async function homeComio(id, campo) { await prMoverA(id, campo, 'comio'); homeRender(); }
+async function homeMover(id, campo, destino) { await prMoverA(id, campo, destino); homeRender(); }
+// Contador en el menú: lo que vence hoy o mañana en cualquier refri
+function prBadge() {
+  var n = PR.rows.filter(function(r) { var d = prDias(r.vence); return !prFrio(r.ubicacion) && d != null && d <= 1; }).length
+    + PR.rows.filter(function(r) { var d = prDias(r.descongelar_para); return r.descongelar_para && prFrio(r.ubicacion) && d != null && d <= 1; }).length;
+  ['nav-stock'].forEach(function(id) { var a = document.getElementById(id); if (a) a.innerHTML = 'En la refri' + (n ? ' <span class="n-badge">' + n + '</span>' : ''); });
+  var t = document.querySelector('.tabbar a[data-s="stock"]');
+  if (t) t.innerHTML = '<span class="ms">ac_unit</span>En la refri' + (n ? '<i class="tb-dot">' + n + '</i>' : '');
+}
+// Resumen del mes desde el historial: cuánto se comió y cuánto se botó
+async function prResumenMes() {
+  var box = document.getElementById('pr-mes');
+  if (!box || !currentUser) return;
+  var ini = new Date(); ini.setDate(1); ini.setHours(0, 0, 0, 0);
+  var r = await supa.from('cs_movimientos').select('accion,n250,n500,n1000,nombre').eq('ambito', String(prAmbito())).in('accion', ['comio', 'boto']).gte('created_at', ini.toISOString());
+  if (r.error) return;
+  var t = { comio: 0, boto: 0 }, bot = {};
+  (r.data || []).forEach(function(m) { var n = (m.n250 || 0) + (m.n500 || 0) + (m.n1000 || 0); t[m.accion] += n; if (m.accion === 'boto') bot[m.nombre] = (bot[m.nombre] || 0) + n; });
+  var peor = Object.keys(bot).sort(function(a, b) { return bot[b] - bot[a]; })[0];
+  box.innerHTML = '<div class="n-h"><h2>Este mes</h2><span>historial</span></div><div class="pr-mes-n"><div><b>' + t.comio + '</b><span>envases comidos</span></div><div class="' + (t.boto ? 'mal' : '') + '"><b>' + t.boto + '</b><span>envases botados</span></div></div>'
+    + (peor ? '<p class="n-sub">Lo que más se bota: ' + prEsc(peor) + '.</p>' : '');
+}
 
 function prVence(r) {
   var d = prDias(r.vence);
   var cls = d == null ? '' : d < 0 ? 'bad' : (prFrio(r.ubicacion) ? d <= 14 : d <= 1) ? 'warn' : '';
   var txt = d == null ? 'sin fecha' : d < 0 ? 'vencido ' + prFecha(r.vence) : d === 0 ? 'vence hoy' : d === 1 ? 'vence mañana' : 'vence ' + prFecha(r.vence);
-  return '<div class="pr-cv ' + cls + '">' + txt + (prFrio(r.ubicacion) && r.hecho ? ' · hecho ' + prFecha(r.hecho) : '') + '</div>';
+  return '<div class="pr-cv ' + cls + '">' + txt + (prFrio(r.ubicacion) && r.hecho ? ' · hecho ' + prFecha(r.hecho) : '') + (r.hecho_por ? ' · por ' + prEsc(r.hecho_por) : '')
+    + (r.descongelar_para ? ' · <b class="pr-desc">descongelar para el ' + PR_DAYS[new Date(r.descongelar_para + 'T12:00:00').getDay()][0].toLowerCase() + '</b>' : '') + '</div>';
 }
 
 function prCard(r) {
@@ -2921,25 +2969,29 @@ async function prMoverA(id, campo, destino) {
   if (!r) return;
   if (destino === r.ubicacion) return;
   try {
-    if (destino === 'comio') {
-      if (!campo || prTotal(r) <= 1) { await prBorrarFila(r); showToast('✓ ' + r.nombre + (campo ? ': último envase' : '') + ' fuera'); }
-      else { var c = {}; c[campo] = r[campo] - 1; await prActualizar(r, c); showToast('✓ Un envase de ' + r.nombre + ' menos'); }
-      return;
-    }
-    // Al pasar a la refri: descongelado dura 3 días. De la refri a una congeladora: 2 meses. Entre congeladoras: igual.
-    var vence = !prFrio(destino) ? (prFrio(r.ubicacion) ? prMas(null, 3) : r.vence) : !prFrio(r.ubicacion) ? prMas(null, 60) : r.vence;
     var mov = { n250: 0, n500: 0, n1000: 0 };
     if (campo) mov[campo] = 1; else { mov.n250 = r.n250 || 0; mov.n500 = r.n500 || 0; mov.n1000 = r.n1000 || 0; }
+    if (destino === 'comio' || destino === 'boto') {
+      prLog(r, destino, r.ubicacion, null, mov);
+      var verbo = destino === 'comio' ? 'comido' : 'a la basura';
+      if (!campo || prTotal(r) <= 1) { await prBorrarFila(r); showToast(r.nombre + (campo ? ': último envase ' : ' ') + verbo); }
+      else { var c = {}; c[campo] = r[campo] - 1; await prActualizar(r, c); showToast('Un envase de ' + r.nombre + ' ' + verbo); }
+      return;
+    }
+    // Vida útil según la sección: al descongelar cuenta desde hoy; al volver a congelar, también. Entre congeladoras no cambia.
+    var vence = !prFrio(destino) ? (prFrio(r.ubicacion) ? prMas(null, prVida(r.categoria, false)) : r.vence) : !prFrio(r.ubicacion) ? prMas(null, prVida(r.categoria, true)) : r.vence;
+    if (!prFrio(destino) && r.descongelar_para && r.descongelar_para > vence) vence = r.descongelar_para;
+    prLog(r, 'mueve', r.ubicacion, destino, mov);
     // Si en el destino ya hay la misma tanda con el mismo vencimiento, se suma ahí
     var dest = PR.rows.find(function(x) { return x.id !== r.id && x.ubicacion === destino && x.nombre.toLowerCase() === r.nombre.toLowerCase() && x.hecho === r.hecho && x.vence === vence; });
     if (!campo && !dest) {
-      await prActualizar(r, { ubicacion: destino, vence: vence });
+      await prActualizar(r, { ubicacion: destino, vence: vence, descongelar_para: null });
     } else {
       if (campo && prTotal(r) > 1) { var c2 = {}; c2[campo] = r[campo] - 1; await prActualizar(r, c2); }
       else await prBorrarFila(r);
       if (dest) await prActualizar(dest, { n250: dest.n250 + mov.n250, n500: dest.n500 + mov.n500, n1000: dest.n1000 + mov.n1000 });
       else {
-        var nueva = Object.assign({ hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, vence: vence, origen: r.ubicacion }, mov);
+        var nueva = Object.assign({ hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, hecho_por: r.hecho_por || null, vence: vence, origen: r.ubicacion }, mov);
         var ins = await supa.from('cs_preparados').insert(nueva).select().single();
         if (ins.error) throw ins.error;
         PR.rows.push(ins.data);
@@ -2972,8 +3024,8 @@ async function prBorrarFila(r) {
 // ── Arrastrar y soltar con pointer events (mouse y táctil) ───────────────────
 var PRD = null;
 function prDockHTML() {
-  return '<p class="pr-dock-cap">Suelta el envase aquí</p><div class="pr-dock-in" style="grid-template-columns:repeat(' + (PR_APAR.length + 1) + ',1fr)">' + PR_APAR.map(function(a) { return '<div data-drop="' + a[0] + '"><span class="ms">' + (prFrio(a[0]) ? 'ac_unit' : 'kitchen') + '</span>' + a[1].replace('Congeladora ', 'Cong. ') + '</div>'; }).join('')
-    + '<div class="comio" data-drop="comio"><span class="ms">restaurant</span>Se comió</div></div>';
+  return '<p class="pr-dock-cap">Suelta el envase aquí</p><div class="pr-dock-in" style="grid-template-columns:repeat(' + (PR_APAR.length + 2) + ',1fr)">' + PR_APAR.map(function(a) { return '<div data-drop="' + a[0] + '"><span class="ms">' + (prFrio(a[0]) ? 'ac_unit' : 'kitchen') + '</span>' + a[1].replace('Congeladora ', 'Cong. ') + '</div>'; }).join('')
+    + '<div class="comio" data-drop="comio"><span class="ms">restaurant</span>Se comió</div><div class="comio boto" data-drop="boto"><span class="ms">delete</span>Se botó</div></div>';
 }
 function prDestinoEn(x, y) {
   var el = document.elementFromPoint(x, y);
@@ -3050,6 +3102,8 @@ function prEditar(id) {
     + '<label>Sección<select data-k="categoria">' + prOpts(PR_CATS, r.categoria) + '</select></label>'
     + '<label>Hecho<input data-k="hecho" type="date" value="' + (r.hecho || '') + '"/></label>'
     + '<label>Vence<input data-k="vence" type="date" value="' + (r.vence || '') + '"/></label>'
+    + '<label>Quién la hizo<input data-k="hecho_por" value="' + prEsc(r.hecho_por || '') + '" placeholder="' + prEsc(prQuien()) + '"/></label>'
+    + (prFrio(r.ubicacion) ? '<label>Descongelar para comer el<input data-k="descongelar_para" type="date" min="' + prHoy() + '" value="' + (r.descongelar_para || '') + '"/></label>' : '')
     + '<div class="full sizes">' + PR_SIZES.map(function(s) { return '<label>' + s[1] + '<input data-k="' + s[0] + '" type="number" min="0" value="' + (r[s[0]] || 0) + '"/></label>'; }).join('') + '</div>'
     + '</div><div class="foot"><button class="pr-btn pr-btn-red" data-a="borrar">Borrar</button><div style="display:flex;gap:8px"><button class="pr-btn" data-a="x">Cancelar</button><button class="pr-btn pr-btn-main" data-a="ok">Guardar</button></div></div></div>';
   bg.addEventListener('click', async function(e) {
@@ -3057,8 +3111,8 @@ function prEditar(id) {
     if (e.target === bg || a === 'x') { bg.remove(); return; }
     try {
       if (a === 'borrar') {
-        if (!window.confirm('¿Borrar "' + r.nombre + '"?')) return;
-        bg.remove(); await prBorrarFila(r);
+        if (!window.confirm('¿Borrar "' + r.nombre + '"? Si se comió o se botó, mejor arrástralo a "Se comió" o "Se botó" para que quede en el historial.')) return;
+        bg.remove(); prLog(r, 'edita', r.ubicacion, null, {}); await prBorrarFila(r);
       } else if (a === 'ok') {
         var c = {};
         bg.querySelectorAll('[data-k]').forEach(function(el) {
@@ -3067,7 +3121,8 @@ function prEditar(id) {
         });
         if (!c.nombre) { showToast('Falta el nombre', true); return; }
         bg.remove();
-        if (prTotal(c) === 0) await prBorrarFila(r); else await prActualizar(r, c);
+        if (prTotal(c) === 0) { prLog(r, 'edita', r.ubicacion, null, {}); await prBorrarFila(r); }
+        else { if (c.ubicacion && c.ubicacion !== r.ubicacion) prLog(r, 'mueve', r.ubicacion, c.ubicacion, r); await prActualizar(r, c); }
       }
     } catch (err) { console.error(err); showToast('No se pudo guardar', true); loadStock(); }
   });
@@ -3078,7 +3133,8 @@ function prEditar(id) {
 function prNueva() {
   if (!currentUser) { showToast('Inicia sesión primero', true); return; }
   var hoy = prHoy();
-  prRevisar('congeladora', [{ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, 60) }], false);
+  var cong = (PR_APAR.find(function(a) { return prFrio(a[0]); }) || PR_APAR[0] || ['congeladora'])[0];
+  prRevisar(cong, [{ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, prVida('otros', true)) }], false);
 }
 
 function prRevisar(ubic, filas, desdeFoto, nota) {
@@ -3100,9 +3156,16 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
     + filas.map(fila).join('') + '</tbody></table></div>'
     + '<div class="foot"><button class="pr-btn" id="pr-mas-fila">+ Otra fila</button><div style="display:flex;gap:8px"><button class="pr-btn" id="pr-cancel">Cancelar</button><button class="pr-btn pr-btn-main" id="pr-ok">' + (desdeFoto ? 'Confirmar y reemplazar' : 'Guardar') + '</button></div></div></div>';
   document.body.appendChild(bg);
+  // Al elegir la sección, el vencimiento se ajusta a su vida útil (si no lo tocaste a mano)
+  bg.addEventListener('change', function(e) {
+    if (!e.target.matches || !e.target.matches('select[data-k="categoria"]')) return;
+    var tr = e.target.closest('tr'), h = tr.querySelector('[data-k="hecho"]'), v = tr.querySelector('[data-k="vence"]');
+    if (v && !v.dataset.mano) v.value = prMas(h && h.value || prHoy(), prVida(e.target.value, prFrio(bg.querySelector('#pr-ubic').value)));
+  });
+  bg.addEventListener('input', function(e) { if (e.target.matches && e.target.matches('[data-k="vence"]')) e.target.dataset.mano = '1'; });
   bg.querySelector('#pr-mas-fila').onclick = function() {
     var hoy = prHoy();
-    bg.querySelector('tbody').insertAdjacentHTML('beforeend', fila({ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, !prFrio(bg.querySelector('#pr-ubic').value) ? 4 : 60) }));
+    bg.querySelector('tbody').insertAdjacentHTML('beforeend', fila({ nombre: '', categoria: 'otros', hecho: hoy, vence: prMas(hoy, prVida('otros', prFrio(bg.querySelector('#pr-ubic').value))) }));
   };
   bg.querySelector('#pr-cancel').onclick = function() { bg.remove(); };
   bg.querySelector('#pr-ok').onclick = async function() {
@@ -3122,8 +3185,10 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
         : await supa.from('cs_preparados').delete().eq('user_id', currentUser.id).eq('ubicacion', u);
       if (del.error) { showToast('No se pudo actualizar', true); this.disabled = false; return; }
     }
+    nuevas.forEach(function(o) { if (!desdeFoto && !o.hecho_por) o.hecho_por = prQuien(); });
     if (nuevas.length) {
-      var ins = await supa.from('cs_preparados').insert(nuevas);
+      var ins = await supa.from('cs_preparados').insert(nuevas).select();
+      if (!ins.error && !desdeFoto) (ins.data || []).forEach(function(o) { prLog(o, 'entra', null, o.ubicacion, o); });
       if (ins.error) { showToast('No se pudo guardar', true); console.error(ins.error); this.disabled = false; return; }
     }
     bg.remove();
@@ -3603,6 +3668,19 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 .hg-mem .av.sq{border-radius:2px;width:36px;height:36px;background:#F0EEE9;color:var(--g)}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
+/* Fase 1: historial y avisos */
+.n-acc{display:flex;gap:6px}
+.n-sec-opt:empty{display:none}
+.pr-desc{color:#2F6DB5;font-weight:600}
+.pr-dock div.boto{background:#3A3A3A;border-color:#3A3A3A}
+.tb-dot{position:absolute;margin:-30px 0 0 26px;font:700 9px/1 var(--lx);font-style:normal;background:var(--lemon);color:#141414;padding:3px 5px;border-radius:8px}
+.tabbar a{position:relative}
+.pr-mes{margin-top:36px}
+.pr-mes-n{display:flex;gap:32px;padding:14px 0}
+.pr-mes-n div{display:flex;flex-direction:column}
+.pr-mes-n b{font:600 32px var(--lx);font-variant-numeric:tabular-nums}
+.pr-mes-n span{font-size:12px;color:var(--mu)}
+.pr-mes-n .mal b{color:var(--err)}
 /* Cookidoo / Thermomix */
 .tm-box{padding:16px 24px 22px;border-top:1px solid var(--bo);display:flex;flex-direction:column;gap:8px}
 .tm-off{opacity:.45;cursor:not-allowed;border-style:dashed}
