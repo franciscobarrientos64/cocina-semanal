@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Congeladora y Refri</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   @page { size: A4 portrait; margin: 10mm 11mm; }
@@ -88,6 +89,11 @@
   .reg.br { bottom:3mm; right:3mm; border-bottom-width:2.2px; border-right-width:2.2px; }
   .code { position:absolute; bottom:3.6mm; left:50%; transform:translateX(-50%); font:600 7pt Inter; letter-spacing:.12em; color:var(--soft); }
   @media print { .reg.tl,.reg.tr{top:-6mm} .reg.bl,.reg.br,.code{bottom:-6mm} .reg.tl,.reg.bl{left:-6mm} .reg.tr,.reg.br{right:-6mm} }
+  .qr { display:flex; align-items:center; gap:2.5mm; margin-left:5mm; font-size:7pt; color:var(--soft); line-height:1.25; }
+  .qr div { white-space:nowrap; }
+  header .meta .blank { min-width:18mm; }
+  .qr svg { width:17mm; height:17mm; display:block; }
+  header .right { display:flex; align-items:flex-end; }
   .bar { max-width:210mm; margin:6mm auto 0; display:flex; gap:3mm; justify-content:flex-end; font:500 10pt Inter; }
   .bar a, .bar button { font:inherit; padding:2mm 4mm; border:1px solid var(--ink); background:#fff; color:var(--ink); text-decoration:none; cursor:pointer; }
   .bar button { background:#2f5d50; color:#fff; border-color:#2f5d50; }
@@ -101,7 +107,7 @@
 <section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA C1 · CONGELADORA 1</span>
   <header>
     <h1>Congeladora 1<small>Lo que hay, de qué tamaño y hasta cuándo</small></h1>
-    <div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div>
+    <div class="right"><div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div><div class="qr" data-ruta="congeladora1"><span></span><div>Escanea o<br>acerca el<br>celular</div></div></div>
   </header>
 
   <div class="how">
@@ -139,7 +145,7 @@
 <section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA C2 · CONGELADORA 2</span>
   <header>
     <h1>Congeladora 2<small>Lo que hay, de qué tamaño y hasta cuándo</small></h1>
-    <div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div>
+    <div class="right"><div class="meta">Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span></div><div class="qr" data-ruta="congeladora2"><span></span><div>Escanea o<br>acerca el<br>celular</div></div></div>
   </header>
 
   <div class="how">
@@ -177,7 +183,7 @@
 <section class="page"><span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">COCINA SEMANAL · HOJA R · REFRIGERADORA</span>
   <header>
     <h1>Refrigeradora<small>Se anota en el día en que hay que comerlo, no en el que entró</small></h1>
-    <div class="meta">Semana del <span class="blank"></span> al <span class="blank"></span></div>
+    <div class="right"><div class="meta">Semana del <span class="blank"></span> al <span class="blank"></span></div><div class="qr" data-ruta="refri"><span></span><div>Escanea o<br>acerca el<br>celular</div></div></div>
   </header>
 
   <div class="rule">
@@ -225,6 +231,14 @@
     `<div class="day"><div class="lab"><span class="dn"><span class="dot" style="background:${c}"></span>${d}</span>
       <span class="dt">fecha <span class="blank"></span></span></div>
       <div class="items">${item.repeat(4)}</div></div>`).join('');
+
+  // QR por hoja: abre ese equipo en la app (mismo link que la etiqueta NFC)
+  const base = location.origin.startsWith('http') ? location.origin : 'https://cocina-semanal.vercel.app';
+  document.querySelectorAll('.qr').forEach(el => {
+    if (typeof qrcode === 'undefined') { el.remove(); return; }
+    const q = qrcode(0, 'M'); q.addData(base + '/#' + el.dataset.ruta); q.make();
+    el.querySelector('span').innerHTML = q.createSvgTag({ margin: 0, scalable: true });
+  });
 </script>
 </body>
 </html>

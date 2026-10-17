@@ -380,7 +380,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 <div id="shogar" class="hidden">
   <div style="max-width:800px;margin:0 auto;padding:40px 24px 80px">
     <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px">Mi hogar</h2>
-    <p style="color:#888;font-size:15px;margin-bottom:28px">Comparte listas de compra con tu familia o compañeros</p>
+    <p style="color:#888;font-size:15px;margin-bottom:28px">Tu familia ve y edita el mismo inventario de congeladoras y refri</p>
     <div id="hogar-content">
       <div style="background:#fff;border:1px solid #E8E5DC;border-radius:14px;padding:28px;text-align:center">
         <div style="font-size:48px;margin-bottom:12px">🏠</div>
@@ -411,7 +411,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
       </div>
     </div>
 
-    <div id="pr-login" class="pr-empty hidden">Inicia sesión para guardar tu inventario.</div>
+    <div id="pr-login" class="pr-empty hidden"><p style="margin-bottom:12px">Entra con tu cuenta para ver lo que hay en casa.</p><button class="pr-btn pr-btn-main" onclick="prEntrar()">Entrar con Google</button></div>
     <div id="pr-todo"></div>
     <div id="pr-board"></div>
 
@@ -2662,7 +2662,7 @@ body.pr-dragging{user-select:none;cursor:grabbing}
 </style>
 <script>
 // ── CONGELADORAS Y REFRI (tablero) ───────────────────────────────────────────
-var PR = { rows: [], mins: {} };
+var PR = { rows: [], mins: {}, hogar: null, foco: null };
 var PR_APAR = [['refri','Refri'],['congeladora','Congeladora 1'],['congeladora2','Congeladora 2']];
 var PR_CATS = [['acompanamientos','Acompañamientos'],['salsas','Salsas'],['proteinas','Proteínas'],['guisos','Guisos'],['otros','Sopas, cremas y otros']];
 var PR_SIZES = [['n250','250 ml'],['n500','500 ml'],['n1000','1 L']];
@@ -2678,14 +2678,18 @@ function prFecha(iso) { if (!iso) return '—'; var p = iso.split('-'); return p
 function prTotal(r) { return (r.n250||0) + (r.n500||0) + (r.n1000||0); }
 function prFrio(u) { return u !== 'refri'; }
 function prNombreAp(u) { return (PR_APAR.find(function(a) { return a[0] === u; }) || [u, u])[1]; }
+function prAmbito() { return PR.hogar ? PR.hogar.id : currentUser.id; }
 function prRow(id) { return PR.rows.find(function(x) { return x.id === id; }); }
 
 async function loadStock() {
   document.getElementById('pr-login').classList.toggle('hidden', !!currentUser);
   if (!currentUser) { document.getElementById('pr-board').innerHTML = ''; document.getElementById('pr-todo').innerHTML = ''; return; }
+  var hg = await supa.from('cs_hogares').select('*').limit(1);
+  PR.hogar = hg.data && hg.data[0] ? hg.data[0] : null;
+  if (PR.hogar) await supa.rpc('cs_preparados_al_hogar', { p_hogar: PR.hogar.id });
   var res = await Promise.all([
     supa.from('cs_preparados').select('*').order('vence', { ascending: true, nullsFirst: false }),
-    supa.from('cs_prep_minimos').select('*')
+    supa.from('cs_prep_minimos').select('*').eq('user_id', prAmbito())
   ]);
   if (res[0].error) { showToast('No se pudo cargar el inventario', true); console.error(res[0].error); return; }
   PR.rows = res[0].data || [];
@@ -2753,12 +2757,17 @@ function prRender() {
     + PR_CATS.map(function(c) { return '<div>' + c[1] + ' <input type="number" min="0" value="' + (PR.mins[c[0]] || '') + '" placeholder="–" onchange="prMin(\'' + c[0] + '\', this.value)"/></div>'; }).join('')
     + '</details></div>';
   document.getElementById('pr-board').innerHTML = '<div class="pr-board">' + PR_APAR.map(prColumna).join('') + '</div>';
+  if (PR.foco) {
+    var col = document.querySelector('.pr-col[data-drop="' + PR.foco + '"]');
+    PR.foco = null;
+    if (col) { col.scrollIntoView({ behavior: 'smooth', block: 'start' }); col.classList.add('over'); setTimeout(function() { col.classList.remove('over'); }, 1600); }
+  }
 }
 
 async function prMin(cat, v) {
   var n = Math.max(0, parseInt(v, 10) || 0);
   PR.mins[cat] = n;
-  var res = await supa.from('cs_prep_minimos').upsert({ user_id: currentUser.id, categoria: cat, minimo: n });
+  var res = await supa.from('cs_prep_minimos').upsert({ user_id: prAmbito(), categoria: cat, minimo: n });
   if (res.error) showToast('No se guardó el mínimo', true);
   prRender();
 }
@@ -2790,7 +2799,7 @@ async function prMoverA(id, campo, destino) {
       else await prBorrarFila(r);
       if (dest) await prActualizar(dest, { n250: dest.n250 + mov.n250, n500: dest.n500 + mov.n500, n1000: dest.n1000 + mov.n1000 });
       else {
-        var nueva = Object.assign({ ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, vence: vence, origen: r.ubicacion }, mov);
+        var nueva = Object.assign({ hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: destino, categoria: r.categoria, nombre: r.nombre, hecho: r.hecho, vence: vence, origen: r.ubicacion }, mov);
         var ins = await supa.from('cs_preparados').insert(nueva).select().single();
         if (ins.error) throw ins.error;
         PR.rows.push(ins.data);
@@ -2958,7 +2967,7 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
   bg.querySelector('#pr-ok').onclick = async function() {
     var u = bg.querySelector('#pr-ubic').value;
     var nuevas = Array.prototype.map.call(bg.querySelectorAll('tbody tr'), function(tr) {
-      var o = { ubicacion: u, origen: desdeFoto ? 'foto' : 'manual' };
+      var o = { hogar_id: PR.hogar ? PR.hogar.id : null, ubicacion: u, origen: desdeFoto ? 'foto' : 'manual' };
       tr.querySelectorAll('[data-k]').forEach(function(el) {
         var k = el.getAttribute('data-k');
         o[k] = el.type === 'number' ? Math.max(0, parseInt(el.value, 10) || 0) : (el.value.trim() || null);
@@ -2968,7 +2977,8 @@ function prRevisar(ubic, filas, desdeFoto, nota) {
     if (!nuevas.length && !desdeFoto) { showToast('Escribe qué es y cuántos envases hay', true); return; }
     this.disabled = true; this.textContent = 'Guardando…';
     if (desdeFoto) {
-      var del = await supa.from('cs_preparados').delete().eq('user_id', currentUser.id).eq('ubicacion', u);
+      var del = PR.hogar ? await supa.from('cs_preparados').delete().eq('hogar_id', PR.hogar.id).eq('ubicacion', u)
+        : await supa.from('cs_preparados').delete().eq('user_id', currentUser.id).eq('ubicacion', u);
       if (del.error) { showToast('No se pudo actualizar', true); this.disabled = false; return; }
     }
     if (nuevas.length) {
@@ -3036,6 +3046,137 @@ async function prFoto(input) {
     label.firstChild.textContent = txt;
   }
 }
+</script>
+<style>
+.hg-box{background:#fff;border:1px solid var(--bo);border-radius:14px;padding:26px}
+.hg-box h3{font-size:22px;margin-bottom:4px}
+.hg-sub{color:var(--mu);font-size:14px;margin-bottom:18px}
+.hg-code{font:700 34px 'DM Sans',sans-serif;letter-spacing:.18em;color:var(--g)}
+.hg-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.hg-row input{flex:1;min-width:150px;padding:10px 12px;border:1.5px solid var(--bo);border-radius:8px;font:inherit}
+.hg-mem{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bo);font-size:15px}
+.hg-mem img,.hg-mem .av{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--gl);display:inline-flex;align-items:center;justify-content:center;font-weight:600;color:var(--g)}
+.hg-mem small{color:var(--mu);margin-left:auto;font-size:12px}
+.hg-sep{margin:26px 0 8px;font-weight:600}
+</style>
+<script>
+// ── MI HOGAR: inventario y lista compartidos con la familia ──────────────────
+function hgNombre() {
+  var m = currentUser && currentUser.user_metadata || {};
+  return m.full_name || (currentUser ? currentUser.email.split('@')[0] : '');
+}
+function hgAvatar() { var m = currentUser && currentUser.user_metadata || {}; return m.avatar_url || null; }
+function hgLink(h) { return location.origin.indexOf('http') === 0 ? location.origin + '/#unirse=' + h.codigo : 'https://cocina-semanal.vercel.app/#unirse=' + h.codigo; }
+
+async function loadHogar() {
+  var box = document.getElementById('hogar-content');
+  if (!currentUser) {
+    box.innerHTML = '<div class="hg-box"><h3>Entra para ver tu hogar</h3><p class="hg-sub">Cada persona de la casa entra con su cuenta de Google y comparte el mismo inventario.</p><button class="pr-btn pr-btn-main" onclick="prEntrar()">Entrar con Google</button></div>';
+    return;
+  }
+  var pend = prPendiente('unirse');
+  if (pend) { await hgUnirse(pend); return; }
+  var hg = await supa.from('cs_hogares').select('*').limit(1);
+  var h = hg.data && hg.data[0];
+  if (!h) {
+    box.innerHTML = '<div class="hg-box"><h3>Todavía no tienes un hogar</h3><p class="hg-sub">Crea uno y comparte el link con tu familia: verán lo mismo que tú en las congeladoras y la refri.</p>'
+      + '<div class="hg-row"><input id="hg-nombre" placeholder="Nombre (ej: Casa Barrientos)"/><button class="pr-btn pr-btn-main" onclick="hgCrear()">Crear hogar</button></div>'
+      + '<p class="hg-sep">¿Te invitaron?</p><div class="hg-row"><input id="hg-codigo" placeholder="Código de 6 letras" maxlength="6" style="text-transform:uppercase"/><button class="pr-btn" onclick="hgUnirse(document.getElementById(\'hg-codigo\').value)">Unirme</button></div></div>';
+    return;
+  }
+  var mm = await supa.from('cs_hogar_miembros').select('*').eq('hogar_id', h.id).order('joined_at');
+  var link = hgLink(h);
+  box.innerHTML = '<div class="hg-box"><h3>' + prEsc(h.nombre) + '</h3><p class="hg-sub">Todos los miembros ven y editan el mismo inventario de congeladoras y refri.</p>'
+    + '<div style="font-size:13px;color:var(--mu)">Código para invitar</div><div class="hg-code">' + prEsc(h.codigo) + '</div>'
+    + '<div class="hg-row"><button class="pr-btn pr-btn-main" onclick="hgCompartir()">Enviar invitación</button><button class="pr-btn" onclick="hgCopiar()">Copiar link</button></div>'
+    + '<p class="hg-sep">Miembros</p>'
+    + (mm.data || []).map(function(m) {
+        return '<div class="hg-mem">' + (m.avatar_url ? '<img src="' + prEsc(m.avatar_url) + '" alt=""/>' : '<span class="av">' + prEsc((m.nombre || '?').charAt(0).toUpperCase()) + '</span>') + prEsc(m.nombre || 'Miembro')
+          + (m.user_id === h.owner_id ? '<small>creó el hogar</small>' : '') + '</div>';
+      }).join('')
+    + '</div>';
+  PR.hogar = h;
+}
+
+async function hgCrear() {
+  var el = document.getElementById('hg-nombre');
+  var r = await supa.rpc('cs_crear_hogar', { p_nombre: el ? el.value : '', p_miembro: hgNombre(), p_avatar: hgAvatar() });
+  if (r.error) { showToast('No se pudo crear: ' + r.error.message, true); return; }
+  await supa.rpc('cs_preparados_al_hogar', { p_hogar: r.data.id });
+  showToast('✓ Hogar creado. Invita a tu familia');
+  loadHogar();
+}
+// Compatibilidad con los botones originales de la sección
+function crearHogar() { hgCrear(); }
+function unirseHogar() { var el = document.getElementById('hg-codigo'); if (el) el.focus(); }
+
+async function hgUnirse(codigo) {
+  codigo = String(codigo || '').trim().toUpperCase();
+  if (codigo.length < 4) { showToast('Escribe el código de 6 letras', true); return; }
+  var r = await supa.rpc('cs_unirse_hogar', { p_codigo: codigo, p_miembro: hgNombre(), p_avatar: hgAvatar() });
+  if (r.error) { showToast(/encontrado/.test(r.error.message) ? 'Ese código no existe' : 'No se pudo unir: ' + r.error.message, true); loadHogar(); return; }
+  showToast('✓ Te uniste a ' + r.data.nombre);
+  loadHogar();
+}
+
+function hgCompartir() {
+  var h = PR.hogar; if (!h) return;
+  var txt = 'Únete a "' + h.nombre + '" en Cocina Semanal para ver lo que hay en las congeladoras y la refri: ' + hgLink(h);
+  if (navigator.share) navigator.share({ title: 'Cocina Semanal', text: txt }).catch(function() {});
+  else hgCopiar();
+}
+function hgCopiar() {
+  var h = PR.hogar; if (!h) return;
+  navigator.clipboard.writeText(hgLink(h)).then(function() { showToast('✓ Link copiado'); }, function() { showToast(hgLink(h)); });
+}
+
+// ── Links directos (etiquetas NFC y QR de las hojas) ─────────────────────────
+// #refri  #congeladora1  #congeladora2  → abre ese equipo en el tablero
+// #unirse=CODIGO                         → une al hogar después de entrar
+var PR_RUTAS = { refri: 'refri', congeladora: 'congeladora', congeladora1: 'congeladora', c1: 'congeladora', congeladora2: 'congeladora2', c2: 'congeladora2', r: 'refri' };
+
+function prPendiente(clave) {
+  try { var v = localStorage.getItem('cs_' + clave); if (v) localStorage.removeItem('cs_' + clave); return v; } catch (e) { return null; }
+}
+function prGuardarPendiente(clave, valor) { try { localStorage.setItem('cs_' + clave, valor); } catch (e) {} }
+
+function prEntrar() {
+  if (location.hash && location.hash.length > 1 && !/access_token/.test(location.hash)) prGuardarPendiente('ruta', location.hash.slice(1));
+  signInWithGoogle();
+}
+
+function prRuta(h) {
+  h = (h || '').replace(/^#/, '');
+  if (!h || /access_token|error=/.test(h)) return false;
+  var m = h.match(/^unirse=([A-Za-z0-9]+)/);
+  if (m) {
+    prGuardarPendiente('unirse', m[1]);
+    showSection('hogar');
+    return true;
+  }
+  var u = PR_RUTAS[h.toLowerCase()];
+  if (u) {
+    PR.foco = u;
+    showSection('stock');
+    return true;
+  }
+  return false;
+}
+
+window.addEventListener('hashchange', function() { prRuta(location.hash); });
+window.addEventListener('load', function() {
+  if (!prRuta(location.hash)) { var p = prPendiente('ruta'); if (p) prRuta(p); }
+});
+// Al iniciar sesión: retomar el link que se abrió antes de entrar y recargar la sección visible
+if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
+  if (!session) return;
+  setTimeout(function() {
+    var p = prPendiente('ruta');
+    if (p && prRuta(p)) return;
+    if (!document.getElementById('sstock').classList.contains('hidden')) loadStock();
+    if (!document.getElementById('shogar').classList.contains('hidden')) loadHogar();
+  }, 300);
+});
 </script>
 </body>
 </html>
