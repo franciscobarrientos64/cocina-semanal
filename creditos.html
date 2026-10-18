@@ -15,11 +15,11 @@ td img{width:64px;height:48px;object-fit:cover;display:block}
 </style></head><body><main>
 <p><a href="/">← Volver a Despensa</a></p>
 <h1>Créditos de <b>las fotos</b></h1>
-<p class="s">Las fotos de los platos vienen de Wikimedia Commons y Unsplash. Las recortamos y comprimimos para la app; las que tienen licencia CC BY-SA se comparten, recortadas, bajo esa misma licencia.</p>
+<p class="s">Las fotos de los platos vienen de Wikimedia Commons y Unsplash. Las recortamos y comprimimos para la app; las que tienen licencia CC BY-SA se comparten, recortadas, bajo esa misma licencia. Para los platos sin foto libre usamos imágenes ilustrativas generadas con IA, marcadas como tales.</p>
 <div class="w"><table><thead><tr><th></th><th>Plato</th><th>Autor</th><th>Licencia</th><th>Fuente</th></tr></thead><tbody id="t"></tbody></table></div>
 <script>
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 fetch('/img/recetas/creditos.json').then(function(r){return r.json()}).then(function(c){
   document.getElementById('t').innerHTML=c.map(function(x){var u=/^https:\/\//.test(x.fuente_url)?x.fuente_url:'#';
-    return '<tr><td><img src="'+esc(x.archivo)+'" alt="" loading="lazy"></td><td>'+esc(x.nombre)+'</td><td>'+esc(x.autor||'—')+'</td><td>'+esc(x.licencia)+'</td><td><a href="'+esc(u)+'" target="_blank" rel="noopener">ver original</a></td></tr>'}).join('')});
+    return '<tr><td><img src="'+esc(x.archivo)+'" alt="" loading="lazy"></td><td>'+esc(x.nombre)+'</td><td>'+esc(x.autor||'—')+'</td><td>'+esc(x.licencia)+'</td><td>'+(u==='#'?'—':'<a href="'+esc(u)+'" target="_blank" rel="noopener">ver original</a>')+'</td></tr>'}).join('')});
 </script></main></body></html>
