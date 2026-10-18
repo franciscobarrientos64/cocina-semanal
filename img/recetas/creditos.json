@@ -859,5 +859,33 @@
   "fuente_url": "https://commons.wikimedia.org/wiki/File:Ceviche_de_setas_y_mango.jpg",
   "autor": "MiguelAlanCS",
   "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Shambar",
+  "archivo": "/img/recetas/shambar.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:TrujilloShambar.jpg",
+  "autor": "morrissey",
+  "licencia": "CC BY 2.0"
+ },
+ {
+  "nombre": "Pollo con maní",
+  "archivo": "/img/recetas/pollo-con-mani.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Pollo_mani.jpg",
+  "autor": "MiguelAlanCS",
+  "licencia": "CC BY-SA 4.0"
+ },
+ {
+  "nombre": "Pasta all'arrabbiata",
+  "archivo": "/img/recetas/pasta-all-arrabbiata.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Penne_all%27arrabbiata_-_Pizzeria_Bella_Italia_(Cr%C3%A9pieux-la-Pape).jpg",
+  "autor": "Benoît Prieur",
+  "licencia": "CC0"
+ },
+ {
+  "nombre": "Timpo",
+  "archivo": "/img/recetas/timpo.webp",
+  "fuente_url": "https://commons.wikimedia.org/wiki/File:Timpu_(Puchero).jpg",
+  "autor": "EloyTigre",
+  "licencia": "CC BY-SA 4.0"
  }
 ]
