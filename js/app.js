@@ -136,7 +136,8 @@ function appPlanes() {
     + appPlan('familia', 'Familia', 'S/ 9.90', 'al mes', ['1 casa con todos sus equipos', 'Avisos de vencimiento y descongelado', 'Mi semana, loncheras y modo cocina', 'Presupuesto, ahorro y desperdicio en soles', '<b>Regalo: 3 meses de Familia Plus</b>'], true)
     + appPlan(null, 'Gratis', 'S/ 0', 'siempre', ['1 casa con 1 refri y 1 congeladora', 'Inventario y hojas para imprimir', 'Comparar precios 3 veces al mes'], false)
     + '</div>'
-    + '<p class="n-sub" style="margin:10px 0 28px">Menos de 33 céntimos al día. Un taper de ají de gallina botado cuesta más que un mes de Despensa.</p>'
+    + '<p class="n-sub" style="margin:10px 0 28px">Precios en soles, incluyen IGV. Cancelas cuando quieras. Menos de 33 céntimos al día. Un taper de ají de gallina botado cuesta más que un mes de Despensa.</p>'
+    + '<p class="n-sub" style="margin:-18px 0 28px"><a class="n-link" href="/terminos.html" target="_blank">Términos</a> · <a class="n-link" href="/libro-reclamaciones.html" target="_blank">Libro de Reclamaciones</a></p>'
     + '<div class="n-h"><h2>Kit Despensa</h2><span>S/ 59</span></div><div class="n-row"><p>Etiquetas NFC para cada puerta, hojas magnéticas para la refri y las congeladoras, y stickers de colores por día para las tapas.</p><button class="n-bt" onclick="appInteres(\'kit\')">Quiero el kit</button></div>';
 }
 function appPlan(id, nombre, precio, per, items, dest) {

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Libro de Reclamaciones · Despensa</title><link rel="icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF9F4;color:#1B1C19;font:16px/1.6 'DM Sans',system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 20px 72px}
+a{color:#141414}
+h1{font:300 28px/1.2 Lexend,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin:18px 0 6px}h1 b{font-weight:600}
+h2{font:600 12px Lexend,sans-serif;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid #141414;padding-bottom:8px;margin:28px 0 12px}
+.prov{background:#F5F3EE;padding:12px 14px;font-size:14px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:#5F5E5E;margin-bottom:12px}
+input,textarea,select{font:inherit;color:#1B1C19;border:1px solid #C4C7C7;border-radius:2px;padding:10px;background:#fff;min-height:44px}
+textarea{min-height:110px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.r{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px}.r label{flex-direction:row;align-items:center;color:#1B1C19;font-size:15px}.r input{min-height:auto}
+button{font:600 12px Lexend,sans-serif;letter-spacing:.14em;text-transform:uppercase;background:#141414;color:#fff;border:0;border-radius:2px;padding:15px 20px;cursor:pointer;width:100%}
+.nota{font-size:13px;color:#5F5E5E}
+.ok{background:#141414;color:#fff;padding:16px;border-left:4px solid #EDE935}
+.err{color:#BA1A1A;font-size:14px}
+@media(max-width:600px){.g{grid-template-columns:1fr}}
+@media print{form,.noprint{display:none}}
+</style></head><body><main>
+<p class="noprint"><a href="/">← Volver a Despensa</a></p>
+<h1>Libro de <b>Reclamaciones</b></h1>
+<div class="prov"><b>QCN PERU E.I.R.L.</b> · RUC 20608678582<br>Av. La Paz 535, dpto. 402, Urb. Leuro, Miraflores, Lima · Servicio: Despensa.casa</div>
+<p class="nota">Conforme al Código de Protección y Defensa del Consumidor. Te responderemos en un plazo máximo de 15 días hábiles al correo que indiques.</p>
+<form id="f">
+<h2>1. Tus datos</h2>
+<div class="g"><label>Nombre completo<input name="nombre" required maxlength="150"></label><label>DNI o carné de extranjería<input name="documento" required maxlength="20" inputmode="numeric"></label></div>
+<label>Domicilio<input name="domicilio" required maxlength="250"></label>
+<div class="g"><label>Teléfono<input name="telefono" maxlength="30" inputmode="tel"></label><label>Correo electrónico<input name="email" type="email" required maxlength="150"></label></div>
+<div class="r"><label><input type="checkbox" name="menor" id="menor"> Soy menor de edad</label></div>
+<label id="ap" hidden>Nombre de tu madre, padre o apoderado<input name="apoderado" maxlength="150"></label>
+<h2>2. Lo contratado</h2>
+<div class="r"><label><input type="radio" name="bien" value="servicio" checked> Servicio</label><label><input type="radio" name="bien" value="producto"> Producto</label></div>
+<div class="g"><label>Monto reclamado (S/), si aplica<input name="monto" inputmode="decimal"></label><label>Descripción<input name="descripcion" maxlength="500" placeholder="Ej: plan Familia de Despensa"></label></div>
+<h2>3. Tu reclamo o queja</h2>
+<div class="r"><label><input type="radio" name="tipo" value="reclamo" checked> Reclamo <span class="nota">(disconformidad con el servicio)</span></label><label><input type="radio" name="tipo" value="queja"> Queja <span class="nota">(malestar con la atención)</span></label></div>
+<label>Detalle<textarea name="detalle" required maxlength="4000"></textarea></label>
+<label>Lo que pides<textarea name="pedido" required maxlength="2000"></textarea></label>
+<p class="nota">La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.</p>
+<p class="err" id="e"></p>
+<button type="submit">Enviar</button>
+</form>
+<div id="ok" hidden></div>
+</main>
+<script>
+var URL_SB='https://jmkvphayyhwzootlybde.supabase.co', KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impta3ZwaGF5eWh3em9vdGx5YmRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODE3ODEsImV4cCI6MjA5MzU1Nzc4MX0.EP2vv5avU1FIXlZn4jFo3QkvqnxOdLOrICqNV8qAZxM';
+document.getElementById('menor').onchange=function(){document.getElementById('ap').hidden=!this.checked;};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+document.getElementById('f').addEventListener('submit',async function(ev){
+  ev.preventDefault(); var fd=new FormData(this), p={}; fd.forEach(function(v,k){p[k]=v}); p.menor=!!p.menor;
+  var b=this.querySelector('button'); b.disabled=true; b.textContent='Enviando…'; document.getElementById('e').textContent='';
+  try{
+    var r=await fetch(URL_SB+'/rest/v1/rpc/cs_registrar_reclamo',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'content-type':'application/json'},body:JSON.stringify({p:p})});
+    var d=await r.json(); if(!r.ok) throw new Error(d.message||'No se pudo registrar');
+    var hoy=new Date().toLocaleString('es-PE');
+    this.hidden=true; var ok=document.getElementById('ok'); ok.hidden=false;
+    ok.innerHTML='<div class="ok"><b>Registrado: '+esc(d)+'</b><br>'+esc(hoy)+'. Guarda este número. Te responderemos a '+esc(p.email)+' en un plazo máximo de 15 días hábiles.</div>'
+      +'<h2>Copia de tu hoja</h2><p><b>'+esc(p.tipo==='queja'?'Queja':'Reclamo')+' '+esc(d)+'</b> · '+esc(p.nombre)+' ('+esc(p.documento)+') · '+esc(p.domicilio)+' · '+esc(p.telefono)+' · '+esc(p.email)+(p.menor?' · Apoderado: '+esc(p.apoderado):'')+'</p>'
+      +'<p><b>Bien:</b> '+esc(p.bien)+(p.monto?' · S/ '+esc(p.monto):'')+' · '+esc(p.descripcion)+'</p><p><b>Detalle:</b> '+esc(p.detalle)+'</p><p><b>Pedido:</b> '+esc(p.pedido)+'</p>'
+      +'<p class="noprint"><button onclick="print()">Imprimir o guardar en PDF</button></p>';
+  }catch(e){document.getElementById('e').textContent=e.message;b.disabled=false;b.textContent='Enviar';}
+});
+</script></body></html>
