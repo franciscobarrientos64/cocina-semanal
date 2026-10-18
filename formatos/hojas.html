@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hojas para la refri y las congeladoras · Despensa</title>
+<link rel="icon" href="/favicon.svg">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 10mm 11mm; }
+  :root { --ink:#141414; --soft:#5F5E5E; --line:#C4C7C7; --hair:#E4E2DD; --bone:#F5F3EE; --lemon:#EDE935; --paper:#fff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#E9E6DF; color:var(--ink); font:400 9pt/1.3 'DM Sans', system-ui, sans-serif; }
+  .page { width:210mm; min-height:297mm; padding:11mm 12mm; margin:8mm auto; background:var(--paper); page-break-after:always; position:relative; }
+  .page:last-child { page-break-after:auto; }
+  @media print { body{background:#fff} .page{margin:0; padding:0; width:auto; min-height:auto} }
+
+  .brand { font:600 7.5pt Lexend; letter-spacing:.3em; text-transform:uppercase; }
+  .brand span { font-weight:300; letter-spacing:0; text-transform:lowercase; color:var(--soft); }
+  header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--ink); padding-bottom:3mm; margin-bottom:3.5mm; gap:6mm; }
+  h1 { font:300 21pt/1.05 Lexend; letter-spacing:.12em; text-transform:uppercase; margin:2mm 0 0; }
+  h1 b { font-weight:600; }
+  h1 small { display:block; font:400 8.5pt 'DM Sans'; letter-spacing:0; text-transform:none; color:var(--soft); margin-top:2mm; }
+  .right { display:flex; align-items:flex-end; gap:5mm; }
+  .meta { text-align:right; font-size:8pt; color:var(--soft); line-height:1.9; }
+  .blank { display:inline-block; border-bottom:1px solid var(--ink); min-width:22mm; }
+  .qr { display:flex; align-items:center; gap:2.5mm; font:500 6.5pt Lexend; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); line-height:1.4; }
+  .qr svg { width:17mm; height:17mm; display:block; }
+
+  .how { display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; font-size:8pt; margin-bottom:3.5mm; padding-bottom:3mm; border-bottom:1px solid var(--hair); }
+  .how b { font:600 7pt Lexend; letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:.8mm; }
+  .demo { display:inline-flex; gap:.8mm; vertical-align:-1mm; margin:0 .5mm; }
+
+  .bx { width:4.6mm; height:4.6mm; border:1px solid var(--ink); display:inline-block; position:relative; background:#fff; }
+  .bx.half::before, .bx.full::before, .bx.full::after { content:""; position:absolute; left:50%; top:-12%; width:1.3px; height:124%; background:var(--ink); }
+  .bx.half::before, .bx.full::before { transform:rotate(45deg); }
+  .bx.full::after { transform:rotate(-45deg); background:#BA1A1A; }
+
+  table { width:100%; border-collapse:collapse; table-layout:fixed; }
+  th { font:600 6.8pt Lexend; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); text-align:left; padding:1mm; border-bottom:1px solid var(--ink); }
+  th.sz { text-align:center; color:var(--ink); }
+  th.sz span { display:block; font:400 6.5pt 'DM Sans'; letter-spacing:0; text-transform:none; color:var(--soft); }
+  td { height:6.3mm; border-bottom:1px solid var(--hair); padding:0 1mm; vertical-align:middle; }
+  td.d { border-left:1px solid var(--hair); }
+  td.boxes { text-align:center; border-left:1px solid var(--line); white-space:nowrap; }
+  td.boxes .bx { margin:0 .35mm; }
+  tr.cat td { height:auto; padding:2.2mm 1mm 1mm; border-bottom:1px solid var(--ink); background:var(--bone); }
+  tr.cat .cn { font:600 8pt Lexend; letter-spacing:.16em; text-transform:uppercase; }
+  tr.cat .par { float:right; font-size:7.5pt; color:var(--soft); }
+  tr.cat .par .blank { min-width:9mm; }
+
+  .todo { margin-top:4mm; border-top:2px solid var(--ink); padding-top:2mm; }
+  .todo h3 { font:600 8pt Lexend; letter-spacing:.16em; text-transform:uppercase; margin:0 0 1mm; }
+  .todo h3 span { font:400 7.5pt 'DM Sans'; letter-spacing:0; text-transform:none; color:var(--soft); margin-left:2mm; }
+  .todo .cols { display:grid; grid-template-columns:1fr 1fr; column-gap:8mm; }
+  .todo .ln { border-bottom:1px solid var(--line); height:6mm; display:flex; align-items:flex-end; gap:2mm; padding-bottom:.6mm; }
+  .todo .ln .bx { width:3.6mm; height:3.6mm; }
+
+  .rule { display:flex; gap:5mm; margin-bottom:3.5mm; }
+  .rule .big { flex:1.3; background:var(--ink); color:#fff; padding:3mm 4mm; font-size:8.5pt; border-left:3mm solid var(--lemon); }
+  .rule .big b { font:600 10pt Lexend; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:1mm; }
+  .rule .side { flex:1; font-size:8pt; }
+  .rule .side p { margin:0 0 1.3mm; }
+  .ithead { display:grid; grid-template-columns:30mm 5mm 1fr 30mm 16mm; gap:2mm; font:600 6.5pt Lexend; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); padding:0 2mm 1mm 0; }
+  .day { display:grid; grid-template-columns:30mm 1fr; border-top:1px solid var(--ink); }
+  .day:last-of-type { border-bottom:1px solid var(--ink); }
+  .day .lab { padding:1.8mm 0 0; }
+  .tape { display:inline-block; font:700 7pt/1 Lexend; letter-spacing:.16em; text-transform:uppercase; padding:1.6mm 2mm; color:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .tape.dk { color:var(--ink); }
+  .day .lab .dt { font-size:7pt; color:var(--soft); display:block; margin-top:1.6mm; }
+  .day .lab .dt .blank { min-width:12mm; }
+  .items { border-left:1px solid var(--line); }
+  .it { display:grid; grid-template-columns:5mm 1fr 30mm 16mm; align-items:end; gap:2mm; height:5.9mm; border-bottom:1px solid var(--hair); padding:0 2mm .8mm; }
+  .it:last-child { border-bottom:0; }
+  .it .bx { width:3.8mm; height:3.8mm; }
+  .sizes { font-size:7pt; color:var(--soft); display:flex; gap:2.2mm; }
+  .sizes i { font-style:normal; }
+  .sizes i::before { content:""; display:inline-block; width:2.6mm; height:2.6mm; border:1px solid var(--soft); margin-right:.7mm; vertical-align:-.4mm; }
+  .orig { font-size:7pt; color:var(--soft); text-align:right; }
+  .foot { margin-top:2.5mm; font-size:7.3pt; color:var(--soft); display:flex; justify-content:space-between; gap:4mm; }
+
+  .reg { position:absolute; width:6mm; height:6mm; border:0 solid var(--ink); }
+  .reg.tl { top:3mm; left:3mm; border-top-width:2.2px; border-left-width:2.2px; }
+  .reg.tr { top:3mm; right:3mm; border-top-width:2.2px; border-right-width:2.2px; }
+  .reg.bl { bottom:3mm; left:3mm; border-bottom-width:2.2px; border-left-width:2.2px; }
+  .reg.br { bottom:3mm; right:3mm; border-bottom-width:2.2px; border-right-width:2.2px; }
+  .code { position:absolute; bottom:3.6mm; left:50%; transform:translateX(-50%); font:600 6.8pt Lexend; letter-spacing:.16em; color:var(--soft); white-space:nowrap; }
+  @media print { .reg.tl,.reg.tr{top:-6mm} .reg.bl,.reg.br,.code{bottom:-6mm} .reg.tl,.reg.bl{left:-6mm} .reg.tr,.reg.br{right:-6mm} }
+
+  .bar { max-width:210mm; margin:6mm auto 0; display:flex; gap:3mm; justify-content:space-between; align-items:center; font:600 9pt Lexend; letter-spacing:.1em; text-transform:uppercase; padding:0 2mm; }
+  .bar a, .bar button { font:inherit; padding:3mm 4mm; border:1px solid var(--ink); background:#fff; color:var(--ink); text-decoration:none; cursor:pointer; }
+  .bar button { background:var(--ink); color:#fff; }
+  .bar span { font:400 9pt 'DM Sans'; letter-spacing:0; text-transform:none; color:var(--soft); }
+  @media print { .bar { display:none; } }
+</style>
+</head>
+<body>
+<div class="bar"><a href="/#refri">← Volver</a><span id="resumen"></span><button onclick="print()">Imprimir</button></div>
+<div id="hojas"></div>
+
+<script>
+  // Equipos: vienen de la app (?e=…) o, si no, los tres de siempre
+  var DEF = [['congeladora','Congeladora 1','congeladora','Casa'],['congeladora2','Congeladora 2','congeladora','Casa'],['refri','Refri','refri','Casa']];
+  var LEG = { congeladora: 'C1', congeladora2: 'C2', refri: 'R' };
+  var esc = function(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var eqs = DEF;
+  try {
+    var p = new URLSearchParams(location.search).get('e');
+    if (p) { var v = JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g, '+').replace(/_/g, '/'))))); if (Array.isArray(v) && v.length) eqs = v.slice(0, 20).filter(function(x) { return Array.isArray(x) && /^[a-z0-9-]{2,40}$/i.test(x[0]); }); }
+  } catch (e) {}
+  var multiCasa = eqs.some(function(x) { return x[3] !== eqs[0][3]; });
+
+  var cats = [['Acompañamientos', 4], ['Salsas', 5], ['Proteínas', 6], ['Guisos', 5], ['Sopas, cremas y otros', 3]];
+  var days = [['Lunes','#2F6DB5'],['Martes','#E8C21C',1],['Miércoles','#C8372D'],['Jueves','#7A4B2A'],['Viernes','#3B9A4A'],['Sábado','#E98A1F',1],['Domingo','#1D1B18']];
+  var bx = function(n) { return '<span class="bx"></span>'.repeat(n); };
+  var marco = function(e) { var cod = LEG[e[0]] || e[0].toUpperCase(); return '<span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">DESPENSA · HOJA ' + esc(cod) + ' · ' + esc(String(e[1]).toUpperCase()) + (multiCasa ? ' · ' + esc(String(e[3]).toUpperCase()) : '') + '</span>'; };
+  var cabeza = function(e, sub, meta) {
+    return '<header><div><div class="brand">Despensa<span>.casa</span></div><h1>' + esc(e[1]) + (multiCasa ? ' <b>' + esc(e[3]) + '</b>' : '') + '<small>' + sub + '</small></h1></div>'
+      + '<div class="right"><div class="meta">' + meta + '</div><div class="qr" data-ruta="' + esc(e[0]) + '"><span></span><div>Escanea o<br>acerca el<br>celular</div></div></div></header>';
+  };
+  var hojaCong = function(e) {
+    return '<section class="page">' + marco(e) + cabeza(e, 'Lo que hay, de qué tamaño y hasta cuándo', 'Hoja iniciada el <span class="blank"></span><br>Responsable <span class="blank"></span>')
+      + '<div class="how"><div><b>Entra un envase</b>Una raya <span class="demo"><span class="bx half"></span></span> en su tamaño.</div><div><b>Sale un envase</b>Cierra la cruz <span class="demo"><span class="bx full"></span></span>. Si va a la refri, anótalo en su hoja.</div><div><b>Lo que queda</b>Las rayas sin cruzar. Las casillas vacías no cuentan.</div></div>'
+      + '<table><colgroup><col style="width:30%"><col style="width:9%"><col style="width:9%"><col style="width:19%"><col style="width:19%"><col style="width:14%"></colgroup>'
+      + '<thead><tr><th>Elaboración · una fila por tanda</th><th>Hecho</th><th>Vence</th><th class="sz">250 ml<span>1 persona</span></th><th class="sz">500 ml<span>2 personas</span></th><th class="sz">1 litro<span>toda la familia</span></th></tr></thead><tbody>'
+      + cats.map(function(c) { return '<tr class="cat"><td colspan="6"><span class="cn">' + c[0] + '</span><span class="par">mínimo <span class="blank"></span> envases</span></td></tr>' + '<tr><td></td><td class="d"></td><td class="d"></td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(4) + '</td></tr>'.repeat(c[1]); }).join('')
+      + '</tbody></table><div class="todo"><h3>Por hacer<span>cuando una sección llega a su mínimo, anótala aquí y márcala al cocinarla</span></h3><div class="cols">' + '<div class="ln"><span class="bx"></span></div>'.repeat(4) + '</div></div></section>';
+  };
+  var hojaRefri = function(e) {
+    var it = '<div class="it"><span class="bx"></span><span></span><span class="sizes"><i>250</i><i>500</i><i>1 L</i></span><span class="orig">C · F</span></div>';
+    return '<section class="page">' + marco(e) + cabeza(e, 'Se anota en el día en que hay que comerlo, no en el que entró', 'Semana del <span class="blank"></span><br>al <span class="blank"></span>')
+      + '<div class="rule"><div class="big"><b>Mira el día de hoy</b>Lo que está en la fila de hoy se come hoy o se bota. Lo de mañana va primero en el menú.</div>'
+      + '<div class="side"><p><b>Descongelado:</b> 3 a 5 días según la sección (guisos y proteínas 3, salsas 5).</p><p><b>Hecho hoy, sin congelar:</b> 3 a 4 días.</p><p><b>Color del día:</b> pon un sticker de ese color en la tapa; el envase y la hoja dicen lo mismo.</p></div></div>'
+      + '<div class="ithead"><span></span><span>✓</span><span>Qué es</span><span>Tamaño</span><span style="text-align:right">Viene de</span></div>'
+      + days.map(function(d) { return '<div class="day"><div class="lab"><span class="tape' + (d[2] ? ' dk' : '') + '" style="background:' + d[1] + '">' + d[0] + '</span><span class="dt">fecha <span class="blank"></span></span></div><div class="items">' + it.repeat(4) + '</div></div>'; }).join('')
+      + '<div class="foot"><span>✓ = se comió · tachado = se botó (anota por qué al reverso: así se ajusta cuánto se cocina)</span><span>C = congeladora · F = fresco</span></div></section>';
+  };
+  document.getElementById('hojas').innerHTML = eqs.map(function(e) { return e[2] === 'refri' ? hojaRefri(e) : hojaCong(e); }).join('');
+  document.getElementById('resumen').textContent = eqs.length + ' hoja' + (eqs.length > 1 ? 's' : '') + ' A4: ' + eqs.map(function(e) { return e[1]; }).join(', ');
+
+  // QR por hoja: abre ese equipo en la app (mismo link que la etiqueta NFC)
+  var base = 'https://despensa.casa';
+  document.querySelectorAll('.qr').forEach(function(el) {
+    if (typeof qrcode === 'undefined') { el.remove(); return; }
+    var ruta = el.dataset.ruta === 'congeladora' ? 'congeladora1' : el.dataset.ruta;
+    var q = qrcode(0, 'M'); q.addData(base + '/#' + ruta); q.make();
+    el.querySelector('span').innerHTML = q.createSvgTag({ margin: 0, scalable: true });
+  });
+</script>
+</body>
+</html>

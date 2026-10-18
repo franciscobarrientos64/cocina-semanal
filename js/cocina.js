@@ -101,7 +101,7 @@ async function perfilesRender() {
           + '<button class="aj-x" aria-label="Quitar" onclick="pfQuitar(\'' + p.id + '\')"><span class="ms">delete</span></button></div>';
       }).join('')
     + '<div class="aj-row"><input id="pf-nuevo" placeholder="Nombre (ej: Mateo)" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="pfAgregar()">Agregar</button></div>'
-    + '<p class="n-sub">Las sugerencias de comidas y loncheras respetan esto, y cada receta te avisa si lleva algo que alguien no come.</p>';
+    + '<p class="n-sub">Las sugerencias de comidas y loncheras respetan esto, y cada receta te avisa si lleva algo que alguien no come. Las alergias son datos de salud: al registrarlas das tu consentimiento para usarlas solo con ese fin y, si son de menores, confirmas que eres su madre, padre o tutor. <a href="/privacidad.html" target="_blank">Privacidad</a></p>';
 }
 async function pfAgregar() {
   var el = document.getElementById('pf-nuevo'), n = String(el && el.value || '').trim();

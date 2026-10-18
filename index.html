@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Despensa"/>
 <meta name="theme-color" content="#141414"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0,0&display=swap" rel="stylesheet"/>
 <style>
@@ -248,6 +248,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
     <div class="feat-in">
       <div class="feat-hdr"><h2>Platos de la semana</h2><a onclick="startPlan()">Ver todos &rarr;</a></div>
       <div class="cards" id="feat-cards"></div>
+      <p class="legal-links"><a href="/terminos.html" target="_blank">Términos</a> · <a href="/privacidad.html" target="_blank">Privacidad</a> · <a href="/creditos.html" target="_blank">Créditos</a> · <a onclick="showSection('planes')">Planes</a></p>
     </div>
   </div>
 </div>
@@ -446,7 +447,7 @@ h1,h2,h3{font-family:Lexend,sans-serif}
         </label>
         <button class="pr-btn" onclick="prNueva()"><span class="ms">add_box</span>Agregar tanda</button>
         <button class="pr-btn" onclick="alFotoRefri()"><span class="ms">photo_library</span>Foto de la refri</button>
-        <a class="pr-btn" href="/formatos/congeladora-refri.html" target="_blank"><span class="ms">print</span>Hojas</a>
+        <button class="pr-btn" onclick="prHojas()"><span class="ms">print</span>Hojas</button>
       </div>
     </div>
 
@@ -627,7 +628,7 @@ var SP = {
   wong:     {n:'Wong',     bg:'#C8102E', fg:'#fff',    d:9.9,  url:'https://www.wong.pe',         search:'https://www.wong.pe/{q}?_q={q}&map=ft',                  vtex:true,  mult:0.92},
   metro:    {n:'Metro',   bg:'#FFD700', fg:'#C8102E', d:9.9,  url:'https://www.metro.pe',        search:'https://www.metro.pe/{q}?_q={q}&map=ft',                 vtex:true,  mult:0.95},
   plazavea: {n:'Plaza Vea',bg:'#C8102E', fg:'#FFD700', d:12.9, url:'https://www.plazavea.com.pe', search:'https://www.plazavea.com.pe/{q}?_q={q}&map=ft',          vtex:true,  mult:0.97},
-  makro:    {n:'Makro',   bg:'#003087', fg:'#FFD700', d:0,    url:'https://www.makro.com.pe',    search:'https://www.makro.com.pe/busca/?ft={q}',                 vtex:false, mult:0.85},
+  makro:    {n:'Makro',   bg:'#003087', fg:'#FFD700', d:0,    url:'https://www.makro.plazavea.com.pe', search:'https://www.makro.plazavea.com.pe/{q}?_q={q}&map=ft', vtex:true, mult:0.85},
   vivanda:  {n:'Vivanda', bg:'#141414', fg:'#fff',    d:9.9,  url:'https://www.vivanda.com.pe',  search:'https://www.vivanda.com.pe/search/{q}',                  vtex:false, mult:1.10},
 };
 
@@ -1957,7 +1958,7 @@ function renderCmpLista() {
     (function(q, url){
       btn.addEventListener('click', function(){
         var enc = encodeURIComponent(q);
-        var href = url.includes('makro') ? url+'/busca/?ft='+enc : url+'/'+enc+'?_q='+enc+'&map=ft';
+        var href = url+'/'+enc+'?_q='+enc+'&map=ft';
         window.open(href, '_blank');
       });
     })(it.busqueda_sugerida || it.nombre, s.url);
@@ -2074,7 +2075,7 @@ function abrirTodos() {
   // Open all tabs synchronously within the same user gesture (bypasses popup blocker)
   cmpItems.forEach(function(it) {
     var q = encodeURIComponent(it.busqueda_sugerida || it.nombre);
-    var href = s.url.includes('makro') ? s.url+'/busca/?ft='+q : s.url+'/'+q+'?_q='+q+'&map=ft';
+    var href = s.url+'/'+q+'?_q='+q+'&map=ft';
     window.open(href, '_blank');
   });
 }
@@ -2217,7 +2218,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 })();
 function pedirLogin(para) {
   var bg = document.createElement('div'); bg.className = 'pr-modal-bg';
-  bg.innerHTML = '<div class="pr-modal" style="max-width:420px"><h3>Entra para ' + para + '</h3><p class="sub">Es gratis. Usamos tu cuenta de Google solo para guardar tus cosas y compartirlas con tu familia.</p><div class="foot"><button class="pr-btn" data-x>Ahora no</button><button class="pr-btn pr-btn-main" data-ok>Entrar con Google</button></div></div>';
+  bg.innerHTML = '<div class="pr-modal" style="max-width:420px"><h3>Entra para ' + para + '</h3><p class="sub">Es gratis. Usamos tu cuenta de Google solo para guardar tus cosas y compartirlas con tu familia. Al entrar aceptas los <a href="/terminos.html" target="_blank">términos</a> y la <a href="/privacidad.html" target="_blank">política de privacidad</a>.</p><div class="foot"><button class="pr-btn" data-x>Ahora no</button><button class="pr-btn pr-btn-main" data-ok>Entrar con Google</button></div></div>';
   bg.addEventListener('click', function(e) { if (e.target === bg || e.target.closest('[data-x]')) bg.remove(); if (e.target.closest('[data-ok]')) { bg.remove(); prEntrar(); } });
   document.body.appendChild(bg);
 }
@@ -2428,7 +2429,7 @@ async function signInWithGoogle() {
     var result = await supa.auth.signInWithOAuth({
       provider: 'google',
       options: { 
-        redirectTo: location.origin.indexOf('http') === 0 ? location.origin : 'https://cocina-semanal.vercel.app',
+        redirectTo: location.origin.indexOf('http') === 0 ? location.origin : 'https://despensa.casa',
         skipBrowserRedirect: false
       }
     });
@@ -3042,6 +3043,14 @@ function prRender() {
   }
 }
 
+// Hojas A4 para imprimir de los equipos de la casa elegida (o de todas)
+function prHojas(todas) {
+  var lista = (PR.espacios && PR.espacios.length ? PR.espacios : PR_DEF.map(function(d) { return { clave: d[0], nombre: d[2], tipo: d[1], casa: 'Casa' }; }))
+    .filter(function(e) { return todas || !PR.casa || e.casa === PR.casa; }).map(function(e) { return [e.clave, e.nombre, e.tipo, e.casa]; });
+  var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(lista)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  window.open('/formatos/hojas.html?e=' + b64, '_blank', 'noopener');
+}
+
 function prVer(u) {
   PR.vista = u;
   document.querySelectorAll('.pr-seg button').forEach(function(b, i) { b.classList.toggle('on', PR_APAR[i][0] === u); });
@@ -3329,11 +3338,11 @@ async function prFoto(input) {
   try {
     var b64 = await prReducir(file, 1800);
     var hoy = prHoy();
-    var prompt = 'Hoy es ' + hoy + ' (' + PR_DAYS[new Date().getDay()][0] + '). La foto es una hoja impresa de control de comida preparada de una casa con dos congeladoras y una refrigeradora. El pie de la hoja dice cuál es: "HOJA C1 · CONGELADORA 1", "HOJA C2 · CONGELADORA 2" o "HOJA R · REFRIGERADORA". Si el título dice "Congeladora" sin número y no se ve el pie, asume la 1.\n\n'
+    var prompt = 'Hoy es ' + hoy + ' (' + PR_DAYS[new Date().getDay()][0] + '). La foto es una hoja impresa de control de comida preparada de una casa. El pie de la hoja dice cuál equipo es: "DESPENSA · HOJA <código> · <NOMBRE>". Códigos: C1 = "congeladora", C2 = "congeladora2", R = "refri"; cualquier otro código (por ejemplo R-AB12C o C-XY34Z) se devuelve tal cual en minúsculas como "hoja". Equipos de esta casa: ' + PR_APAR_TODOS.map(function(a) { return a[0] + ' = ' + a[1]; }).join('; ') + '. Si no se ve el pie, deduce el equipo por el título.\n\n'
       + 'HOJAS C1 y C2 (congeladoras): filas por tanda agrupadas en secciones (Acompañamientos, Salsas, Proteínas, Guisos, Sopas cremas y otros). Columnas: Elaboración, Hecho (fecha), Vence (fecha), y casillas para 250 ml, 500 ml y 1 litro. En cada casilla: vacía = no cuenta; una raya diagonal = un envase que ESTÁ; una cruz completa (X) = envase que YA SALIÓ. Para cada fila con nombre, cuenta SOLO las casillas con una raya sin cruzar, por tamaño.\n'
       + 'HOJA R (refrigeradora): bloques por día de la semana (Lunes a Domingo), con "Semana del __ al __" arriba. Cada línea: casilla ✓, qué es, tamaño marcado (250/500/1 L) y si viene de congeladora (C) o fresco (F). El día del bloque es la fecha de vencimiento. Ignora las líneas con ✓ marcado o tachadas (ya se comieron o se botaron). Cada línea viva es 1 envase del tamaño marcado (si no hay tamaño marcado, 500).\n\n'
       + 'Las fechas escritas a mano suelen ser dd/mm; conviértelas a AAAA-MM-DD usando el año más lógico respecto a hoy. Si en una congeladora falta "Vence", usa Hecho + 60 días; si falta todo, deja null. Categorías válidas: acompanamientos, salsas, proteinas, guisos, otros (según la sección donde está la fila).\n\n'
-      + 'Responde SOLO JSON válido: {"hoja":"congeladora"|"congeladora2"|"refri","filas":[{"nombre":"string","categoria":"acompanamientos|salsas|proteinas|guisos|otros","hecho":"AAAA-MM-DD"|null,"vence":"AAAA-MM-DD"|null,"n250":0,"n500":0,"n1000":0}],"dudas":"una frase con lo que no se leyó bien, o null"}';
+      + 'Responde SOLO JSON válido: {"hoja":"clave del equipo","filas":[{"nombre":"string","categoria":"acompanamientos|salsas|proteinas|guisos|otros","hecho":"AAAA-MM-DD"|null,"vence":"AAAA-MM-DD"|null,"n250":0,"n500":0,"n1000":0}],"dudas":"una frase con lo que no se leyó bien, o null"}';
     var r = await fetch('/api/claude', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -3348,6 +3357,7 @@ async function prFoto(input) {
     var p = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
     var filas = (p.filas || []).filter(function(f) { return f && f.nombre; });
     if (!filas.length) { showToast('No encontré filas con envases en la foto', true); return; }
+    p.hoja = String(p.hoja || '').toLowerCase().trim();
     var hoja = PR_APAR_TODOS.some(function(a) { return a[0] === p.hoja; }) ? p.hoja : (PR_APAR.find(function(a) { return prFrio(a[0]); }) || PR_APAR[0] || ['congeladora'])[0];
     prRevisar(hoja, filas, true, p.dudas);
   } catch (e) {
@@ -3414,7 +3424,7 @@ async function loadHogar() {
       }).join('') + '</section>'
     + (currentUser && currentUser.id === h.owner_id ? '<p class="n-sub" style="margin:-12px 0 24px">"Ayuda en casa" ve solo lo de hoy y marca lo que se comió. "Solo mirar" no puede cambiar nada.</p>' : '')
     + '<section><div class="n-h"><h2>Hojas y etiquetas</h2></div>'
-    + '<div class="hg-mem"><span class="av sq"><span class="ms">print</span></span><div><b>Hojas para la refri y las congeladoras</b><span class="n-sub">Tres hojas A4 con QR. Se actualizan con una foto.</span></div><a class="n-mini" href="/formatos/congeladora-refri.html" target="_blank">Abrir</a></div>'
+    + '<div class="hg-mem"><span class="av sq"><span class="ms">print</span></span><div><b>Hojas para la refri y las congeladoras</b><span class="n-sub">Tres hojas A4 con QR. Se actualizan con una foto.</span></div><button class="n-mini" onclick="prHojas(true)">Abrir</button></div>'
     + '<div class="hg-mem"><span class="av sq"><span class="ms">nfc</span></span><div><b>Etiquetas NFC</b><span class="n-sub">Graba en cada puerta: ' + location.host + '/#refri, /#congeladora1 y /#congeladora2</span></div></div></section>';
   PR.hogar = h;
 }
@@ -3805,6 +3815,7 @@ h1,h2,h3,h4{font-family:var(--lx);font-weight:300;letter-spacing:.06em}
 #shogar section{margin-bottom:24px}
 .hg-row input{border:1px solid var(--bo);border-radius:2px}
 /* Fase 6: app, asistente, planes, tablet */
+.legal-links{margin-top:36px;font-size:12px;color:var(--mu)}.legal-links a{color:var(--mu);cursor:pointer}
 .hdr-asis{border:0;background:transparent;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .hdr-asis:hover{background:#F0EEE9}
 .as-log{max-height:46vh;min-height:120px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0}

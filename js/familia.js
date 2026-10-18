@@ -131,7 +131,7 @@ async function famCompartirReceta(id) {
   window.open('https://wa.me/?text=' + encodeURIComponent('Te paso la receta de "' + x.nombre + '" en Despensa.casa: ' + link), '_blank', 'noopener');
 }
 async function famAbrirCompartida(id) {
-  var r = await supa.rpc('cs_receta_compartida', { p_id: id });
+  var r = await supa.rpc('cs_receta_publica', { p_id: id });
   var x = r.data && r.data[0];
   if (!x) { showToast('Esa receta ya no está compartida', true); return; }
   showSection('recetas');

@@ -103,6 +103,6 @@ function dsElegirFoto() {
   });
 }
 // Carga un script de cdnjs/unpkg una sola vez
-function dsScript(src) {
-  return new Promise(function(ok, ko) { if (document.querySelector('script[src="' + src + '"]')) return ok(); var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); });
+function dsScript(src, integrity) {
+  return new Promise(function(ok, ko) { if (document.querySelector('script[src="' + src + '"]')) return ok(); var s = document.createElement('script'); s.src = src; if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; } s.onload = ok; s.onerror = ko; document.head.appendChild(s); });
 }

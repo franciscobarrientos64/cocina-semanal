@@ -74,7 +74,7 @@ async function alEscanear() {
   };
   bg.querySelector('#al-buscar').onclick = function() { var v = bg.querySelector('#al-ean').value.trim(); if (v) encontrado(v); };
   try {
-    await dsScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
+    await dsScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js', 'sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+');
     sc = new Html5Qrcode('al-cam');
     await sc.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 260, height: 120 } }, function(txt) { encontrado(txt); }, function() {});
   } catch (e) { var c = bg.querySelector('#al-cam'); if (c) c.innerHTML = '<p class="n-sub">No pude abrir la cámara aquí. Escribe el número de abajo.</p>'; }
@@ -133,6 +133,6 @@ function alEtiquetas(id) {
     + '<style>@page{size:auto;margin:6mm}body{font-family:Lexend,Arial,sans-serif;margin:0;display:flex;flex-wrap:wrap;gap:3mm}.et{width:50mm;height:30mm;border:0.3mm solid #141414;box-sizing:border-box;padding:2mm;position:relative;overflow:hidden;break-inside:avoid}'
     + '.t{font-weight:600;font-size:9pt;line-height:1.1;max-width:32mm}.m{font-size:6.5pt;margin-top:1mm;color:#444}.v{position:absolute;left:2mm;bottom:2mm;font-size:7pt;font-weight:600;padding:1mm 1.5mm;background:#141414;color:#fff;letter-spacing:.06em;text-transform:uppercase}.qr{position:absolute;right:1.5mm;top:1.5mm;width:15mm;height:15mm}.qr img,.qr svg{width:100%;height:100%}.bar{width:100%;margin-bottom:4mm;font-size:10pt}@media print{.bar{display:none}}</style></head><body>'
     + '<div class="bar">' + n + ' etiquetas de 50 × 30 mm. Funcionan con impresoras de etiquetas (Niimbot, Brother QL) o en hoja A4 de stickers. <button onclick="print()">Imprimir</button></div>' + et
-    + '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"><\/script><script>document.querySelectorAll(".qr").forEach(function(e){var q=qrcode(0,"M");q.addData(e.dataset.u);q.make();e.innerHTML=q.createSvgTag({margin:0});});<\/script></body></html>');
+    + '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1" crossorigin="anonymous"><\/script><script>document.querySelectorAll(".qr").forEach(function(e){var q=qrcode(0,"M");q.addData(e.dataset.u);q.make();e.innerHTML=q.createSvgTag({margin:0});});<\/script></body></html>');
   w.document.close();
 }
