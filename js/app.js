@@ -130,7 +130,8 @@ function appTablet(on) {
 // 6) Planes y Kit Despensa
 function appPlanes() {
   var box = document.getElementById('planes-content'); if (!box) return;
-  box.innerHTML = '<section class="n-hero" style="padding-left:0;padding-right:0"><h1><span>Planes</span> <b>Despensa</b></h1><p>Mientras estamos en beta, todo es gratis. Así quedarán los planes.</p></section>'
+  box.innerHTML = '<section class="n-hero" style="padding-left:0;padding-right:0"><h1><span>Planes</span> <b>Despensa</b></h1><p>Empieza gratis. Cuando quieras más, elige un plan; se cobra cada mes con Mercado Pago.</p></section>'
+    + '<div id="pl-mia"></div>'
     + '<div class="pl-tabla">'
     + appPlan('plus', 'Familia Plus', 'S/ 19.90', 'al mes', ['Todo lo de Familia', 'Varias casas (playa, campo)', 'Asistente por voz y fotos con IA sin límite', 'Roles para quien ayuda en casa', 'Boletas y precios reales sin límite'], false)
     + appPlan('familia', 'Familia', 'S/ 9.90', 'al mes', ['1 casa con todos sus equipos', 'Avisos de vencimiento y descongelado', 'Mi semana, loncheras y modo cocina', 'Presupuesto, ahorro y desperdicio en soles', '<b>Regalo: 3 meses de Familia Plus</b>'], true)
@@ -139,10 +140,45 @@ function appPlanes() {
     + '<p class="n-sub" style="margin:10px 0 28px">Precios en soles, incluyen IGV. Cancelas cuando quieras. Menos de 33 céntimos al día. Un taper de ají de gallina botado cuesta más que un mes de Despensa.</p>'
     + '<p class="n-sub" style="margin:-18px 0 28px"><a class="n-link" href="/terminos.html" target="_blank">Términos</a> · <a class="n-link" href="/libro-reclamaciones.html" target="_blank">Libro de Reclamaciones</a></p>'
     + '<div class="n-h"><h2>Kit Despensa</h2><span>S/ 59</span></div><div class="n-row"><p>Etiquetas NFC para cada puerta, hojas magnéticas para la refri y las congeladoras, y stickers de colores por día para las tapas.</p><button class="n-bt" onclick="appInteres(\'kit\')">Quiero el kit</button></div>';
+  appMiSuscripcion();
+}
+
+// Suscripción con Mercado Pago: el plan efectivo lo calcula la base (cs_mi_plan); el regalo de Plus vive en plus_hasta
+var APP_PLAN_NOMBRE = { gratis: 'Gratis', familia: 'Familia', plus: 'Familia Plus' };
+var APP_ESTADO = { authorized: 'Activa', pending: 'Esperando el pago', paused: 'En pausa', cancelled: 'Cancelada' };
+async function appMiSuscripcion() {
+  var box = document.getElementById('pl-mia'); if (!box || !currentUser) return;
+  var r = await supa.from('cs_suscripciones').select('*').maybeSingle();
+  var p = await supa.rpc('cs_mi_plan');
+  var efectivo = (!p.error && p.data) || 'gratis', s = r.data;
+  document.querySelectorAll('[data-plan]').forEach(function(b) {
+    var es = b.getAttribute('data-plan') === (s && s.estado === 'authorized' ? s.plan : 'gratis');
+    if (es) { b.disabled = true; b.textContent = 'Tu plan'; }
+  });
+  if (!s) return;
+  var f = function(d) { return d ? new Date(d).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; };
+  var regalo = s.plan === 'familia' && s.plus_hasta && new Date(s.plus_hasta) > new Date();
+  box.innerHTML = '<div class="n-h"><h2>Mi suscripción</h2><span>' + prEsc(APP_ESTADO[s.estado] || s.estado) + '</span></div>'
+    + '<div class="n-row"><p><b>' + prEsc(APP_PLAN_NOMBRE[s.plan] || s.plan) + '</b>' + (s.desde ? ' desde el ' + f(s.desde) : '') + '. Hoy usas <b>' + prEsc(APP_PLAN_NOMBRE[efectivo]) + '</b>.</p>'
+    + (regalo ? '<p>Tu regalo de Familia Plus dura hasta el <b>' + f(s.plus_hasta) + '</b>. Después sigues en Familia al mismo precio.</p>' : '')
+    + (s.estado === 'pending' ? '<p class="n-sub">Si ya pagaste, Mercado Pago tarda unos minutos en confirmarlo.</p>' : '')
+    + '<p class="n-sub">Para cambiar la tarjeta, pausar o cancelar entra a <a class="n-link" href="https://www.mercadopago.com.pe/subscriptions" target="_blank" rel="noopener">tus suscripciones en Mercado Pago</a>. Si cancelas, vuelves al plan Gratis y no pierdes nada de lo guardado.</p></div>';
+}
+async function appSuscribir(plan) {
+  if (!currentUser) { pedirLogin('elegir tu plan'); return; }
+  var listo = typeof dsCargando === 'function' ? dsCargando('Abriendo Mercado Pago…') : null;
+  try {
+    var r = await fetch('/api/mp-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: plan }) });
+    var j = await r.json().catch(function() { return {}; });
+    if (!r.ok || !j.url) throw new Error((j.error && j.error.message) || 'No se pudo abrir el pago');
+    location.href = j.url;
+  } catch (e) {
+    showToast(e.message, true);
+  } finally { if (listo && listo.remove) listo.remove(); }
 }
 function appPlan(id, nombre, precio, per, items, dest) {
   return '<div class="pl' + (dest ? ' dest' : '') + '">' + (dest ? '<span class="n-lemon">Recomendado</span>' : '') + '<h3>' + nombre + '</h3><p class="pl-p"><b>' + precio + '</b> ' + per + '</p><ul>' + items.map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>'
-    + (id ? '<button class="n-bt' + (dest ? ' n-bt-p' : '') + '" onclick="appInteres(\'' + id + '\')">Lo quiero</button>' : '<button class="n-bt" disabled>Tu plan actual</button>') + '</div>';
+    + (id ? '<button class="n-bt' + (dest ? ' n-bt-p' : '') + '" data-plan="' + id + '" onclick="appSuscribir(\'' + id + '\')">Elegir ' + nombre + '</button>' : '<button class="n-bt" data-plan="gratis" disabled>Incluido</button>') + '</div>';
 }
 async function appInteres(plan) {
   if (!currentUser) { prEntrar(); return; }
