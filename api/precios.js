@@ -1,5 +1,6 @@
 // Precios reales: consulta el catálogo público (VTEX) de cada supermercado y devuelve el mejor resultado por producto.
 // Las cinco tiendas usan VTEX y exponen /api/catalog_system/pub/products/search (Makro y Vivanda comparten plataforma con Plaza Vea).
+import { exigirUsuario } from './_auth.js';
 export const config = { maxDuration: 30 };
 
 const TIENDAS = {
@@ -22,7 +23,7 @@ function puntaje(nombre, termino) {
   if (/\bx\s*kg\b|granel/.test(n) && !/\d/.test(t)) p += 0.5;
   return p;
 }
-const MAX_ITEMS = 40;
+const MAX_ITEMS = 30;
 
 // "Lata 405g", "Botella 900ml", "Bolsa 5kg", "Pack x6 ... 400g" → cantidad en kg o litros
 function contenido(nombre) {
@@ -65,9 +66,7 @@ async function buscar(tienda, termino) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
-  const origin = req.headers.origin || req.headers.referer || '';
-  const host = req.headers.host || '';
-  if (origin && !origin.includes(host) && !origin.includes('localhost') && !origin.includes('despensa.casa')) return res.status(403).json({ error: 'Origen no permitido' });
+  if (!(await exigirUsuario(req, res, 'precios', 60))) return;
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const terminos = (Array.isArray(body.terminos) ? body.terminos : []).slice(0, MAX_ITEMS).map((t) => String(t || '').slice(0, 80)).filter(Boolean);
   if (!terminos.length) return res.status(400).json({ error: 'Faltan productos' });

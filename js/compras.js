@@ -31,10 +31,10 @@ async function cmpPreciosReales() {
         if (pide && p.contenido && p.contenido.unidad === pide.unidad && p.por_unidad) precio = p.por_unidad * pide.cantidad;
         it['precio_estimado_' + k] = Math.round(precio * 10) / 10;
         it.real[k] = { nombre: p.nombre, precio: p.precio, url: p.url, por_unidad: p.por_unidad, unidad: p.contenido ? p.contenido.unidad : null, oferta: !!p.precio_lista };
-        hist.push({ termino: String(it.busqueda_sugerida || it.nombre).toLowerCase().slice(0, 80), tienda: k, nombre: p.nombre, precio: p.precio, por_unidad: p.por_unidad, unidad: p.contenido ? p.contenido.unidad : null, fecha: hoy });
+        hist.push({ ambito: dsAmb(), termino: String(it.busqueda_sugerida || it.nombre).toLowerCase().slice(0, 80), tienda: k, nombre: p.nombre, precio: p.precio, por_unidad: p.por_unidad, unidad: p.contenido ? p.contenido.unidad : null, fecha: hoy });
       });
     });
-    if (currentUser && hist.length) supa.from('cs_precios_hist').upsert(hist, { onConflict: 'termino,tienda,fecha', ignoreDuplicates: true }).then(function() {});
+    if (currentUser && hist.length) supa.from('cs_precios_hist').upsert(hist, { onConflict: 'ambito,termino,tienda,fecha', ignoreDuplicates: true }).then(function() {});
   } catch (e) { console.warn('precios reales', e); }
 }
 
@@ -179,7 +179,7 @@ async function cmpRevisarHabituales() {
     var fila = (res[0].resultados || [])[i] || {}, mejor = null, baja = null;
     CMP_TIENDAS.forEach(function(k) {
       var p = fila[k]; if (!p) return;
-      hist.push({ termino: h.termino, tienda: k, nombre: p.nombre, precio: p.precio, por_unidad: p.por_unidad, unidad: p.contenido ? p.contenido.unidad : null, fecha: hoy });
+      hist.push({ ambito: dsAmb(), termino: h.termino, tienda: k, nombre: p.nombre, precio: p.precio, por_unidad: p.por_unidad, unidad: p.contenido ? p.contenido.unidad : null, fecha: hoy });
       if (!mejor || p.precio < mejor[1].precio) mejor = [k, p];
       var a = ant[h.termino + '|' + k];
       if (a && a[0] && p.precio < a[0].precio * 0.95) { var pct = Math.round((1 - p.precio / a[0].precio) * 100); if (!baja || pct > baja[1]) baja = [k, pct, a[0].precio, p.precio]; }
@@ -190,7 +190,7 @@ async function cmpRevisarHabituales() {
       + (baja ? '<p><span class="n-lemon">Bajó ' + baja[1] + '% en ' + SP[baja[0]].n + '</span> <span class="n-sub">de S/ ' + (+baja[2]).toFixed(2) + ' a S/ ' + baja[3].toFixed(2) + '</span></p>' : '')
       + (serie.length ? '<details class="cl-hist"><summary>Historial de precios</summary><p class="n-sub">' + serie.map(prEsc).join('<br>') + '</p></details>' : '') + '</div>';
   }).join('');
-  if (hist.length) supa.from('cs_precios_hist').upsert(hist, { onConflict: 'termino,tienda,fecha', ignoreDuplicates: true }).then(function() {});
+  if (hist.length) supa.from('cs_precios_hist').upsert(hist, { onConflict: 'ambito,termino,tienda,fecha', ignoreDuplicates: true }).then(function() {});
   try { localStorage.setItem('cs_ofertas', JSON.stringify({ fecha: hoy, n: alertas })); } catch (e) {}
 }
 

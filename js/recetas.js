@@ -10,7 +10,11 @@ async function mrCargar() {
   if (typeof renderRecetasGrid === 'function' && !document.getElementById('srecetas').classList.contains('hidden')) renderRecetasGrid();
   mrPintar();
 }
+// Texto de recetas de terceros: sin caracteres que permitan inyectar HTML (el resto del recetario los pinta tal cual)
+function mrLimpio(t) { return String(t == null ? '' : t).replace(/[<>"`]/g, '').slice(0, 2000); }
 function mrRegistrar(x) {
+  x = Object.assign({}, x, { nombre: mrLimpio(x.nombre).slice(0, 120), tiempo: mrLimpio(x.tiempo).slice(0, 40), img: dsUrlImg(x.img),
+    ingredientes: (x.ingredientes || []).map(mrLimpio), pasos: (x.pasos || []).map(function(p) { return typeof p === 'string' ? mrLimpio(p) : { titulo: mrLimpio(p.titulo), ingredientes: mrLimpio(p.ingredientes), metodo: mrLimpio(p.metodo) }; }) });
   RECIPES[x.nombre] = { tiempo: x.tiempo || '—', dif: 'Casera', dificultad: 'Casera', porciones: x.porciones || 4, utensilios: [],
     pasos: (x.pasos || []).map(function(p, i) { return { titulo: p.titulo || 'Paso ' + (i + 1), ingredientes: p.ingredientes || (i === 0 ? (x.ingredientes || []).join(', ') : ''), metodo: p.metodo || p }; }) };
   if (!ALL_RECIPES.some(function(a) { return a.n === x.nombre; })) ALL_RECIPES.unshift({ n: x.nombre, e: '📖', proteina: x.proteina || dsProteina(x.nombre) || 'vegetal', momento: 'fondo', tiempo: x.tiempo || '—', dif: 'Casera', restricciones: [],
@@ -23,7 +27,7 @@ function mrPintar() {
   box.innerHTML = '<div class="n-h"><h2>Mis recetas <small>(' + MR.lista.length + ')</small></h2><span>guardadas</span></div>'
     + '<div class="aj-row"><input id="mr-url" placeholder="Pega el link de una receta, un video o un TikTok" inputmode="url"/><button class="n-bt n-bt-p n-bt-sm" onclick="mrImportar(document.getElementById(\'mr-url\').value)">Guardar</button></div>'
     + '<p class="n-sub">¿No tiene link? <a class="n-link" onclick="mrTexto()">Pega el texto de la receta</a> · <a class="n-link" onclick="mrAtajo()">Guardar desde Instagram o TikTok con un atajo</a></p>'
-    + (MR.lista.length ? '<div class="mr-lista">' + MR.lista.map(function(x) { return '<div class="hg-mem"><span class="av sq"><span class="ms">menu_book</span></span><div><b onclick="openRecetaModal(\'' + prEsc(x.nombre).replace(/'/g, "\\'") + '\')" style="cursor:pointer">' + prEsc(x.nombre) + '</b><span class="n-sub">' + (x.fuente_url ? mrDominio(x.fuente_url) : 'de la casa') + (x.por ? ' · guardada por ' + prEsc(x.por) : '') + '</span></div><button class="aj-x" aria-label="Compartir" title="Compartir por WhatsApp" onclick="famCompartirReceta(\'' + x.id + '\')"><span class="ms">share</span></button><button class="aj-x" aria-label="Quitar" onclick="mrQuitar(\'' + x.id + '\')"><span class="ms">delete</span></button></div>'; }).join('') + '</div>' : '');
+    + (MR.lista.length ? '<div class="mr-lista">' + MR.lista.map(function(x) { return '<div class="hg-mem"><span class="av sq"><span class="ms">menu_book</span></span><div><b data-n="' + prEsc(x.nombre) + '" onclick="openRecetaModal(this.dataset.n)" style="cursor:pointer">' + prEsc(x.nombre) + '</b><span class="n-sub">' + (x.fuente_url ? mrDominio(x.fuente_url) : 'de la casa') + (x.por ? ' · guardada por ' + prEsc(x.por) : '') + '</span></div><button class="aj-x" aria-label="Compartir" title="Compartir por WhatsApp" onclick="famCompartirReceta(\'' + x.id + '\')"><span class="ms">share</span></button><button class="aj-x" aria-label="Quitar" onclick="mrQuitar(\'' + x.id + '\')"><span class="ms">delete</span></button></div>'; }).join('') + '</div>' : '');
 }
 
 async function mrImportar(url) {
@@ -67,7 +71,7 @@ function mrRevisar(rec, url) {
     var nombre = bg.querySelector('#mr-n').value.trim(); if (!nombre) { showToast('Falta el nombre', true); return; }
     var ings = bg.querySelector('#mr-i').value.split('\n').map(function(x) { return x.trim(); }).filter(Boolean);
     var ps = bg.querySelector('#mr-s').value.split('\n').map(function(x) { return x.trim(); }).filter(Boolean).map(function(m, i) { return { titulo: 'Paso ' + (i + 1), metodo: m, ingredientes: i === 0 ? ings.join(', ') : '' }; });
-    var img = rec.img && /^https:\/\//.test(rec.img) ? rec.img : null;
+    var img = dsUrlImg(rec.img) || null;
     var r = await supa.from('cs_recetas').insert({ ambito: dsAmb(), nombre: nombre, porciones: parseInt(bg.querySelector('#mr-p').value, 10) || 4, tiempo: bg.querySelector('#mr-ti').value.trim() || null,
       proteina: dsProteina(nombre + ' ' + ings.join(' ')), ingredientes: ings, pasos: ps, fuente_url: url, img: img, por: prQuien() });
     if (r.error) { showToast('No se pudo guardar', true); return; }

@@ -874,9 +874,9 @@ function renderRecetasGrid() {
   filtered.forEach(function(r) {
     var protColMap = {pollo:'#FFD700',res:'#C8102E',pescado:'#1A4D8F',mariscos:'#1A4D8F',cerdo:'#F04E23',vegetal:'#141414'};
     var protCol = protColMap[r.proteina] || '#888';
-    html += '<div class="rcard-rec" data-nombre="' + r.n + '" onclick="openRecetaModal(this.dataset.nombre)">';
+    html += '<div class="rcard-rec" data-nombre="' + prEsc(r.n) + '" onclick="openRecetaModal(this.dataset.nombre)">';
     html += '<div style="width:100%;height:160px;overflow:hidden;position:relative;background:#F5F3EE">';
-    html += '<img src="' + r.img + '" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>';
+    html += '<img src="' + prEsc(dsUrlImg(r.img)) + '" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>';
     html += '<div style="position:absolute;top:10px;left:10px;background:' + protCol + ';color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:2px">' + r.e + ' ' + r.proteina + '</div>';
     html += '</div>';
     html += '<div style="padding:14px 16px">';
@@ -1180,6 +1180,7 @@ function addC() {
 var MSGS = ['Analizando los platos seleccionados...', 'Calculando porciones semanales...', 'Consolidando ingredientes compartidos...', 'Optimizando cantidades para supermercado...'];
 
 function genLista() {
+  if (!currentUser) { pedirLogin('armar tu lista con IA'); return; }
   goS(3);
   // Show recipes and platos IMMEDIATELY - no waiting
   document.getElementById('ldg3').classList.add('hidden');
@@ -1631,6 +1632,7 @@ var cmpSorted = [];
 async function compararLista() {
   var txt = document.getElementById('cmp-input').value.trim();
   if (!txt) return;
+  if (!currentUser) { pedirLogin('comparar precios'); return; }
   var btn = document.getElementById('cmp-btn');
   btn.textContent = 'Procesando...';
   btn.disabled = true;
@@ -1754,8 +1756,8 @@ function renderCmpItems() {
     var main = document.createElement('div');
     main.style.cssText = 'display:flex;align-items:center;gap:10px';
     main.innerHTML = '<span style="font-size:18px">'+getItemIcon(it.nombre, it.categoria)+'</span>'
-      +'<span style="flex:1;font-size:14px;font-weight:500">'+it.nombre+'</span>'
-      +'<span style="font-size:12px;color:#888">'+it.cantidad+'</span>';
+      +'<span style="flex:1;font-size:14px;font-weight:500">'+prEsc(it.nombre)+'</span>'
+      +'<span style="font-size:12px;color:#888">'+prEsc(it.cantidad)+'</span>';
     row.appendChild(main);
     // Parse quantity into number + unit
     var cantStr = it.cantidad || '1 unid';
@@ -2199,6 +2201,26 @@ function addExtraIngredientes() {
 const SUPA_URL = 'https://jmkvphayyhwzootlybde.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impta3ZwaGF5eWh3em9vdGx5YmRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODE3ODEsImV4cCI6MjA5MzU1Nzc4MX0.EP2vv5avU1FIXlZn4jFo3QkvqnxOdLOrICqNV8qAZxM';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+// Las funciones /api exigen la sesión del usuario: se agrega el token a cada llamada
+(function() {
+  var f = window.fetch.bind(window);
+  window.fetch = async function(input, init) {
+    var u = typeof input === 'string' ? input : (input && input.url) || '';
+    if (/^\/api\//.test(u)) {
+      init = Object.assign({}, init);
+      var h = new Headers(init.headers || {});
+      try { var ses = (await supa.auth.getSession()).data.session; if (ses) h.set('Authorization', 'Bearer ' + ses.access_token); } catch (e) {}
+      init.headers = h;
+    }
+    return f(input, init);
+  };
+})();
+function pedirLogin(para) {
+  var bg = document.createElement('div'); bg.className = 'pr-modal-bg';
+  bg.innerHTML = '<div class="pr-modal" style="max-width:420px"><h3>Entra para ' + para + '</h3><p class="sub">Es gratis. Usamos tu cuenta de Google solo para guardar tus cosas y compartirlas con tu familia.</p><div class="foot"><button class="pr-btn" data-x>Ahora no</button><button class="pr-btn pr-btn-main" data-ok>Entrar con Google</button></div></div>';
+  bg.addEventListener('click', function(e) { if (e.target === bg || e.target.closest('[data-x]')) bg.remove(); if (e.target.closest('[data-ok]')) { bg.remove(); prEntrar(); } });
+  document.body.appendChild(bg);
+}
 
 // Init auth state after DOM ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -2267,7 +2289,7 @@ var syncTimeout = null;
 
 // La lista activa es de la casa: si hay hogar, todos ven y tachan la misma lista
 async function listaAmbito() {
-  if (!PR.hogar && currentUser && !PR.hogarBuscado) { var hg = await supa.from('cs_hogares').select('*').limit(1); PR.hogar = hg.data && hg.data[0] ? hg.data[0] : null; PR.hogarBuscado = true; }
+  if (!PR.hogar && currentUser && !PR.hogarBuscado) { var hg = await supa.from('cs_hogares').select('*').order('created_at').limit(1); PR.hogar = hg.data && hg.data[0] ? hg.data[0] : null; PR.hogarBuscado = true; }
   return String(PR.hogar ? PR.hogar.id : currentUser.id);
 }
 async function loadListaActiva(silencioso) {
@@ -2761,6 +2783,10 @@ var PR_SIZES = [['n250','250 ml'],['n500','500 ml'],['n1000','1 L']];
 // Mismos colores que la hoja impresa (sistema de "day dots"); índice = getDay()
 var PR_DAYS = [['Domingo','#1d1b18'],['Lunes','#2f6db5'],['Martes','#e8c21c'],['Miércoles','#c8372d'],['Jueves','#7a4b2a'],['Viernes','#3b9a4a'],['Sábado','#e98a1f']];
 
+// Argumento seguro para un onclick="fn(...)": cadena JS válida y escapada para el atributo HTML
+// Solo imágenes propias o https (evita romper el atributo src con datos de terceros)
+function dsUrlImg(u) { u = String(u || ''); if (/^\/img\//.test(u)) return u; try { var x = new URL(u); return x.protocol === 'https:' ? x.href : ''; } catch (e) { return ''; } }
+function jsArg(s) { return prEsc(JSON.stringify(String(s == null ? '' : s))); }
 function prEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function prISO(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function prHoy() { return prISO(new Date()); }
@@ -2812,7 +2838,7 @@ async function loadStock() {
 // Trae inventario y mínimos del hogar (o del usuario) sin dibujar
 async function prCargar() {
   if (!currentUser) return false;
-  var hg = await supa.from('cs_hogares').select('*').limit(1);
+  var hg = await supa.from('cs_hogares').select('*').order('created_at').limit(1);
   PR.hogar = hg.data && hg.data[0] ? hg.data[0] : null;
   if (PR.hogar) await supa.rpc('cs_preparados_al_hogar', { p_hogar: PR.hogar.id });
   var res = await Promise.all([
@@ -3003,8 +3029,8 @@ function prRender() {
     + '</details></div>';
   if (PR.foco) PR.vista = PR.foco;
   var casas = prCasas();
-  document.getElementById('pr-casas').innerHTML = (casas.length > 1 ? '<div class="pr-casas">' + casas.map(function(c) { return '<button class="' + (c === PR.casa ? 'on' : '') + '" onclick="prElegirCasa(\'' + prEsc(c).replace(/'/g, "\\'") + '\')">' + prEsc(c) + '</button>'; }).join('') + '<a class="n-link" onclick="showSection(\'ajustes\')">Ajustes</a></div>'
-    + '<div class="pr-viajes">' + casas.filter(function(c) { return c !== PR.casa; }).map(function(c) { return '<button class="n-mini n-mini-l" onclick="famViaje(\'' + prEsc(c).replace(/'/g, "\\'") + '\')"><span class="ms">luggage</span>Preparar viaje a ' + prEsc(c) + '</button>'; }).join('') + '</div>' : '');
+  document.getElementById('pr-casas').innerHTML = (casas.length > 1 ? '<div class="pr-casas">' + casas.map(function(c) { return '<button class="' + (c === PR.casa ? 'on' : '') + '" onclick="prElegirCasa(' + jsArg(c) + ')">' + prEsc(c) + '</button>'; }).join('') + '<a class="n-link" onclick="showSection(\'ajustes\')">Ajustes</a></div>'
+    + '<div class="pr-viajes">' + casas.filter(function(c) { return c !== PR.casa; }).map(function(c) { return '<button class="n-mini n-mini-l" onclick="famViaje(' + jsArg(c) + ')"><span class="ms">luggage</span>Preparar viaje a ' + prEsc(c) + '</button>'; }).join('') + '</div>' : '');
   document.getElementById('pr-board').innerHTML = '<div class="pr-seg" style="grid-template-columns:repeat(' + Math.max(1, PR_APAR.length) + ',1fr)">' + PR_APAR.map(function(a) {
       var n = PR.rows.filter(function(r) { return r.ubicacion === a[0]; }).reduce(function(x, r) { return x + prTotal(r); }, 0);
       return '<button class="' + (a[0] === (PR.vista || 'refri') ? 'on' : '') + '" onclick="prVer(\'' + a[0] + '\')">' + a[1].replace('Congeladora ', 'Cong. ') + ' <b>' + n + '</b></button>';
@@ -3159,7 +3185,7 @@ document.addEventListener('pointerup', function(e) {
 document.addEventListener('pointercancel', prLimpiarDrag);
 
 // ── Editar una tanda ─────────────────────────────────────────────────────────
-function prOpts(lista, sel) { return lista.map(function(c) { return '<option value="' + c[0] + '"' + (c[0] === sel ? ' selected' : '') + '>' + c[1] + '</option>'; }).join(''); }
+function prOpts(lista, sel) { return lista.map(function(c) { return '<option value="' + prEsc(c[0]) + '"' + (c[0] === sel ? ' selected' : '') + '>' + prEsc(c[1]) + '</option>'; }).join(''); }
 
 function prEditar(id) {
   var r = prRow(id);
@@ -3363,7 +3389,7 @@ async function loadHogar() {
   }
   var pend = prPendiente('unirse');
   if (pend) { await hgUnirse(pend); return; }
-  var hg = await supa.from('cs_hogares').select('*').limit(1);
+  var hg = await supa.from('cs_hogares').select('*').order('created_at').limit(1);
   var h = hg.data && hg.data[0];
   if (!h) {
     box.innerHTML = '<div class="hg-box"><h3>Todavía no tienes un hogar</h3><p class="hg-sub">Crea uno y comparte el link con tu familia: verán lo mismo que tú en las congeladoras y la refri.</p>'
@@ -3428,7 +3454,7 @@ function hgCopiar() {
 // ── AJUSTES: casas y equipos de frío ─────────────────────────────────────────
 function closeUserDD() { var d = document.getElementById('user-dropdown'); if (d) d.classList.remove('open'); }
 function ajEnvases(clave) { return PR.rows.filter(function(r) { return r.ubicacion === clave; }).reduce(function(a, r) { return a + prTotal(r); }, 0); }
-function ajQ(v) { return prEsc(v).replace(/'/g, "\\'"); }
+function ajQ(v) { return jsArg(v); }
 
 async function ajRender() {
   var box = document.getElementById('aj-content');
@@ -3438,7 +3464,7 @@ async function ajRender() {
   var casas = prCasas();
   box.innerHTML = casas.map(function(c) {
     var eqs = PR.espacios.filter(function(e) { return e.casa === c; });
-    return '<section class="aj-casa"><div class="n-h"><input class="aj-casa-n" value="' + prEsc(c) + '" aria-label="Nombre de la casa" onchange="ajRenombrarCasa(\'' + ajQ(c) + '\', this.value)"/>'
+    return '<section class="aj-casa"><div class="n-h"><input class="aj-casa-n" value="' + prEsc(c) + '" aria-label="Nombre de la casa" onchange="ajRenombrarCasa(' + ajQ(c) + ', this.value)"/>'
       + '<span>' + eqs.length + ' equipo' + (eqs.length === 1 ? '' : 's') + '</span></div>'
       + eqs.map(function(e) {
           var n = ajEnvases(e.clave);
@@ -3449,9 +3475,9 @@ async function ajRender() {
             + '<select aria-label="Tipo" onchange="ajCampo(\'' + e.id + '\', \'tipo\', this.value)"><option value="refri"' + (e.tipo === 'refri' ? ' selected' : '') + '>Refri</option><option value="congeladora"' + (e.tipo !== 'refri' ? ' selected' : '') + '>Congeladora</option></select>'
             + '<button class="aj-x" title="Quitar" onclick="ajQuitar(\'' + e.id + '\')"><span class="ms">delete</span></button></div>';
         }).join('')
-      + '<div class="aj-acts"><button class="n-mini n-mini-l" onclick="ajAgregar(\'' + ajQ(c) + '\', \'refri\')"><span class="ms">add</span>Refri</button>'
-      + '<button class="n-mini n-mini-l" onclick="ajAgregar(\'' + ajQ(c) + '\', \'congeladora\')"><span class="ms">add</span>Congeladora</button>'
-      + (casas.length > 1 ? '<button class="n-mini n-mini-l aj-del" onclick="ajQuitarCasa(\'' + ajQ(c) + '\')">Quitar casa</button>' : '') + '</div></section>';
+      + '<div class="aj-acts"><button class="n-mini n-mini-l" onclick="ajAgregar(' + ajQ(c) + ', \'refri\')"><span class="ms">add</span>Refri</button>'
+      + '<button class="n-mini n-mini-l" onclick="ajAgregar(' + ajQ(c) + ', \'congeladora\')"><span class="ms">add</span>Congeladora</button>'
+      + (casas.length > 1 ? '<button class="n-mini n-mini-l aj-del" onclick="ajQuitarCasa(' + ajQ(c) + ')">Quitar casa</button>' : '') + '</div></section>';
   }).join('')
     + '<section class="aj-nueva"><div class="n-h"><h2>Agregar otra casa</h2><span>playa, campo…</span></div>'
     + '<div class="aj-row"><input id="aj-casa-nueva" placeholder="Ej: Playa" maxlength="40"/><button class="n-bt n-bt-p n-bt-sm" onclick="ajNuevaCasa()">Agregar casa</button></div>'

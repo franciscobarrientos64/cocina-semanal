@@ -28,11 +28,11 @@ function coPintar() {
     + '<div class="co-body"><p class="co-k">Paso ' + (i + 1) + ' de ' + pasos.length + '</p><h2>' + prEsc(p.titulo || '') + '</h2>'
     + (p.ingredientes ? '<p class="co-ing">' + prEsc(p.ingredientes) + '</p>' : '')
     + '<p class="co-met">' + prEsc(p.metodo || '') + '</p>'
-    + (min ? '<button class="n-bt co-tm" onclick="coTimer(' + min + ',\'' + prEsc(n).replace(/'/g, "\\'") + ' · paso ' + (i + 1) + '\')"><span class="ms">timer</span>Temporizador ' + min + ' min</button>' : '')
+    + (min ? '<button class="n-bt co-tm" onclick="coTimer(' + min + ',' + jsArg(n + ' · paso ' + (i + 1)) + ')"><span class="ms">timer</span>Temporizador ' + min + ' min</button>' : '')
     + (avisos.length ? '<p class="pr-note">Ojo: ' + avisos.map(prEsc).join(' · ') + '</p>' : '')
-    + '</div><div class="co-foot"><button class="n-bt" ' + (i ? '' : 'disabled') + ' onclick="CO.paso[\'' + prEsc(n).replace(/'/g, "\\'") + '\']=' + (i - 1) + ';coPintar()"><span class="ms">arrow_back</span>Anterior</button>'
-    + (i < pasos.length - 1 ? '<button class="n-bt n-bt-p" onclick="CO.paso[\'' + prEsc(n).replace(/'/g, "\\'") + '\']=' + (i + 1) + ';coPintar()">Siguiente<span class="ms">arrow_forward</span></button>'
-       : '<button class="n-bt n-bt-p" onclick="coTermine(\'' + prEsc(n).replace(/'/g, "\\'") + '\')"><span class="ms">ac_unit</span>Terminé: guardar tanda</button>') + '</div>';
+    + '</div><div class="co-foot"><button class="n-bt" ' + (i ? '' : 'disabled') + ' onclick="CO.paso[' + jsArg(n) + ']=' + (i - 1) + ';coPintar()"><span class="ms">arrow_back</span>Anterior</button>'
+    + (i < pasos.length - 1 ? '<button class="n-bt n-bt-p" onclick="CO.paso[' + jsArg(n) + ']=' + (i + 1) + ';coPintar()">Siguiente<span class="ms">arrow_forward</span></button>'
+       : '<button class="n-bt n-bt-p" onclick="coTermine(' + jsArg(n) + ')"><span class="ms">ac_unit</span>Terminé: guardar tanda</button>') + '</div>';
   coTimersPintar();
 }
 function coOtra() {
