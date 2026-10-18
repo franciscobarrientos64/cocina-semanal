@@ -2870,7 +2870,7 @@ function prCinta(iso) {
   var d = new Date(iso + 'T12:00:00'), day = PR_DAYS[d.getDay()], dd = prDias(iso);
   var claro = /e8c21c|e98a1f/i.test(day[1]);
   var rel = dd < 0 ? 'vencido' : dd === 0 ? 'hoy' : dd === 1 ? 'mañana' : prFecha(iso);
-  return '<span class="n-tape" style="background:' + day[1] + ';color:' + (claro ? '#141414' : '#fff') + '">' + day[0].slice(0, 3) + ' · ' + rel + '</span>';
+  return '<span class="n-tape" style="background:' + day[1] + ';color:' + (claro ? '#141414' : '#fff') + '">' + T(day[0]).slice(0, 3) + ' · ' + T(rel) + '</span>';
 }
 function prStockCat(cat) {
   var aqui = PR_APAR.map(function(a) { return a[0]; });
@@ -3499,7 +3499,7 @@ async function ajRender() {
     + '<section><div class="n-h"><h2>Despensa en el celular y en la cocina</h2></div><div class="n-row">'
     + '<p><b>Instálala como app:</b> en el iPhone, Safari → Compartir → <i>Agregar a inicio</i>. En Android, menú de Chrome → <i>Instalar app</i>. Abre sin internet y aparece en "Compartir" para guardar recetas y listas.</p>'
     + '<p><b>Tablet en la cocina:</b> deja una tablet pegada a la refri con el tablero siempre al día. <a class="n-link" onclick="appTablet(true)">Activar modo tablet</a></p></div></section>'
-    + '<section><div class="n-h"><h2>Idioma en este celular</h2><span>modo ayuda</span></div><div class="aj-row"><select id="aj-lang" onchange="try{localStorage.setItem(\'cs_lang\',this.value)}catch(e){};FAM.lang=this.value;showToast(\'Listo\')"><option value="es">Español</option><option value="en"' + (typeof FAM !== 'undefined' && FAM.lang === 'en' ? ' selected' : '') + '>English (para quien ayuda en casa)</option></select></div></section>'
+    + '<section><div class="n-h"><h2>Idioma en este celular</h2><span>language</span></div><div class="aj-row"><select id="aj-lang" data-no-trad onchange="try{localStorage.setItem(\'cs_lang\',this.value)}catch(e){};location.reload()"><option value="es">Español</option><option value="en"' + (typeof FAM !== 'undefined' && FAM.lang === 'en' ? ' selected' : '') + '>English</option></select></div><p class="n-sub">Cambia el idioma de la app solo en este celular (útil para quien ayuda en casa). Las recetas siguen en español.</p></section>'
     + '<section><div class="n-h"><h2>Etiquetas para tapers</h2><span>opcional</span></div><div class="n-row"><p class="n-sub">Desde cada tanda (tócala → Etiquetas) imprimes una etiqueta de 50 × 30 mm por envase, con nombre, fechas, el color del día y un QR que abre la tanda.</p>'
     + '<p><b>Impresora sugerida:</b> una térmica de etiquetas por Bluetooth, que imprime desde el celular sin tinta. La más práctica y económica es la <b>Niimbot B21</b> (o la D110, más chica); si prefieres algo más robusto, la <b>Brother QL-800</b>. Usa rollos de <b>50 × 30 mm resistentes al frío</b> (papel sintético o "freezer"). Se consiguen en Mercado Libre y Falabella.</p>'
     + '<p class="n-sub">Sin impresora: imprímelas en hoja A4 de stickers en tu impresora de casa.</p></div></section>'
@@ -3639,6 +3639,7 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
 <script src="/js/familia.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/fotos.js"></script>
+<script src="/js/i18n.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
 body{background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}

@@ -1,7 +1,7 @@
 // Despensa · service worker: la app abre sin internet en la cocina (los datos se actualizan al volver la conexión)
-const CACHE = 'despensa-v4';
+const CACHE = 'despensa-v5';
 const BASE = ['/', '/index.html', '/favicon.svg', '/icon-192.png', '/manifest.webmanifest',
-  '/js/nucleo.js', '/js/semana.js', '/js/cocina.js', '/js/compras.js', '/js/alacena.js', '/js/recetas.js', '/js/familia.js', '/js/app.js', '/js/fotos.js'];
+  '/js/nucleo.js', '/js/semana.js', '/js/cocina.js', '/js/compras.js', '/js/alacena.js', '/js/recetas.js', '/js/familia.js', '/js/app.js', '/js/fotos.js', '/js/i18n.js', '/js/i18n-en.json'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(BASE).catch(() => {}))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
