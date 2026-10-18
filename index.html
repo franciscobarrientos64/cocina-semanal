@@ -3505,6 +3505,7 @@ async function ajRender() {
     + '<p><b>Impresora sugerida:</b> una térmica de etiquetas por Bluetooth, que imprime desde el celular sin tinta. La más práctica y económica es la <b>Niimbot B21</b> (o la D110, más chica); si prefieres algo más robusto, la <b>Brother QL-800</b>. Usa rollos de <b>50 × 30 mm resistentes al frío</b> (papel sintético o "freezer"). Se consiguen en Mercado Libre y Falabella.</p>'
     + '<p class="n-sub">Sin impresora: imprímelas en hoja A4 de stickers en tu impresora de casa.</p></div></section>'
     + '<section><div class="n-h"><h2>Hogar compartido</h2></div><div class="n-row-foot" style="padding:12px 0"><span class="n-sub">' + (PR.hogar ? 'Compartes todo con "' + prEsc(PR.hogar.nombre) + '".' : 'Todavía no compartes tu casa con nadie.') + '</span><a class="n-link" onclick="showSection(\'hogar\')">Mi hogar →</a></div></section>';
+  if (typeof rcAdmin === 'function') rcAdmin(box);
 }
 
 function ajClave(tipo) { return (tipo === 'refri' ? 'r-' : 'c-') + Math.random().toString(36).slice(2, 7); }
@@ -3640,6 +3641,7 @@ if (supa && supa.auth) supa.auth.onAuthStateChange(function(ev, session) {
 <script src="/js/familia.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/fotos.js"></script>
+<script src="/js/reclamos.js"></script>
 <script src="/js/i18n.js"></script>
 <style id="nordico">
 /* ═══ DESPENSA · sistema nórdico (Stitch) ═══ hueso + tinta, color solo donde significa algo */
