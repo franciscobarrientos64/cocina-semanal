@@ -32,6 +32,8 @@ export default async function handler(req, res) {
     }
     return res.status(200).json({ ok: true });
   } catch (e) {
+    // Suscripción o pago inexistente (p. ej. el simulador con ID 123456): no hay nada que reintentar
+    if (e && e.status === 404) return res.status(200).json({ ok: true, ignorado: true });
     // 500 hace que Mercado Pago reintente más tarde
     return res.status(500).json({ ok: false });
   }

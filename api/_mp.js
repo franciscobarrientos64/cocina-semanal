@@ -12,7 +12,7 @@ export async function mp(path, opts = {}) {
     headers: { Authorization: 'Bearer ' + process.env.MP_ACCESS_TOKEN, 'Content-Type': 'application/json', ...(opts.headers || {}) },
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error('Mercado Pago respondió ' + r.status + ': ' + String(j.message || '').slice(0, 160));
+  if (!r.ok) { const e = new Error('Mercado Pago respondió ' + r.status + ': ' + String(j.message || '').slice(0, 160)); e.status = r.status; throw e; }
   return j;
 }
 
