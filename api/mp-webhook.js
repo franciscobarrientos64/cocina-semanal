@@ -35,6 +35,12 @@ export default async function handler(req, res) {
     // Suscripción o pago inexistente (p. ej. el simulador con ID 123456): no hay nada que reintentar
     console.error('mp-webhook', tipo, e && e.status, e && e.message);
     if (e && (e.status === 404 || e.status === 400)) return res.status(200).json({ ok: true, ignorado: true });
+    // MP responde 401 cuando el recurso no es de esta cuenta (IDs del simulador). Se distingue de un token malo
+    // consultando la propia cuenta: si el token sirve, no hay nada que reintentar.
+    if (e && e.status === 401) {
+      try { await mp('/users/me'); return res.status(200).json({ ok: true, ignorado: true }); }
+      catch (e2) { console.error('mp-webhook: MP_ACCESS_TOKEN rechazado', e2 && e2.status); }
+    }
     // 500 hace que Mercado Pago reintente más tarde
     return res.status(500).json({ ok: false });
   }
