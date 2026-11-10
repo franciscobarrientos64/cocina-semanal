@@ -111,7 +111,7 @@
   } catch (e) {}
   var multiCasa = eqs.some(function(x) { return x[3] !== eqs[0][3]; });
 
-  var cats = [['Acompañamientos', 4], ['Salsas', 5], ['Proteínas', 6], ['Guisos', 5], ['Sopas, cremas y otros', 3]];
+  var cats = [['Acompañamientos', 5], ['Salsas', 5], ['Proteínas', 6], ['Guisos', 5], ['Sopas, cremas y otros', 4]];
   var days = [['Lunes','#2F6DB5'],['Martes','#E8C21C',1],['Miércoles','#C8372D'],['Jueves','#7A4B2A'],['Viernes','#3B9A4A'],['Sábado','#E98A1F',1],['Domingo','#1D1B18']];
   var bx = function(n) { return '<span class="bx"></span>'.repeat(n); };
   var marco = function(e) { var cod = LEG[e[0]] || e[0].toUpperCase(); return '<span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span><span class="code">DESPENSA · HOJA ' + esc(cod) + ' · ' + esc(String(e[1]).toUpperCase()) + (multiCasa ? ' · ' + esc(String(e[3]).toUpperCase()) : '') + '</span>'; };
@@ -124,7 +124,7 @@
       + '<div class="how"><div><b>Entra un envase</b>Una raya <span class="demo"><span class="bx half"></span></span> en su tamaño.</div><div><b>Sale un envase</b>Cierra la cruz <span class="demo"><span class="bx full"></span></span>. Si va a la refri, anótalo en su hoja.</div><div><b>Lo que queda</b>Las rayas sin cruzar. Las casillas vacías no cuentan.</div></div>'
       + '<table><colgroup><col style="width:30%"><col style="width:9%"><col style="width:9%"><col style="width:19%"><col style="width:19%"><col style="width:14%"></colgroup>'
       + '<thead><tr><th>Elaboración · una fila por tanda</th><th>Hecho</th><th>Vence</th><th class="sz">250 ml<span>1 persona</span></th><th class="sz">500 ml<span>2 personas</span></th><th class="sz">1 litro<span>toda la familia</span></th></tr></thead><tbody>'
-      + cats.map(function(c) { return '<tr class="cat"><td colspan="6"><span class="cn">' + c[0] + '</span><span class="par">mínimo <span class="blank"></span> envases</span></td></tr>' + '<tr><td></td><td class="d"></td><td class="d"></td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(4) + '</td></tr>'.repeat(c[1]); }).join('')
+      + cats.map(function(c) { return '<tr class="cat"><td colspan="6"><span class="cn">' + c[0] + '</span><span class="par">mínimo <span class="blank"></span> envases</span></td></tr>' + ('<tr><td></td><td class="d"></td><td class="d"></td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(6) + '</td><td class="boxes">' + bx(4) + '</td></tr>').repeat(c[1]); }).join('')
       + '</tbody></table><div class="todo"><h3>Por hacer<span>cuando una sección llega a su mínimo, anótala aquí y márcala al cocinarla</span></h3><div class="cols">' + '<div class="ln"><span class="bx"></span></div>'.repeat(4) + '</div></div></section>';
   };
   var hojaRefri = function(e) {
